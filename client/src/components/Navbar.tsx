@@ -11,6 +11,8 @@ interface NavbarProps {
   onOpenLogin: () => void;
   onOpenRegister: () => void;
   onSignOut: () => void;
+  isAdminConsoleVisible?: boolean;
+  onToggleAdminConsole?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -22,6 +24,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenLogin,
   onOpenRegister,
   onSignOut,
+  isAdminConsoleVisible = false,
+  onToggleAdminConsole,
 }) => {
   return (
     <header className={styles.navbar} id="mainNavbar">
@@ -40,8 +44,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <nav className={styles.navLinks} id="primaryNav" aria-label="Main Navigation">
           <a href="#overview" className={`${styles.navLink} ${styles.navLinkActive}`}>Overview</a>
+          <a href="#catalog" className={styles.navLink}>Games</a>
+          {currentUser?.role === 'admin' && (
+            <a href="#adminConsole" className={styles.navLink} style={{ color: '#00f0ff' }}>
+              Admin Console
+            </a>
+          )}
           <a href="#telemetry" className={styles.navLink}>SRE Telemetry</a>
-          <a href="#roadmap" className={styles.navLink}>Sprint Roadmap</a>
+          <a href="#roadmap" className={styles.navLink}>Roadmap</a>
         </nav>
 
         <div className={styles.actions}>
@@ -69,6 +79,25 @@ export const Navbar: React.FC<NavbarProps> = ({
             Probe Health
           </button>
 
+          {/* SPRINT 03 ADMIN CONSOLE SHORTCUT */}
+          {currentUser?.role === 'admin' && onToggleAdminConsole && (
+            <button
+              type="button"
+              className={`${styles.btnAdminConsole} ${isAdminConsoleVisible ? styles.btnAdminConsoleActive : ''}`}
+              onClick={onToggleAdminConsole}
+              id="btnNavAdminConsole"
+              title="Toggle Content Administration Console"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span>{isAdminConsoleVisible ? 'Catalog View' : 'Admin Console'}</span>
+            </button>
+          )}
+
           {/* SPRINT 01 AUTH CONTROLS */}
           <div className={styles.authGroup}>
             {currentUser ? (
@@ -77,6 +106,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {currentUser.displayName.charAt(0).toUpperCase()}
                 </div>
                 <span className={styles.userName}>{currentUser.displayName}</span>
+                {currentUser.role === 'admin' && (
+                  <span className={styles.adminBadge} id="userRoleBadge">ADMIN</span>
+                )}
                 <button
                   type="button"
                   className={styles.btnSignOut}

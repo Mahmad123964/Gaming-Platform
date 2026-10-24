@@ -6,6 +6,7 @@ import { TelemetryGrid } from './components/TelemetryGrid';
 import { TerminalConsole } from './components/TerminalConsole';
 import { RoadmapGrid } from './components/RoadmapGrid';
 import { GameCatalog } from './components/catalog/GameCatalog';
+import { ContentAdminConsole } from './components/admin/ContentAdminConsole';
 import { AuthModal, AuthMode, User } from './components/AuthModal';
 import { HealthData, TerminalEntry } from './types/telemetry';
 import { getCsrfToken } from './utils/csrf';
@@ -22,6 +23,7 @@ export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<AuthMode>('login');
+  const [isAdminConsoleVisible, setIsAdminConsoleVisible] = useState<boolean>(true);
 
   const [logs, setLogs] = useState<TerminalEntry[]>([
     {
@@ -41,6 +43,12 @@ export const App: React.FC = () => {
       time: new Date().toLocaleTimeString(),
       message: 'Sprint 02 Game Discovery Engine online: Published catalog browsing, search & filter active.',
       type: 'blue',
+    },
+    {
+      id: 'init-4',
+      time: new Date().toLocaleTimeString(),
+      message: 'Sprint 03 Content Administration online: Metadata CRUD, publication workflow, licensing gate, and audit logging.',
+      type: 'green',
     },
   ]);
 
@@ -192,6 +200,8 @@ export const App: React.FC = () => {
         onOpenLogin={() => handleOpenAuth('login')}
         onOpenRegister={() => handleOpenAuth('register')}
         onSignOut={handleSignOut}
+        isAdminConsoleVisible={isAdminConsoleVisible}
+        onToggleAdminConsole={() => setIsAdminConsoleVisible(v => !v)}
       />
 
       <main className={styles.mainContent} id="mainContent">
@@ -204,6 +214,11 @@ export const App: React.FC = () => {
           health={health}
           wsConnected={wsConnected}
         />
+
+        {/* Sprint 03: Content Administration Console (Accessible to Authorized Admins) */}
+        {currentUser?.role === 'admin' && isAdminConsoleVisible && (
+          <ContentAdminConsole onLog={addLog} />
+        )}
 
         {/* Sprint 02: Game Discovery & Catalog Component */}
         <GameCatalog onLog={addLog} />
@@ -219,7 +234,7 @@ export const App: React.FC = () => {
             <strong>NexusPlay Online Gaming Platform</strong> — Built with React 19, TypeScript & Google Antigravity
           </div>
           <div className={styles.footerRight}>
-            <span>Active Sprint: <strong>02 (Game Discovery & Catalog)</strong></span>
+            <span>Active Sprint: <strong>03 (Content Administration)</strong></span>
             <span>Architecture: <strong>ADR-0002 Verified</strong></span>
             <span>Target Capacity: <strong>10,000 CCU</strong></span>
           </div>

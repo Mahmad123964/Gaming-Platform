@@ -1,16 +1,16 @@
 {
-  "deploymentId": "dep-1792837670164",
-  "commitSha": "45d2cb97c9111deaebe0b8a7259350b85b12546b",
+  "deploymentId": "dep-1792862937439",
+  "commitSha": "d9b259d86c21d95f97d14f211700849f4b2db268",
   "environment": "staging",
-  "status": "FAILED",
-  "smokeTestPassed": false,
-  "durationMs": 5708,
-  "timestamp": "2026-10-24T10:27:49.845Z",
+  "status": "SUCCESS",
+  "smokeTestPassed": true,
+  "durationMs": 1921,
+  "timestamp": "2026-10-24T17:28:57.333Z",
   "port": 5050,
   "testSummary": {
     "totalChecks": 5,
-    "passed": 4,
-    "failed": 1
+    "passed": 5,
+    "failed": 0
   },
-  "logFile": "staging-deploy-failed-2026-10-24T10-27-55-570Z.log"
+  "logFile": "staging-deploy-success-2026-10-24T17-28-59-260Z.log"
 }

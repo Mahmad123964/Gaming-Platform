@@ -1,0 +1,267 @@
+{
+  "sprint": "Sprint 03",
+  "epicScope": [
+    "EP03-02",
+    "EP10-01",
+    "EP10-02",
+    "EP10-03",
+    "EP11-02"
+  ],
+  "acceptanceCriteria": [
+    "AC-10.1",
+    "AC-10.2",
+    "AC-10.3",
+    "AC-35.1",
+    "AC-35.2",
+    "AC-35.3",
+    "AC-36.1",
+    "AC-36.2",
+    "AC-36.3",
+    "AC-37.1",
+    "AC-37.2",
+    "AC-37.3",
+    "AC-39.1",
+    "AC-39.2",
+    "AC-39.3",
+    "AC-40.1",
+    "AC-40.2",
+    "AC-40.3"
+  ],
+  "timestamp": "2026-10-24T17:26:01.558Z",
+  "totalTests": 46,
+  "passedTests": 46,
+  "failedTests": 0,
+  "successRate": "100%",
+  "testResults": [
+    {
+      "name": "Admin authentication issued valid token & session-bound CSRF token",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "Standard player registration issued valid token & CSRF token",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-39.2: Unauthenticated GET /api/v1/admin/games returns HTTP 401 Unauthorized",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-39.2: Unauthenticated POST /api/v1/admin/games returns HTTP 401 Unauthorized",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-39.2: Player role accessing GET /api/v1/admin/games returns HTTP 403 Forbidden",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-39.2: Player role attempting POST /api/v1/admin/games returns HTTP 403 Forbidden",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-40.2: Unauthorized administrative access attempt captured in audit trail",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-39.1: Authorized admin role accessing GET /api/v1/admin/games returns HTTP 200 OK",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-39.1: Temporarily promoted user receives immediate access",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-39.3: Revoked administrative role immediately denied on next request (real-time DB check)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.1: Admin registered new game returns HTTP 201 Created",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.1: Returned game object matches registered title",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.3: Newly created game defaults to is_published = 0 (draft)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.3: Newly created game defaults to licensing status = \"pending\"",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.3: Draft game is NOT visible in public catalog search",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.2: Invalid game rejected with field-specific feedback (blank title)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.2: Invalid game rejected with field-specific feedback (invalid slug format)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.2: Invalid game rejected with field-specific feedback (missing category)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.2: Invalid game rejected with field-specific feedback (description < 10 chars)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.2: Invalid game rejected with field-specific feedback (disallowed launch URL scheme)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.2: Invalid game rejected with field-specific feedback (maxPlayers < minPlayers)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-10.2: Duplicate game slug rejected with HTTP 409 Conflict",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-35.1: Valid game metadata edit returns HTTP 200 OK",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-35.1: Updated game displays new title",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-35.1: Updated game displays new category",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-35.2: Blank required field in update rejected with HTTP 400",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-35.3: Unauthorized player edit attempt denied with HTTP 403",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-37.1: Game licensing status is visible to administrator",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-37.2: Publication blocked with HTTP 422 when licensing status is not \"approved\"",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-37.1: Administrator successfully updates licensing to \"approved\"",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-36.1: Approved game published returns HTTP 200 OK",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-36.1: Published game is immediately discoverable in public catalog",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-36.2: Unpublish action returns HTTP 200 OK",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-36.2: Unpublished game immediately disappears from public catalog",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-36.3: Unauthorized user publishing attempt denied with HTTP 403",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "Precondition: Game is published live before license revocation",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-37.3: Revoking licensing clearance returns autoUnpublished: true",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-37.3: Database record automatically updated to is_published = 0",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-37.3: New public launches are prevented and game is completely absent from public discovery",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-40.3: Administrator retrieves audit events",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-40.1: Audit trail recorded GAME_CREATED event",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-40.1: Audit trail recorded GAME_UPDATED event",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-40.1: Audit trail recorded GAME_PUBLISHED event",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-40.1: Audit trail recorded GAME_UNPUBLISHED event",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-40.1: Audit trail recorded LICENSING_UPDATED event",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-39.2: Unauthorized player access to audit trail denied with HTTP 403",
+      "status": "PASSED",
+      "details": ""
+    }
+  ]
+}

@@ -52,7 +52,7 @@ export const RoadmapGrid: React.FC = () => {
         <div className={`${styles.card} ${styles.cardActive}`} id="sprintCard02">
           <div className={styles.cardTop}>
             <span className={styles.phase}>PHASE 1</span>
-            <span className={`${styles.pill} ${styles.pillCurrent}`}>CURRENT • SPRINT 02</span>
+            <span className={`${styles.pill} ${styles.pillCurrent}`}>VERIFIED • SPRINT 02</span>
           </div>
           <h3 className={styles.cardTitle}>Game Discovery & Catalog</h3>
           <div className={styles.story}>Stories: <code>EP02-01</code> to <code>EP02-04</code></div>
@@ -63,21 +63,26 @@ export const RoadmapGrid: React.FC = () => {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polyline points="20 6 9 17 4 12" />
             </svg>
-            Catalog Service Active • Discoverable Content
+            31/31 Catalog Tests Passed • Verified
           </div>
         </div>
 
-        <div className={styles.card} id="sprintCard03">
+        <div className={`${styles.card} ${styles.cardActive}`} id="sprintCard03">
           <div className={styles.cardTop}>
             <span className={styles.phase}>PHASE 1</span>
-            <span className={`${styles.pill} ${styles.pillPending}`}>UPCOMING • SPRINT 03</span>
+            <span className={`${styles.pill} ${styles.pillCurrent}`}>CURRENT • SPRINT 03</span>
           </div>
           <h3 className={styles.cardTitle}>Content Administration</h3>
           <div className={styles.story}>Stories: <code>EP03-02</code>, <code>EP10-01</code> to <code>EP10-03</code>, <code>EP11-02</code></div>
           <p className={styles.desc}>
-            Admin catalog CRUD, publishing controls, RBAC role-based protection, and legal licensing status gating.
+            Admin catalog CRUD, publishing controls, RBAC role-based protection, licensing approval gates, and administrative audit trail.
           </p>
-          <div className={`${styles.status} ${styles.statusPending}`}>Scheduled</div>
+          <div className={`${styles.status} ${styles.statusPassed}`}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Content Administration Active • RBAC & Licensing Gate
+          </div>
         </div>
       </div>
     </section>

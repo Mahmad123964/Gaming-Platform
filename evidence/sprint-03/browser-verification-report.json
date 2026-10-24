@@ -1,0 +1,91 @@
+{
+  "sprint": "Sprint 03",
+  "runner": "Direct Chrome DevTools Protocol (CDP)",
+  "timestamp": "2026-10-24T17:42:24.401Z",
+  "scenarios": [
+    {
+      "id": "UI-ADM-01",
+      "name": "Unauthenticated visitor does not see Admin Console",
+      "status": "PASSED",
+      "details": "Admin console hidden; Sign In CTA visible in navbar",
+      "screenshot": "01-unauthorized-visitor-view.png"
+    },
+    {
+      "id": "UI-ADM-02",
+      "name": "Admin credentials entered in secure AuthModal",
+      "status": "PASSED",
+      "details": "Modal open with admin@nexusplay.gg credential inputs",
+      "screenshot": "02-admin-login-modal.png"
+    },
+    {
+      "id": "UI-ADM-03",
+      "name": "Admin Console rendered with stats and inventory table",
+      "status": "PASSED",
+      "details": "Role=ADMIN verified, Total=11, Published=9",
+      "screenshot": "03-admin-authenticated-console.png"
+    },
+    {
+      "id": "UI-ADM-04",
+      "name": "GameEditorModal opened in Registration mode with draft notice",
+      "status": "PASSED",
+      "details": "Mandatory metadata fields and draft information notice displayed",
+      "screenshot": "04-game-registration-modal.png"
+    },
+    {
+      "id": "UI-ADM-05",
+      "name": "Client & Server input validation rejects incomplete game data",
+      "status": "PASSED",
+      "details": "Field error prevents incomplete record creation (AC-10.2)",
+      "screenshot": "05-game-validation-feedback.png"
+    },
+    {
+      "id": "UI-ADM-06",
+      "name": "New game record created in Draft state with Pending licensing",
+      "status": "PASSED",
+      "details": "Registered \"Stellar Odyssey 701\" with draft badge and pending clearance",
+      "screenshot": "06-new-game-draft-registered.png"
+    },
+    {
+      "id": "UI-ADM-07",
+      "name": "Game metadata editing modal loads existing attributes",
+      "status": "PASSED",
+      "details": "Edit modal populated with editable title, category, description, players",
+      "screenshot": "07-edit-metadata-modal.png"
+    },
+    {
+      "id": "UI-ADM-08",
+      "name": "Licensing review modal updates distribution clearance status",
+      "status": "PASSED",
+      "details": "Approval decision saved and reflected in inventory badge",
+      "screenshot": "08-licensing-clearance-modal.png"
+    },
+    {
+      "id": "UI-ADM-09",
+      "name": "Approved game published and synchronized with public catalog",
+      "status": "PASSED",
+      "details": "Game marked ● Published with green badge, instantly accessible to players",
+      "screenshot": "09-licensing-approved-and-published.png"
+    },
+    {
+      "id": "UI-ADM-10",
+      "name": "Revoking licensing clearance triggers warning and automatically unpublishes game",
+      "status": "PASSED",
+      "details": "Warning displayed, status updated to SUSPENDED, game auto-unpublished (AC-37.3)",
+      "screenshot": "10-licensing-revocation-auto-unpublish.png"
+    },
+    {
+      "id": "UI-ADM-11",
+      "name": "Administrative Audit Trail displays immutable mutations log",
+      "status": "PASSED",
+      "details": "Audit modal lists timestamped GAME_CREATED, GAME_PUBLISHED, and LICENSING_UPDATED records",
+      "screenshot": "11-audit-trail-inspection.png"
+    },
+    {
+      "id": "UI-ADM-12",
+      "name": "Mobile responsive layout preserves controls and tables",
+      "status": "PASSED",
+      "details": "Stats cards stack smoothly; controls bar responsive on mobile viewport",
+      "screenshot": "12-mobile-responsive-admin.png"
+    }
+  ]
+}

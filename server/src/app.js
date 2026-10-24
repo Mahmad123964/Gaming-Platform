@@ -86,15 +86,20 @@ function createApp() {
   const { catalogRouter } = require('./modules/catalog');
   app.use('/api/v1/catalog', catalogRouter);
 
+  // Mount Content Administration routes (Sprint 03: EP03-02, EP10-01, EP10-02, EP10-03, EP11-02)
+  const { adminRouter } = require('./modules/contentAdmin');
+  app.use('/api/v1/admin', adminRouter);
+
   // Detailed platform status
   app.get('/api/v1/status', (req, res) => {
     res.status(200).json({
       platform: 'Online Gaming Platform',
-      version: '0.3.0',
-      activeSprint: '02',
+      version: '0.4.0',
+      activeSprint: '03',
       phase: '1',
       environment: process.env.NODE_ENV || 'development',
       features: {
+        contentAdministration: 'active (Sprint 03: Game Registration, Metadata Editing, Publication Workflow, Licensing Clearance, Audit Trail)',
         gameCatalog: 'active (Sprint 02: Browse, Search, Category Filter, Game Details)',
         authentication: 'active (Sprint 01: Registration, Login, Recovery, Rate Limiting)',
         multiplayer: 'pending (Sprint 08)',
