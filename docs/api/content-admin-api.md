@@ -28,21 +28,31 @@ The Content Administration API provides authorized platform operators and conten
    - All newly registered games default to `is_published = 0` (Draft) and licensing status `pending`.
    - Draft content is strictly hidden from public catalog discovery endpoints (`/api/v1/catalog/games`), preventing premature or unauthorized content leakage.
 
-3. **Mandatory Metadata Validation (AC-10.2, AC-35.2):**
+3. **Mandatory Metadata Validation & Game Launch URL Security (AC-10.2, AC-35.2, Task 2):**
    - Strict validation enforces data integrity:
      - `title`: 3–100 characters. Blank rejected (`AC-35.2`).
      - `slug`: Unique alphanumeric and hyphenated identifier (3–60 characters). Duplicate slugs reject with `HTTP 409 Conflict`.
      - `categoryId`: Must correspond to an active category in `game_categories`.
      - `description`: 10–1000 characters.
-     - `launchUrl`: Must begin with an absolute root path (`/`) or secure HTTPS scheme (`https://`).
+     - `launchUrl`: Comprehensive server-side security validation (`ContentAdminService.validateLaunchUrlSecurity`):
+       - **Disallowed Executable Schemes:** Rejects `javascript:`, `data:`, `vbscript:`, `file:`, and `blob:` schemes (`HTTP 400`).
+       - **Disallowed Unencrypted Transport:** Rejects plaintext `http://` URLs (`HTTP 400`), mandating `https://` for external distribution.
+       - **Disallowed Protocol-Relative URLs:** Rejects paths starting with `//` to avoid scheme confusion or open redirects.
+       - **Path Traversal Prevention:** Rejects internal paths containing `/../`, `/..\\`, or `%2e%2e` (`HTTP 400`).
+       - **CRLF Injection Prevention:** Rejects strings containing line breaks or control characters (`\r`, `\n`, `\0`, `\t`).
+       - **Domain Whitelist Enforcement:** External HTTPS URLs must originate from authorized domains: `nexusplay.gg`, `*.nexusplay.gg`, `localhost`, `127.0.0.1`, `*.nexusgames.net`, or `*.obsidianarcade.com`. Unapproved external domains return `HTTP 400 Bad Request`.
      - `minPlayers` & `maxPlayers`: Integers `>= 1`, where `maxPlayers >= minPlayers`.
 
-4. **Licensing Clearance Enforcement Gate (EP10-03, AC-37.1..37.3):**
+4. **Licensing Clearance Enforcement Gate & Transactional Consistency (EP10-03, AC-37.1..37.3, Task 3):**
+   - **Atomic Transaction Processing:** All licensing status and publication toggles execute under immediate database transactions (`BEGIN IMMEDIATE` ... `COMMIT`).
    - **Publication Blocking (`AC-37.2`):** Publishing any game whose licensing status is not `'approved'` is strictly blocked with `HTTP 422 Unprocessable Entity` (`code: 'LICENSING_APPROVAL_REQUIRED'`).
-   - **Automatic Cascade Revocation (`AC-37.3`):** If an approved, published game's licensing status is changed away from `'approved'` (e.g. to `'rejected'` or `'suspended'`), the system automatically unpublishes the game (`is_published = 0`), immediately removing it from public discovery.
+   - **Automatic Cascade Revocation (`AC-37.3`):** If an approved, published game's licensing status is changed away from `'approved'` (e.g. to `'rejected'` or `'suspended'`), the system automatically unpublishes the game (`is_published = 0`).
+   - **Dual-Layer Public Isolation:** Public discovery and direct slug lookup queries (`/api/v1/catalog/games/:slug`) join `licensing_approvals` and require `(l.status = 'approved' OR l.status IS NULL)`. Games with revoked or non-approved licensing return `HTTP 404 Not Found` even if accessed via direct deep links.
 
-5. **Administrative Change Auditing (EP11-02, AC-40.1..40.3):**
-   - All state mutations (`GAME_CREATED`, `GAME_UPDATED`, `GAME_PUBLISHED`, `GAME_UNPUBLISHED`, `LICENSING_UPDATED`) and unauthorized rejection attempts (`ACCESS_DENIED`) write timestamped records to `audit_events` with actor ID, target resource, and JSON details.
+5. **Administrative Change Auditing & Ledger Immutability (EP11-02, AC-40.1..40.3, Task 4):**
+   - **Tamper-Proof Immutability:** All mutating HTTP requests (`DELETE`, `PUT`, `POST`, `PATCH`) targeting `/api/v1/admin/audit-events*` are rejected with `HTTP 405 Method Not Allowed`. Audit records are strictly append-only.
+   - **Comprehensive Attribution:** Every event strictly captures actor ID, actor display name, role, action type, resource URI, and ISO timestamp.
+   - **Credential Redaction:** Unauthorized attempts (`ACCESS_DENIED`) capture caller email, IP, and method while strictly redacting user passwords, session tokens (`nexusplay_session`), and secret tokens from JSON payloads.
    - Audit records are retrievable via `GET /api/v1/admin/audit-events`.
 
 ---
@@ -339,4 +349,5 @@ Retrieves chronological audit events of all administrative actions and rejected 
 | `400 Bad Request` | `ValidationError` | Missing mandatory fields (title, slug, category, description, launch URL) (`AC-10.2`, `AC-35.2`). |
 | `404 Not Found` | `NotFound` | Game ID does not exist in platform database. |
 | `409 Conflict` | `Conflict` | Game slug already in use by another game (`AC-10.2`). |
+| `405 Method Not Allowed` | `MethodNotAllowed` | Attempted mutating request (DELETE, PUT, POST, PATCH) on `/api/v1/admin/audit-events*` (immutability guard). |
 | `422 Unprocessable`| `LICENSING_APPROVAL_REQUIRED` | Attempting to publish a game without `'approved'` licensing clearance (`AC-37.2`). |

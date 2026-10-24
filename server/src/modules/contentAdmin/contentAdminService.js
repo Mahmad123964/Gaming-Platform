@@ -433,6 +433,7 @@ class ContentAdminService {
 
   /**
    * Publish or unpublish an individual game
+   * Enforces licensing clearance gate and atomic transaction locking
    * Traceability: EP10-02, AC-36.1, AC-36.2, AC-37.2, AC-40.1
    */
   setPublicationStatus(id, isPublished, actorId) {
@@ -451,37 +452,57 @@ class ContentAdminService {
       }
     }
 
-    this.db.run(
-      'UPDATE games SET is_published = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [targetStatus, id]
-    );
-
-    const action = targetStatus === 1 ? 'GAME_PUBLISHED' : 'GAME_UNPUBLISHED';
-
-    // AC-40.1: Audit record
-    this.logAuditEvent({
-      actorId,
-      action,
-      resource: `game:${id}`,
-      details: {
-        gameId: id,
-        title: game.title,
-        previousState: game.isPublished ? 'published' : 'draft',
-        newState: targetStatus === 1 ? 'published' : 'draft'
+    // Task 3: Transactional consistency - wrap publication in atomic transaction with live re-check
+    this.db.run('BEGIN IMMEDIATE');
+    try {
+      if (targetStatus === 1) {
+        const checkLic = this.db.get('SELECT status FROM licensing_approvals WHERE game_id = ?', [id]);
+        if (!checkLic || checkLic.status !== 'approved') {
+          const err = new Error(`Publication race blocked: Game licensing status is '${checkLic ? checkLic.status : 'none'}'. Publication requires 'approved' licensing.`);
+          err.status = 422;
+          err.code = 'LICENSING_APPROVAL_REQUIRED';
+          throw err;
+        }
       }
-    });
+
+      this.db.run(
+        'UPDATE games SET is_published = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [targetStatus, id]
+      );
+
+      const action = targetStatus === 1 ? 'GAME_PUBLISHED' : 'GAME_UNPUBLISHED';
+
+      // AC-40.1: Audit record
+      this.logAuditEvent({
+        actorId,
+        action,
+        resource: `game:${id}`,
+        details: {
+          gameId: id,
+          title: game.title,
+          previousState: game.isPublished ? 'published' : 'draft',
+          newState: targetStatus === 1 ? 'published' : 'draft'
+        }
+      });
+
+      this.db.run('COMMIT');
+    } catch (err) {
+      try { this.db.run('ROLLBACK'); } catch (_) {}
+      throw err;
+    }
 
     return {
       id,
       title: game.title,
       isPublished: targetStatus === 1,
-      action,
+      action: targetStatus === 1 ? 'GAME_PUBLISHED' : 'GAME_UNPUBLISHED',
       timestamp: new Date().toISOString()
     };
   }
 
   /**
    * View and update game licensing approval status
+   * Enforces atomic transaction consistency and auto-unpublish cascade
    * Traceability: EP10-03, AC-37.1, AC-37.2, AC-37.3, AC-40.1
    */
   setLicensingStatus(id, { status, notes = '' }, actorId) {
@@ -499,51 +520,60 @@ class ContentAdminService {
     const approvedBy = isApproved ? (actorId || 'admin') : null;
     const approvedAt = isApproved ? new Date().toISOString() : null;
 
-    // Check if record exists
-    const existing = this.db.get('SELECT id FROM licensing_approvals WHERE game_id = ?', [id]);
-    if (existing) {
-      this.db.run(
-        `UPDATE licensing_approvals SET
-          status = ?,
-          approved_by = ?,
-          approved_at = ?,
-          notes = ?
-         WHERE game_id = ?`,
-        [status, approvedBy, approvedAt, notes ? notes.trim() : null, id]
-      );
-    } else {
-      const licensingId = 'lic-' + crypto.randomUUID().slice(0, 8);
-      this.db.run(
-        `INSERT INTO licensing_approvals (id, game_id, status, approved_by, approved_at, notes)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [licensingId, id, status, approvedBy, approvedAt, notes ? notes.trim() : null]
-      );
-    }
-
-    // AC-37.3: Given an approved game loses licensing clearance, When the updated status is applied, Then new public launches are prevented (auto unpublish)
     let autoUnpublished = false;
-    if (status !== 'approved' && game.isPublished) {
-      this.db.run(
-        'UPDATE games SET is_published = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-        [id]
-      );
-      autoUnpublished = true;
-    }
 
-    // AC-40.1: Log audit event
-    this.logAuditEvent({
-      actorId,
-      action: 'LICENSING_UPDATED',
-      resource: `game:${id}`,
-      details: {
-        gameId: id,
-        title: game.title,
-        previousStatus,
-        newStatus: status,
-        notes: notes ? notes.trim() : null,
-        autoUnpublished
+    // Task 3: Transactional consistency - wrap licensing update and cascade unpublish in atomic transaction
+    this.db.run('BEGIN IMMEDIATE');
+    try {
+      const existing = this.db.get('SELECT id FROM licensing_approvals WHERE game_id = ?', [id]);
+      if (existing) {
+        this.db.run(
+          `UPDATE licensing_approvals SET
+            status = ?,
+            approved_by = ?,
+            approved_at = ?,
+            notes = ?
+           WHERE game_id = ?`,
+          [status, approvedBy, approvedAt, notes ? notes.trim() : null, id]
+        );
+      } else {
+        const licensingId = 'lic-' + crypto.randomUUID().slice(0, 8);
+        this.db.run(
+          `INSERT INTO licensing_approvals (id, game_id, status, approved_by, approved_at, notes)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [licensingId, id, status, approvedBy, approvedAt, notes ? notes.trim() : null]
+        );
       }
-    });
+
+      // AC-37.3: Given an approved game loses licensing clearance, When the updated status is applied, Then new public launches are prevented (auto unpublish)
+      if (status !== 'approved' && game.isPublished) {
+        this.db.run(
+          'UPDATE games SET is_published = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+          [id]
+        );
+        autoUnpublished = true;
+      }
+
+      // AC-40.1: Log audit event
+      this.logAuditEvent({
+        actorId,
+        action: 'LICENSING_UPDATED',
+        resource: `game:${id}`,
+        details: {
+          gameId: id,
+          title: game.title,
+          previousStatus,
+          newStatus: status,
+          notes: notes ? notes.trim() : null,
+          autoUnpublished
+        }
+      });
+
+      this.db.run('COMMIT');
+    } catch (err) {
+      try { this.db.run('ROLLBACK'); } catch (_) {}
+      throw err;
+    }
 
     return {
       gameId: id,
@@ -555,6 +585,92 @@ class ContentAdminService {
       notes: notes ? notes.trim() : null,
       timestamp: new Date().toISOString()
     };
+  }
+
+  /**
+   * Helper: Validate game launch URL security against approved hosting and scheme policies
+   * Enforces rejection of executable pseudo-protocols, protocol-relative paths, path traversal, CRLF, and unapproved hosts.
+   */
+  validateLaunchUrlSecurity(rawUrl) {
+    if (!rawUrl || typeof rawUrl !== 'string' || rawUrl.trim().length === 0) {
+      return { valid: false, error: 'Launch URL is mandatory and cannot be blank.' };
+    }
+
+    const url = rawUrl.trim();
+
+    // Reject control characters or line breaks (CRLF injection)
+    if (/[\r\n\0\t\x00-\x1F]/.test(url)) {
+      return { valid: false, error: 'Launch URL contains illegal control characters or line breaks.' };
+    }
+
+    // Reject dangerous executable schemes (XSS & execution vectors)
+    const lower = url.toLowerCase();
+    if (
+      lower.startsWith('javascript:') ||
+      lower.startsWith('data:') ||
+      lower.startsWith('vbscript:') ||
+      lower.startsWith('file:') ||
+      lower.startsWith('blob:')
+    ) {
+      return { valid: false, error: 'Disallowed URL scheme. Executable pseudo-protocols (javascript, data, vbscript, file, blob) are strictly prohibited.' };
+    }
+
+    // Reject protocol-relative URLs (e.g. //attacker.com)
+    if (url.startsWith('//')) {
+      return { valid: false, error: 'Protocol-relative URLs (starting with //) are disallowed for security reasons.' };
+    }
+
+    // Case 1: Internal Platform Relative Path
+    if (url.startsWith('/')) {
+      // Reject path traversal sequences
+      if (url.includes('/../') || url.endsWith('/..') || url.includes('/..\\') || url.includes('\\') || lower.includes('%2e%2e')) {
+        return { valid: false, error: 'Path traversal sequences (/../) are disallowed in internal game launch paths.' };
+      }
+
+      // Must be formatted cleanly (e.g. /games/<slug>/index.html)
+      if (!/^\/[a-zA-Z0-9_\-\.\/]+$/.test(url)) {
+        return { valid: false, error: 'Internal launch URL contains invalid characters. Only alphanumeric, hyphens, underscores, dots, and slashes are permitted.' };
+      }
+
+      return { valid: true, cleanUrl: url };
+    }
+
+    // Case 2: External Absolute HTTPS URL
+    if (lower.startsWith('http://')) {
+      return { valid: false, error: 'Insecure HTTP scheme is disallowed. Game launch URLs must use HTTPS.' };
+    }
+
+    if (lower.startsWith('https://')) {
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'https:') {
+          return { valid: false, error: 'Game launch URLs must use the secure https: protocol.' };
+        }
+
+        // Approved game hosting domain whitelist
+        const hostname = parsed.hostname.toLowerCase();
+        const isAllowedHost =
+          hostname === 'nexusplay.gg' ||
+          hostname.endsWith('.nexusplay.gg') ||
+          hostname === 'localhost' ||
+          hostname === '127.0.0.1' ||
+          hostname.endsWith('.nexusgames.net') ||
+          hostname.endsWith('.obsidianarcade.com');
+
+        if (!isAllowedHost) {
+          return {
+            valid: false,
+            error: `External game host '${hostname}' is not authorized. Launch URLs must be hosted on official NexusPlay domains (*.nexusplay.gg) or approved distribution partners.`
+          };
+        }
+
+        return { valid: true, cleanUrl: parsed.toString() };
+      } catch (e) {
+        return { valid: false, error: 'Malformed HTTPS launch URL format.' };
+      }
+    }
+
+    return { valid: false, error: 'Launch URL must be an internal path (starting with /games/...) or a secure HTTPS URL from an authorized host.' };
   }
 
   /**
@@ -607,15 +723,10 @@ class ContentAdminService {
       errors.description = 'Description must be between 10 and 1000 characters.';
     }
 
-    // Launch URL validation (must begin with / or https://)
-    if (!launchUrl || typeof launchUrl !== 'string' || launchUrl.trim().length === 0) {
-      errors.launchUrl = 'Launch URL is mandatory.';
-    } else {
-      const cleanUrl = launchUrl.trim();
-      const isValidFormat = cleanUrl.startsWith('/') || cleanUrl.startsWith('https://');
-      if (!isValidFormat) {
-        errors.launchUrl = 'Launch URL must be an absolute path (e.g. /games/cyber-invaders/index.html) or secure HTTPS URL.';
-      }
+    // Launch URL validation with comprehensive security controls (Task 2)
+    const urlValidation = this.validateLaunchUrlSecurity(launchUrl);
+    if (!urlValidation.valid) {
+      errors.launchUrl = urlValidation.error;
     }
 
     // Min & Max Players validation

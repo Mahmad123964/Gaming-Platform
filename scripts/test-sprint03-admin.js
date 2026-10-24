@@ -219,6 +219,58 @@ async function run() {
     );
   }
 
+  console.log('\n--- Phase 3B: Game Launch URL Security & Protocol Hardening (Task 2) ---');
+
+  const unsafeLaunchUrls = [
+    { url: 'javascript:alert(document.domain)', reason: 'Executable javascript: scheme' },
+    { url: 'data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==', reason: 'Data URI XSS scheme' },
+    { url: 'file:///C:/Windows/System32/drivers/etc/hosts', reason: 'Local file: protocol vector' },
+    { url: 'blob:https://nexusplay.gg/21e05a8d', reason: 'Blob: scheme vector' },
+    { url: 'vbscript:MsgBox("Malicious")', reason: 'VBScript executable vector' },
+    { url: 'http://nexusplay.gg/unencrypted-game', reason: 'Insecure plaintext HTTP scheme' },
+    { url: '//evil-site.com/phish/login.html', reason: 'Protocol-relative URL' },
+    { url: '/games/../../etc/passwd', reason: 'Directory traversal sequence (/../)' },
+    { url: '/games/valid-game\r\nInjected-Header: true', reason: 'CRLF header injection in URL' },
+    { url: 'https://evil-unauthorized-arcade.org/game.html', reason: 'Unapproved external hosting domain' }
+  ];
+
+  for (const attack of unsafeLaunchUrls) {
+    const attackRes = await fetch(`${BASE_URL}/api/v1/admin/games`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': adminCsrf
+      },
+      body: JSON.stringify({
+        ...newGamePayload,
+        slug: `sec-url-${Date.now()}-${Math.floor(Math.random()*1000)}`,
+        launchUrl: attack.url
+      })
+    });
+    const attackData = await attackRes.json();
+    assert(
+      attackRes.status === 400 && attackData.validationErrors && attackData.validationErrors.launchUrl,
+      `SEC-URL: Rejected dangerous launch URL (${attack.reason})`
+    );
+  }
+
+  // Verify approved external partner host is permitted
+  const validExternalUrlRes = await fetch(`${BASE_URL}/api/v1/admin/games`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${adminToken}`,
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': adminCsrf
+    },
+    body: JSON.stringify({
+      ...newGamePayload,
+      slug: `sec-approved-${Date.now()}-${Math.floor(Math.random()*1000)}`,
+      launchUrl: 'https://games.nexusplay.gg/bundles/cyber-drift/index.html'
+    })
+  });
+  assert(validExternalUrlRes.status === 201, 'SEC-URL: Approved whitelist domain (https://games.nexusplay.gg) successfully accepted');
+
   // Test 12: Duplicate slug rejected with 409 Conflict (AC-10.2)
   const dupSlugRes = await fetch(`${BASE_URL}/api/v1/admin/games`, {
     method: 'POST',
@@ -418,13 +470,59 @@ async function run() {
   const publicRevokeData = await publicRevokeCheck.json();
   assert(
     !publicRevokeData.games.some(g => g.id === createdGameId),
-    'AC-37.3: New public launches are prevented and game is completely absent from public discovery'
+    'AC-37.3: New public launches are prevented and game is completely absent from public search'
   );
 
-  console.log('\n--- Phase 7: Administrative Change Auditing (EP11-02, AC-40.1, AC-40.3) ---');
+  // Direct slug lookup also returns 404 for revoked/unapproved games
+  const directSlugCheck = await fetch(`${BASE_URL}/api/v1/catalog/games/${testSlug}`);
+  assert(directSlugCheck.status === 404, 'AC-37.3: Direct slug lookup for revoked/unapproved game returns HTTP 404 (no bypass via deep link)');
+
+  console.log('\n--- Phase 6B: Licensing & Publication Transactional Consistency (Task 3) ---');
+
+  // Verify that an unapproved (rejected) game CANNOT be published directly
+  const pubRejectedRes = await fetch(`${BASE_URL}/api/v1/admin/games/${createdGameId}/publish`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${adminToken}`,
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': adminCsrf
+    },
+    body: JSON.stringify({ isPublished: true })
+  });
+  assert(
+    pubRejectedRes.status === 422 || pubRejectedRes.status === 409,
+    'AC-37.2: Publishing game with rejected license is blocked with HTTP 422/409'
+  );
+
+  // Reset to pending licensing and verify publication is also blocked
+  await fetch(`${BASE_URL}/api/v1/admin/games/${createdGameId}/licensing`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${adminToken}`,
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': adminCsrf
+    },
+    body: JSON.stringify({ status: 'pending', notes: 'Re-evaluating legal documentation' })
+  });
+
+  const pubPendingRes = await fetch(`${BASE_URL}/api/v1/admin/games/${createdGameId}/publish`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${adminToken}`,
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': adminCsrf
+    },
+    body: JSON.stringify({ isPublished: true })
+  });
+  assert(
+    pubPendingRes.status === 422 || pubPendingRes.status === 409,
+    'AC-37.2: Publishing game with pending license is blocked with HTTP 422/409'
+  );
+
+  console.log('\n--- Phase 7: Administrative Change Auditing & Integrity (EP11-02, AC-40.1..40.3, Task 4) ---');
 
   // Test 25: Audit events generated for all mutations (AC-40.1)
-  const auditRes = await fetch(`${BASE_URL}/api/v1/admin/audit-events?limit=20`, {
+  const auditRes = await fetch(`${BASE_URL}/api/v1/admin/audit-events?limit=50`, {
     headers: { 'Authorization': `Bearer ${adminToken}` }
   });
   const auditData = await auditRes.json();
@@ -436,12 +534,64 @@ async function run() {
   assert(actionTypes.includes('GAME_PUBLISHED'), 'AC-40.1: Audit trail recorded GAME_PUBLISHED event');
   assert(actionTypes.includes('GAME_UNPUBLISHED'), 'AC-40.1: Audit trail recorded GAME_UNPUBLISHED event');
   assert(actionTypes.includes('LICENSING_UPDATED'), 'AC-40.1: Audit trail recorded LICENSING_UPDATED event');
+  assert(actionTypes.includes('ACCESS_DENIED'), 'AC-40.2: Audit trail recorded ACCESS_DENIED security event');
 
   // Test 26: Player cannot access audit trail (AC-39.2)
   const playerAuditRes = await fetch(`${BASE_URL}/api/v1/admin/audit-events`, {
     headers: { 'Authorization': `Bearer ${playerToken}` }
   });
   assert(playerAuditRes.status === 403, 'AC-39.2: Unauthorized player access to audit trail denied with HTTP 403');
+
+  // Task 4 Check 1: Verify audit records identify actor, action, target, and timestamp
+  const sampleEvents = auditData.events.slice(0, 5);
+  const allIdentified = sampleEvents.every(e => 
+    e.id && (e.actorId || e.actor_id) && e.action && e.resource && (e.createdAt || e.created_at)
+  );
+  assert(allIdentified, 'AUDIT-INT: Audit records strictly identify actor, action, target resource, and timestamp');
+
+  // Task 4 Check 2: Audit Ledger Immutability (Admins cannot edit or delete audit records)
+  const mutatingAuditMethods = [
+    { method: 'DELETE', path: '/api/v1/admin/audit-events' },
+    { method: 'PUT', path: '/api/v1/admin/audit-events' },
+    { method: 'POST', path: '/api/v1/admin/audit-events' },
+    { method: 'PATCH', path: '/api/v1/admin/audit-events' },
+    { method: 'DELETE', path: `/api/v1/admin/audit-events/${sampleEvents[0] ? sampleEvents[0].id : 'evt-1'}` }
+  ];
+
+  for (const mut of mutatingAuditMethods) {
+    const mutRes = await fetch(`${BASE_URL}${mut.path}`, {
+      method: mut.method,
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': adminCsrf
+      },
+      body: JSON.stringify({ action: 'FORGERY_TEST' })
+    });
+    assert(
+      mutRes.status === 405,
+      `AUDIT-INT: Historical audit ledger mutation rejected with HTTP 405 Method Not Allowed (${mut.method} ${mut.path})`
+    );
+  }
+
+  // Task 4 Check 3: Confirm rejected unauthorized actions are recorded without exposing sensitive secrets
+  const accessDeniedEvents = auditData.events.filter(e => e.action === 'ACCESS_DENIED');
+  assert(accessDeniedEvents.length > 0, 'AUDIT-INT: Access-denied events recorded in historical audit ledger');
+
+  let sensitiveDataLeaked = false;
+  for (const ade of accessDeniedEvents) {
+    const rawDetails = JSON.stringify(ade.details_json || ade.details || '');
+    if (
+      rawDetails.includes(playerPassword) ||
+      rawDetails.includes('Admin#2026!Nexus') ||
+      rawDetails.includes(adminToken) ||
+      rawDetails.includes(playerToken)
+    ) {
+      sensitiveDataLeaked = true;
+      break;
+    }
+  }
+  assert(!sensitiveDataLeaked, 'AUDIT-INT: Audit records redact all sensitive credentials, passwords, and session tokens');
 
   console.log('\n===============================================================');
   console.log(` SPRINT 03 TEST RESULTS: ${passedTests} PASSED, ${failedTests} FAILED`);

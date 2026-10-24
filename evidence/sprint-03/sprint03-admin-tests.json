@@ -27,9 +27,9 @@
     "AC-40.2",
     "AC-40.3"
   ],
-  "timestamp": "2026-10-24T17:26:01.558Z",
-  "totalTests": 46,
-  "passedTests": 46,
+  "timestamp": "2026-10-24T18:15:49.796Z",
+  "totalTests": 69,
+  "passedTests": 69,
   "failedTests": 0,
   "successRate": "100%",
   "testResults": [
@@ -139,6 +139,61 @@
       "details": ""
     },
     {
+      "name": "SEC-URL: Rejected dangerous launch URL (Executable javascript: scheme)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Rejected dangerous launch URL (Data URI XSS scheme)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Rejected dangerous launch URL (Local file: protocol vector)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Rejected dangerous launch URL (Blob: scheme vector)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Rejected dangerous launch URL (VBScript executable vector)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Rejected dangerous launch URL (Insecure plaintext HTTP scheme)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Rejected dangerous launch URL (Protocol-relative URL)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Rejected dangerous launch URL (Directory traversal sequence (/../))",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Rejected dangerous launch URL (CRLF header injection in URL)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Rejected dangerous launch URL (Unapproved external hosting domain)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "SEC-URL: Approved whitelist domain (https://games.nexusplay.gg) successfully accepted",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
       "name": "AC-10.2: Duplicate game slug rejected with HTTP 409 Conflict",
       "status": "PASSED",
       "details": ""
@@ -224,7 +279,22 @@
       "details": ""
     },
     {
-      "name": "AC-37.3: New public launches are prevented and game is completely absent from public discovery",
+      "name": "AC-37.3: New public launches are prevented and game is completely absent from public search",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-37.3: Direct slug lookup for revoked/unapproved game returns HTTP 404 (no bypass via deep link)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-37.2: Publishing game with rejected license is blocked with HTTP 422/409",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AC-37.2: Publishing game with pending license is blocked with HTTP 422/409",
       "status": "PASSED",
       "details": ""
     },
@@ -259,7 +329,52 @@
       "details": ""
     },
     {
+      "name": "AC-40.2: Audit trail recorded ACCESS_DENIED security event",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
       "name": "AC-39.2: Unauthorized player access to audit trail denied with HTTP 403",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AUDIT-INT: Audit records strictly identify actor, action, target resource, and timestamp",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AUDIT-INT: Historical audit ledger mutation rejected with HTTP 405 Method Not Allowed (DELETE /api/v1/admin/audit-events)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AUDIT-INT: Historical audit ledger mutation rejected with HTTP 405 Method Not Allowed (PUT /api/v1/admin/audit-events)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AUDIT-INT: Historical audit ledger mutation rejected with HTTP 405 Method Not Allowed (POST /api/v1/admin/audit-events)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AUDIT-INT: Historical audit ledger mutation rejected with HTTP 405 Method Not Allowed (PATCH /api/v1/admin/audit-events)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AUDIT-INT: Historical audit ledger mutation rejected with HTTP 405 Method Not Allowed (DELETE /api/v1/admin/audit-events/audit-22598987-94e2-48d0-803e-c09f38a0cefe)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AUDIT-INT: Access-denied events recorded in historical audit ledger",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "name": "AUDIT-INT: Audit records redact all sensitive credentials, passwords, and session tokens",
       "status": "PASSED",
       "details": ""
     }

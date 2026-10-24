@@ -199,7 +199,10 @@ class GameCatalogService {
     limit = Math.min(50, Math.max(1, parseInt(limit, 10) || 12));
     const offset = (page - 1) * limit;
 
-    const conditions = ['g.is_published = 1'];
+    const conditions = [
+      'g.is_published = 1',
+      "(l.status = 'approved' OR l.status IS NULL)"
+    ];
     const params = [];
 
     // Filter by search query (case-insensitive substring match on title)
@@ -229,6 +232,7 @@ class GameCatalogService {
       SELECT COUNT(*) as total
       FROM games g
       LEFT JOIN game_categories c ON g.category_id = c.id
+      LEFT JOIN licensing_approvals l ON g.id = l.game_id
       ${whereClause}
     `;
     const countResult = this.db.get(countSql, params);
@@ -255,6 +259,7 @@ class GameCatalogService {
         c.slug as category_slug
       FROM games g
       LEFT JOIN game_categories c ON g.category_id = c.id
+      LEFT JOIN licensing_approvals l ON g.id = l.game_id
       ${whereClause}
       ORDER BY ${orderBy}
       LIMIT ? OFFSET ?
@@ -318,7 +323,8 @@ class GameCatalogService {
         c.slug as category_slug
       FROM games g
       LEFT JOIN game_categories c ON g.category_id = c.id
-      WHERE (g.id = ? OR g.slug = ?) AND g.is_published = 1
+      LEFT JOIN licensing_approvals l ON g.id = l.game_id
+      WHERE (g.id = ? OR g.slug = ?) AND g.is_published = 1 AND (l.status = 'approved' OR l.status IS NULL)
     `;
 
     const row = this.db.get(sql, [idOrSlug.trim(), idOrSlug.trim()]);

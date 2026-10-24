@@ -180,6 +180,21 @@ adminRouter.put('/games/:id/licensing', (req, res) => {
 });
 
 /**
+ * Guard: Audit logs are strictly immutable and append-only (Task 4)
+ * Rejects DELETE, PUT, POST, PATCH on /audit-events with HTTP 405 Method Not Allowed
+ */
+adminRouter.all(['/audit-events', '/audit-events/:id', '/audit-events/*'], (req, res, next) => {
+  if (req.method !== 'GET') {
+    return res.status(405).json({
+      error: 'MethodNotAllowed',
+      message: 'Audit ledger is strictly immutable and append-only. Modification or deletion of historical audit logs is prohibited.',
+      timestamp: new Date().toISOString()
+    });
+  }
+  next();
+});
+
+/**
  * GET /api/v1/admin/audit-events
  * Retrieve administrative audit events
  * Traceability: EP11-02, AC-40.3
