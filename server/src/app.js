@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('node:path');
+const fs = require('node:fs');
 const { getDb } = require('./db');
 
 function createApp() {
@@ -32,8 +33,11 @@ function createApp() {
     next();
   });
 
-  // Static files
-  app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+  // Static files: serve client/dist if built (React 19 + TS), otherwise fallback to public
+  const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
+  const publicDir = path.join(__dirname, '..', '..', 'public');
+  const staticPath = fs.existsSync(clientDist) ? clientDist : publicDir;
+  app.use(express.static(staticPath));
 
   // Liveness check (SRE requirement)
   app.get('/health', (req, res) => {

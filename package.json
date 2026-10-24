@@ -5,6 +5,8 @@
   "main": "server/src/index.js",
   "type": "commonjs",
   "scripts": {
+    "build": "vite build",
+    "build:client": "vite build",
     "start": "node server/src/index.js",
     "start:staging": "node server/src/index.js --env=staging --port=5050",
     "test:smoke": "node scripts/smoke-test.js",
@@ -14,6 +16,8 @@
   },
   "dependencies": {
     "express": "^4.21.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "ws": "^8.18.0"
   },
   "keywords": [
@@ -23,5 +27,12 @@
     "sre"
   ],
   "author": "Antigravity Engineering",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  }
 }

@@ -80,6 +80,14 @@ async function runPipeline() {
   }
   log(`Database schema verified: Connected and healthy.`);
 
+  log(`[Step 2.5/5] Compiling React 19 + TypeScript frontend bundle via Vite (ADR-0002)...`);
+  try {
+    execSync('npm run build', { cwd: path.join(__dirname, '..'), encoding: 'utf8' });
+    log(`Frontend build verified: compiled bundle written to client/dist/`);
+  } catch (err) {
+    throw new Error(`Frontend compilation failed: ${err.message}`);
+  }
+
   log(`[Step 3/5] Starting Staging Application Server on port ${PORT}...`);
   const serverProcess = spawn('node', [
     path.join(__dirname, '..', 'server', 'src', 'index.js'),

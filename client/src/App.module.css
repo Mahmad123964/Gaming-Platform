@@ -1,0 +1,83 @@
+.appWrapper {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.glowOrb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+.orb1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--accent-violet) 0%, transparent 70%);
+  top: -120px;
+  left: -150px;
+}
+
+.orb2 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%);
+  top: 20%;
+  right: -200px;
+}
+
+.orb3 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, #4f46e5 0%, transparent 70%);
+  bottom: 10%;
+  left: 20%;
+}
+
+.mainContent {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 4rem;
+  position: relative;
+  z-index: 10;
+}
+
+.footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: 2rem 0;
+  background: var(--bg-charcoal);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 10;
+}
+
+.footerContainer {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footerRight {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footerRight strong {
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .footerContainer {
+    flex-direction: column;
+    text-align: center;
+  }
+}
