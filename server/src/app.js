@@ -82,16 +82,20 @@ function createApp() {
   const { authRouter } = require('./modules/identity');
   app.use('/api/v1/auth', authRouter);
 
+  // Mount Game Catalog & Discovery routes (Sprint 02: EP02-01, EP02-02, EP02-03, EP02-04)
+  const { catalogRouter } = require('./modules/catalog');
+  app.use('/api/v1/catalog', catalogRouter);
+
   // Detailed platform status
   app.get('/api/v1/status', (req, res) => {
     res.status(200).json({
       platform: 'Online Gaming Platform',
-      version: '0.2.0',
-      activeSprint: '01',
+      version: '0.3.0',
+      activeSprint: '02',
       phase: '1',
       environment: process.env.NODE_ENV || 'development',
       features: {
-        gameCatalog: 'pending (Sprint 02)',
+        gameCatalog: 'active (Sprint 02: Browse, Search, Category Filter, Game Details)',
         authentication: 'active (Sprint 01: Registration, Login, Recovery, Rate Limiting)',
         multiplayer: 'pending (Sprint 08)',
         payments: 'pending (Sprint 12)',

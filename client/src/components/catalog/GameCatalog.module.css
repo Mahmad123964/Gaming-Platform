@@ -1,0 +1,304 @@
+.section {
+  position: relative;
+  width: 100%;
+  padding: 48px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tagRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+
+.counterPill {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: rgba(26, 31, 48, 0.75);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.counterPill strong {
+  color: var(--text-primary);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+/* Control Bar (Search, Category Tabs, Sorting) */
+.controlsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(18, 22, 34, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+
+.searchSortRow {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.searchBox {
+  position: relative;
+  flex-grow: 1;
+  min-width: 260px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  background: rgba(11, 13, 19, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.92rem;
+  padding: 10px 40px 10px 42px;
+  transition: all var(--transition-fast);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+  background: rgba(11, 13, 19, 0.95);
+}
+
+.clearSearchBtn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+}
+
+.clearSearchBtn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sortBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sortLabel {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.sortSelect {
+  background: rgba(11, 13, 19, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 8px 14px;
+  cursor: pointer;
+  outline: none;
+}
+
+.sortSelect:focus {
+  border-color: var(--accent-violet);
+}
+
+/* Category Filter Tabs */
+.categoryTabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.categoryTab {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.categoryTab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.categoryTabActive {
+  background: rgba(124, 58, 237, 0.2);
+  color: #C084FC;
+  border-color: var(--border-violet);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.25);
+}
+
+/* Active filter status row */
+.filterStatusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.resetFiltersBtn {
+  background: transparent;
+  border: none;
+  color: var(--accent-cyan);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 2px 4px;
+}
+
+.resetFiltersBtn:hover {
+  color: #67E8F9;
+}
+
+/* Games Grid */
+.gamesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
+  width: 100%;
+}
+
+/* Empty State / No Results States (AC-5.3, AC-6.2, AC-7.2) */
+.stateBox {
+  grid-column: 1 / -1;
+  background: rgba(18, 22, 34, 0.7);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 64px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.stateIcon {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.stateTitle {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.stateDesc {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  max-width: 440px;
+  line-height: 1.5;
+}
+
+.stateActionBtn {
+  background: rgba(124, 58, 237, 0.2);
+  border: 1px solid var(--border-violet);
+  color: #C084FC;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.stateActionBtn:hover {
+  background: rgba(124, 58, 237, 0.35);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .searchSortRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .title {
+    font-size: 1.8rem;
+  }
+}

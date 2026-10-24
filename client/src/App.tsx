@@ -5,6 +5,7 @@ import { HeroSection } from './components/HeroSection';
 import { TelemetryGrid } from './components/TelemetryGrid';
 import { TerminalConsole } from './components/TerminalConsole';
 import { RoadmapGrid } from './components/RoadmapGrid';
+import { GameCatalog } from './components/catalog/GameCatalog';
 import { AuthModal, AuthMode, User } from './components/AuthModal';
 import { HealthData, TerminalEntry } from './types/telemetry';
 import { getCsrfToken } from './utils/csrf';
@@ -32,13 +33,13 @@ export const App: React.FC = () => {
     {
       id: 'init-2',
       time: new Date().toLocaleTimeString(),
-      message: 'Sprint 01 Security Hardened: HttpOnly Cookies, SameSite=Lax, and CSRF Guards active.',
+      message: 'Sprint 01 Identity & Security active (HttpOnly cookies, CSRF protection, rate limits).',
       type: 'green',
     },
     {
       id: 'init-3',
       time: new Date().toLocaleTimeString(),
-      message: 'Tokens strictly omitted from localStorage/sessionStorage. Hashed reset tokens active.',
+      message: 'Sprint 02 Game Discovery Engine online: Published catalog browsing, search & filter active.',
       type: 'blue',
     },
   ]);
@@ -204,6 +205,9 @@ export const App: React.FC = () => {
           wsConnected={wsConnected}
         />
 
+        {/* Sprint 02: Game Discovery & Catalog Component */}
+        <GameCatalog onLog={addLog} />
+
         <TerminalConsole logs={logs} />
 
         <RoadmapGrid />
@@ -215,7 +219,7 @@ export const App: React.FC = () => {
             <strong>NexusPlay Online Gaming Platform</strong> — Built with React 19, TypeScript & Google Antigravity
           </div>
           <div className={styles.footerRight}>
-            <span>Active Sprint: <strong>01 (Identity & Security)</strong></span>
+            <span>Active Sprint: <strong>02 (Game Discovery & Catalog)</strong></span>
             <span>Architecture: <strong>ADR-0002 Verified</strong></span>
             <span>Target Capacity: <strong>10,000 CCU</strong></span>
           </div>

@@ -1,0 +1,211 @@
+.card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-smooth);
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  color: inherit;
+  font-family: inherit;
+  width: 100%;
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--border-violet);
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.25), 0 0 20px rgba(6, 182, 212, 0.15);
+  background: var(--bg-card-hover);
+}
+
+.coverContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, #161A28 0%, #0F121C 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.coverArtwork {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.coverArtwork::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(124, 58, 237, 0.25) 0%, transparent 70%);
+}
+
+.coverIcon {
+  position: relative;
+  z-index: 1;
+  color: var(--text-primary);
+  opacity: 0.85;
+  transition: transform var(--transition-smooth);
+}
+
+.card:hover .coverIcon {
+  transform: scale(1.1);
+  color: var(--accent-cyan);
+}
+
+.tierBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.tierFree {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.tierPremium {
+  background: rgba(124, 58, 237, 0.25);
+  color: #C084FC;
+  border: 1px solid rgba(124, 58, 237, 0.6);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.3);
+}
+
+.categoryBadge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  background: rgba(11, 13, 19, 0.75);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--accent-cyan);
+  z-index: 2;
+  backdrop-filter: blur(8px);
+}
+
+.content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.modeBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.botBadge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #A78BFA;
+  background: rgba(124, 58, 237, 0.15);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+/* Skeleton Shimmer Loading State */
+.skeletonCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  height: 290px;
+  position: relative;
+}
+
+.skeletonCover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(90deg, #151824 0%, #202638 50%, #151824 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonBody {
+  padding: 16px;
+}
+
+.skeletonTitle {
+  height: 20px;
+  width: 65%;
+  background: #1C2234;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.skeletonDesc {
+  height: 14px;
+  width: 90%;
+  background: #161A28;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.skeletonMeta {
+  height: 12px;
+  width: 40%;
+  background: #161A28;
+  border-radius: 4px;
+  margin-top: 16px;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
