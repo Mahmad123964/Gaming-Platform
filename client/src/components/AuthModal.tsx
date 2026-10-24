@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './AuthModal.module.css';
+import { getCsrfToken } from '../utils/csrf';
 
 export type AuthMode = 'login' | 'register' | 'forgot' | 'reset';
 
@@ -14,7 +15,7 @@ interface AuthModalProps {
   isOpen: boolean;
   initialMode?: AuthMode;
   onClose: () => void;
-  onSuccess: (user: User, token: string) => void;
+  onSuccess: (user: User) => void;
   onLog: (msg: string, type: 'green' | 'yellow' | 'rose' | 'blue' | 'dim') => void;
 }
 
@@ -56,7 +57,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     try {
       const res = await fetch('/api/v1/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Stores secure HttpOnly cookie
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        },
         body: JSON.stringify({ email, password, displayName }),
       });
       const data = await res.json();
@@ -66,7 +71,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       onLog(`Player registered successfully: ${data.data.user.displayName} (${data.data.user.email})`, 'green');
-      onSuccess(data.data.user, data.data.token);
+      onSuccess(data.data.user);
       onClose();
     } catch (err: any) {
       setError(err.message);
@@ -84,7 +89,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     try {
       const res = await fetch('/api/v1/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Stores secure HttpOnly cookie
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
@@ -97,7 +106,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       onLog(`Player authenticated: ${data.data.user.displayName}`, 'green');
-      onSuccess(data.data.user, data.data.token);
+      onSuccess(data.data.user);
       onClose();
     } catch (err: any) {
       setError(err.message);
@@ -115,7 +124,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     try {
       const res = await fetch('/api/v1/auth/forgot-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        },
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
@@ -125,9 +138,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       setSuccessMsg(data.message);
-      onLog(`Password reset requested for ${email}`, 'blue');
+      onLog(`Password reset requested for ${email}. Genuine email dispatched.`, 'blue');
 
-      // If staging returns dev token, offer auto-population
+      // If non-production staging returns dev token preview, populate token input
       if (data.resetToken) {
         setResetToken(data.resetToken);
       }
@@ -147,7 +160,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     try {
       const res = await fetch('/api/v1/auth/reset-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        },
         body: JSON.stringify({ token: resetToken, newPassword }),
       });
       const data = await res.json();

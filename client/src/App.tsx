@@ -7,6 +7,7 @@ import { TerminalConsole } from './components/TerminalConsole';
 import { RoadmapGrid } from './components/RoadmapGrid';
 import { AuthModal, AuthMode, User } from './components/AuthModal';
 import { HealthData, TerminalEntry } from './types/telemetry';
+import { getCsrfToken } from './utils/csrf';
 
 export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthData | null>(null);
@@ -15,7 +16,8 @@ export const App: React.FC = () => {
   const [wsConnected, setWsConnected] = useState<boolean>(false);
   const [environment, setEnvironment] = useState<string>('STAGING');
 
-  // Authentication State (Sprint 01: EP01-01, EP01-02, EP01-03, EP11-01)
+  // Authentication State (Sprint 01: Secure HttpOnly Cookie-Based Authentication)
+  // Tokens are NEVER stored in localStorage or sessionStorage
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<AuthMode>('login');
@@ -30,13 +32,13 @@ export const App: React.FC = () => {
     {
       id: 'init-2',
       time: new Date().toLocaleTimeString(),
-      message: 'Sprint 01: Identity & Security Module Activated (EP01-01, EP01-02, EP01-03, EP11-01).',
+      message: 'Sprint 01 Security Hardened: HttpOnly Cookies, SameSite=Lax, and CSRF Guards active.',
       type: 'green',
     },
     {
       id: 'init-3',
       time: new Date().toLocaleTimeString(),
-      message: 'Cryptographic scrypt hashing and composite rate limiting active.',
+      message: 'Tokens strictly omitted from localStorage/sessionStorage. Hashed reset tokens active.',
       type: 'blue',
     },
   ]);
@@ -75,24 +77,20 @@ export const App: React.FC = () => {
     }
   }, [addLog]);
 
-  // Session verification on mount
+  // Session verification on mount via ambient HttpOnly cookie
   useEffect(() => {
-    const token = localStorage.getItem('nexusplay_token');
-    if (!token) return;
-
     fetch('/api/v1/auth/me', {
-      headers: { Authorization: `Bearer ${token}` }
+      credentials: 'include'
     })
       .then((res) => {
         if (res.ok) return res.json();
-        throw new Error('Session invalid');
+        throw new Error('Session not active');
       })
       .then((data) => {
         setCurrentUser(data.user);
-        addLog(`Session restored for player: ${data.user.displayName}`, 'blue');
+        addLog(`Active HttpOnly session restored for player: ${data.user.displayName}`, 'blue');
       })
       .catch(() => {
-        localStorage.removeItem('nexusplay_token');
         setCurrentUser(null);
       });
   }, [addLog]);
@@ -154,31 +152,27 @@ export const App: React.FC = () => {
     setIsAuthModalOpen(true);
   };
 
-  const handleAuthSuccess = (user: User, token: string) => {
-    localStorage.setItem('nexusplay_token', token);
+  const handleAuthSuccess = (user: User) => {
+    // Tokens are safely kept inside the browser's HttpOnly cookie jar
     setCurrentUser(user);
-    addLog(`Authenticated as ${user.displayName} (${user.email})`, 'green');
+    addLog(`Authenticated as ${user.displayName} (${user.email}) via secure HttpOnly cookie`, 'green');
   };
 
   const handleSignOut = async () => {
-    const token = localStorage.getItem('nexusplay_token');
-    if (token) {
-      try {
-        await fetch('/api/v1/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({ token })
-        });
-      } catch (e) {
-        // ignore network error
-      }
+    try {
+      await fetch('/api/v1/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        }
+      });
+    } catch (e) {
+      // ignore network error
     }
-    localStorage.removeItem('nexusplay_token');
     setCurrentUser(null);
-    addLog('Player signed out. Session revoked from authorization store.', 'yellow');
+    addLog('Player signed out. HttpOnly session cookie cleared and revoked from authorization store.', 'yellow');
   };
 
   return (

@@ -1,6 +1,8 @@
 const express = require('express');
 const { getAuthService } = require('./authService');
-const { requireAuth } = require('./middleware');
+const { requireAuth, parseCookies } = require('./middleware');
+const { generateToken } = require('./crypto');
+const { emailService } = require('./emailService');
 
 const router = express.Router();
 
@@ -12,6 +14,40 @@ function getClientIp(req) {
   return req.ip || req.socket.remoteAddress || '127.0.0.1';
 }
 
+function setAuthCookies(req, res, sessionToken) {
+  const isProd = process.env.NODE_ENV === 'production';
+  const isSecure = isProd || req.secure || req.headers['x-forwarded-proto'] === 'https';
+  const csrfToken = generateToken();
+
+  const sessionCookieOptions = {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours (86,400,000 ms)
+    secure: isSecure
+  };
+
+  const csrfCookieOptions = {
+    httpOnly: false, // Accessible by JavaScript to read and include in X-CSRF-Token header
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 24 * 60 * 60 * 1000,
+    secure: isSecure
+  };
+
+  res.cookie('nexusplay_session', sessionToken, sessionCookieOptions);
+  res.cookie('nexusplay_csrf', csrfToken, csrfCookieOptions);
+
+  return csrfToken;
+}
+
+function clearAuthCookies(res) {
+  res.setHeader('Set-Cookie', [
+    'nexusplay_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; HttpOnly; SameSite=Lax',
+    'nexusplay_csrf=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; SameSite=Lax'
+  ]);
+}
+
 // POST /api/v1/auth/register (EP01-01)
 router.post('/register', (req, res) => {
   try {
@@ -19,9 +55,14 @@ router.post('/register', (req, res) => {
     const authService = getAuthService();
     const result = authService.register({ email, password, displayName });
 
+    const csrfToken = setAuthCookies(req, res, result.token);
+
     res.status(201).json({
       success: true,
-      data: result,
+      data: {
+        ...result,
+        csrfToken
+      },
       timestamp: new Date().toISOString()
     });
   } catch (err) {
@@ -42,9 +83,14 @@ router.post('/login', (req, res) => {
     const authService = getAuthService();
     const result = authService.login({ email, password, ip });
 
+    const csrfToken = setAuthCookies(req, res, result.token);
+
     res.status(200).json({
       success: true,
-      data: result,
+      data: {
+        ...result,
+        csrfToken
+      },
       timestamp: new Date().toISOString()
     });
   } catch (err) {
@@ -67,22 +113,41 @@ router.post('/login', (req, res) => {
 // POST /api/v1/auth/logout (EP01-02)
 router.post('/logout', (req, res) => {
   try {
+    const cookies = parseCookies(req);
     let token = req.body?.token;
     const authHeader = req.headers['authorization'];
+
     if (!token && authHeader) {
       token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : authHeader.trim();
+    }
+    if (!token && cookies.nexusplay_session) {
+      token = cookies.nexusplay_session;
     }
 
     if (!token) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Session token is required to log out',
+        message: 'Session token or cookie is required to log out',
         timestamp: new Date().toISOString()
       });
     }
 
+    // CSRF verification if logging out via cookie
+    if (cookies.nexusplay_session) {
+      const clientCsrf = req.headers['x-csrf-token'];
+      if (!clientCsrf || !cookies.nexusplay_csrf || clientCsrf !== cookies.nexusplay_csrf) {
+        return res.status(403).json({
+          error: 'Forbidden',
+          message: 'CSRF token validation failed. Missing or invalid X-CSRF-Token header.',
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+
     const authService = getAuthService();
     const result = authService.logout(token);
+
+    clearAuthCookies(res);
 
     res.status(200).json({
       success: true,
@@ -100,12 +165,12 @@ router.post('/logout', (req, res) => {
 });
 
 // POST /api/v1/auth/forgot-password (EP01-03)
-router.post('/forgot-password', (req, res) => {
+router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body || {};
     const ip = getClientIp(req);
     const authService = getAuthService();
-    const result = authService.forgotPassword({ email, ip });
+    const result = await authService.forgotPassword({ email, ip });
 
     res.status(200).json({
       success: true,
@@ -134,6 +199,8 @@ router.post('/reset-password', (req, res) => {
     const authService = getAuthService();
     const result = authService.resetPassword({ token, newPassword });
 
+    clearAuthCookies(res);
+
     res.status(200).json({
       success: true,
       message: result.message,
@@ -157,5 +224,16 @@ router.get('/me', requireAuth, (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Staging & Test Email Outbox Inspection (Non-Production Only)
+if (process.env.NODE_ENV !== 'production') {
+  router.get('/test/outbox', (req, res) => {
+    res.status(200).json({
+      success: true,
+      outbox: emailService.getOutbox(),
+      timestamp: new Date().toISOString()
+    });
+  });
+}
 
 module.exports = router;

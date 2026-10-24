@@ -20,6 +20,17 @@ function generateToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
+function hashToken(token) {
+  if (!token) return '';
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+function constantTimeDummyWork() {
+  // Equalizes timing profile between registered and unregistered account branches
+  const dummySalt = '0123456789abcdef0123456789abcdef';
+  crypto.scryptSync('dummy_timing_padding', dummySalt, 64);
+}
+
 function generateId(prefix = 'usr') {
   return `${prefix}-${Date.now().toString(36)}-${crypto.randomBytes(4).toString('hex')}`;
 }
@@ -28,5 +39,7 @@ module.exports = {
   hashPassword,
   verifyPassword,
   generateToken,
+  hashToken,
+  constantTimeDummyWork,
   generateId
 };

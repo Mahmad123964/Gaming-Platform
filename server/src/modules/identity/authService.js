@@ -1,7 +1,8 @@
 const { getDb } = require('../../db');
-const { hashPassword, verifyPassword, generateToken, generateId } = require('./crypto');
+const { hashPassword, verifyPassword, generateToken, hashToken, constantTimeDummyWork, generateId } = require('./crypto');
 const { validateEmail, validatePassword, validateDisplayName } = require('./validation');
 const { authRateLimiter } = require('./rateLimiter');
+const { emailService } = require('./emailService');
 
 class AuthService {
   constructor(db) {
@@ -83,14 +84,18 @@ class AuthService {
 
     const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
     const rateKey = authRateLimiter.getKey(ip, cleanEmail);
+    const targetKey = authRateLimiter.getEmailTargetKey(cleanEmail);
 
-    // Check rate limit
+    // Check rate limit (Layer 1: IP+Email; Layer 2: Target Email global against distributed brute-force)
     const limitStatus = authRateLimiter.checkLimit(rateKey);
-    if (!limitStatus.allowed) {
+    const targetStatus = authRateLimiter.checkLimit(targetKey, true);
+
+    if (!limitStatus.allowed || !targetStatus.allowed) {
+      const activeLimit = !limitStatus.allowed ? limitStatus : targetStatus;
       const err = new Error('Too many failed authentication attempts. Account access is temporarily locked.');
       err.status = 429;
-      err.retryAfter = limitStatus.retryAfterSeconds;
-      err.lockedUntil = limitStatus.lockedUntil;
+      err.retryAfter = activeLimit.retryAfterSeconds;
+      err.lockedUntil = activeLimit.lockedUntil;
       throw err;
     }
 
@@ -120,14 +125,17 @@ class AuthService {
 
     if (!player || !isPasswordValid) {
       const failureResult = authRateLimiter.recordFailure(rateKey);
+      const targetFailureResult = authRateLimiter.recordFailure(targetKey, true);
+
       const err = new Error('Invalid email or password');
       err.status = 401;
-      err.remainingAttempts = failureResult.remainingAttempts;
-      if (!failureResult.allowed) {
+      err.remainingAttempts = Math.min(failureResult.remainingAttempts, targetFailureResult.remainingAttempts);
+      if (!failureResult.allowed || !targetFailureResult.allowed) {
+        const activeBlock = !failureResult.allowed ? failureResult : targetFailureResult;
         err.status = 429;
         err.message = 'Too many failed authentication attempts. Account access is temporarily locked.';
-        err.retryAfter = failureResult.retryAfterSeconds;
-        err.lockedUntil = failureResult.lockedUntil;
+        err.retryAfter = activeBlock.retryAfterSeconds;
+        err.lockedUntil = activeBlock.lockedUntil;
       }
       throw err;
     }
@@ -140,6 +148,7 @@ class AuthService {
 
     // Reset rate limiter on successful authentication
     authRateLimiter.resetLimit(rateKey);
+    authRateLimiter.resetLimit(targetKey);
 
     // Issue new 24h session token (concurrent sessions allowed across devices per AC-2.1)
     const sessionToken = generateToken();
@@ -171,7 +180,7 @@ class AuthService {
       throw err;
     }
 
-    const result = this.db.run(
+    this.db.run(
       'UPDATE auth_sessions SET revoked = 1 WHERE token = ?',
       [token]
     );
@@ -182,7 +191,7 @@ class AuthService {
     };
   }
 
-  forgotPassword({ email, ip = '127.0.0.1' }) {
+  async forgotPassword({ email, ip = '127.0.0.1' }) {
     const emailValidation = validateEmail(email);
     if (!emailValidation.valid) {
       const err = new Error(emailValidation.message);
@@ -201,18 +210,29 @@ class AuthService {
     }
 
     const player = this.db.get('SELECT id FROM players WHERE email = ?', [cleanEmail]);
-    let resetToken = null;
+    let rawResetToken = null;
 
     if (player) {
-      resetToken = generateToken();
+      rawResetToken = generateToken();
+      const tokenHash = hashToken(rawResetToken); // Store cryptographic hash at rest
       const resetId = generateId('rst');
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15-minute validity per AC-3.1
 
       this.db.run(
         `INSERT INTO password_resets (id, player_id, token, expires_at, used)
          VALUES (?, ?, ?, ?, 0)`,
-        [resetId, player.id, resetToken, expiresAt]
+        [resetId, player.id, tokenHash, expiresAt]
       );
+
+      // Dispatch genuine password reset email via EmailService
+      await emailService.sendPasswordResetEmail({
+        to: cleanEmail,
+        resetToken: rawResetToken,
+        expiresAt
+      });
+    } else {
+      // Anti-enumeration: Equalize execution timing by executing dummy cryptographic workload
+      constantTimeDummyWork();
     }
 
     // Anti-enumeration response: always return identical success message (AC-3.1)
@@ -221,9 +241,9 @@ class AuthService {
       message: 'If this email is registered, password reset instructions have been sent.'
     };
 
-    // In non-production environments, expose reset token to facilitate automated testing / staging verification
-    if (process.env.NODE_ENV !== 'production' && resetToken) {
-      response.resetToken = resetToken;
+    // In non-production environments, expose token to facilitate automated test runners without opening mailbox
+    if (process.env.NODE_ENV !== 'production' && rawResetToken) {
+      response.resetToken = rawResetToken;
     }
 
     return response;
@@ -243,9 +263,13 @@ class AuthService {
       throw err;
     }
 
+    const cleanToken = token.trim();
+    const tokenHash = hashToken(cleanToken);
+
+    // Support both SHA-256 hashed token and raw token for backward compatibility
     const resetRecord = this.db.get(
-      'SELECT id, player_id, expires_at, used FROM password_resets WHERE token = ?',
-      [token.trim()]
+      'SELECT id, player_id, expires_at, used FROM password_resets WHERE token = ? OR token = ?',
+      [tokenHash, cleanToken]
     );
 
     if (!resetRecord || resetRecord.used === 1) {
@@ -270,7 +294,7 @@ class AuthService {
       [newPasswordHash, resetRecord.player_id]
     );
 
-    // Mark token as used
+    // Mark token as used (single-use constraint)
     this.db.run(
       'UPDATE password_resets SET used = 1 WHERE id = ?',
       [resetRecord.id]
