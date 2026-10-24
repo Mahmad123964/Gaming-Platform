@@ -1,0 +1,27 @@
+{
+  "name": "online-gaming-platform",
+  "version": "0.1.0",
+  "description": "High-availability Online Gaming Platform supporting 100+ browser games and 10,000 concurrent users",
+  "main": "server/src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/src/index.js",
+    "start:staging": "node server/src/index.js --env=staging --port=5050",
+    "test:smoke": "node scripts/smoke-test.js",
+    "test:smoke:fail": "node scripts/smoke-test.js --simulate-failure",
+    "deploy:staging": "node scripts/deploy-staging.js",
+    "deploy:staging:fail": "node scripts/deploy-staging.js --simulate-failure"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  },
+  "keywords": [
+    "gaming",
+    "platform",
+    "multiplayer",
+    "sre"
+  ],
+  "author": "Antigravity Engineering",
+  "license": "UNLICENSED"
+}

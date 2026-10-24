@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Online Gaming Platform - Enterprise grade browser gaming infrastructure with 100+ games, real-time multiplayer, and 10,000 concurrent user capacity.">
+  <meta name="keywords" content="gaming platform, browser games, multiplayer, esports, antigravity">
+  <title>NexusPlay | Online Gaming Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+  <!-- Glowing Background Orbs -->
+  <div class="glow-orb orb-1" aria-hidden="true"></div>
+  <div class="glow-orb orb-2" aria-hidden="true"></div>
+  <div class="glow-orb orb-3" aria-hidden="true"></div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="mainNavbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </div>
+        <span class="brand-text">NEXUS<span class="highlight">PLAY</span></span>
+        <span class="badge env-badge" id="envBadge">STAGING</span>
+      </div>
+
+      <nav class="nav-links" id="primaryNav">
+        <a href="#overview" class="nav-link active">Overview</a>
+        <a href="#roadmap" class="nav-link">Sprint Roadmap</a>
+        <a href="#architecture" class="nav-link">Architecture</a>
+        <a href="#telemetry" class="nav-link">SRE Telemetry</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="connection-pill" id="connStatus">
+          <span class="status-dot pulse" id="statusDot"></span>
+          <span class="status-label" id="statusText">Gateway Online</span>
+          <span class="latency-label" id="latencyText">-- ms</span>
+        </div>
+        <button class="btn btn-outline" id="btnRefreshHealth" title="Run instant health probe">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+          Probe Health
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content" id="mainContent">
+    <!-- Hero Section -->
+    <section class="hero-section" id="overview">
+      <div class="hero-tag">
+        <span class="pulse-ring"></span>
+        <span class="tag-text">Sprint 00 • Foundation & Staging Pipeline Baseline</span>
+      </div>
+
+      <h1 class="hero-title">
+        The High-Reliability <br>
+        <span class="gradient-text">Online Gaming Platform</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Engineered for 100+ authorized browser games, real-time matchmaking, secure progression, 
+        and high-availability concurrency of 10,000 simultaneous players.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-card glass-panel" id="statCapacity">
+          <div class="stat-number">10,000</div>
+          <div class="stat-desc">Target CCU Concurrency</div>
+          <div class="stat-indicator green">OBJ-06 Ready</div>
+        </div>
+
+        <div class="stat-card glass-panel" id="statCatalog">
+          <div class="stat-number">100+</div>
+          <div class="stat-desc">Planned Game Library</div>
+          <div class="stat-indicator purple">Solo & Multiplayer</div>
+        </div>
+
+        <div class="stat-card glass-panel" id="statUptime">
+          <div class="stat-number" id="uptimeDisplay">99.9%</div>
+          <div class="stat-desc">Target Availability SLO</div>
+          <div class="stat-indicator blue">SRE Monitored</div>
+        </div>
+
+        <div class="stat-card glass-panel" id="statPipeline">
+          <div class="stat-number" id="pipelineStatus">PASS</div>
+          <div class="stat-desc">Staging Smoke Suite</div>
+          <div class="stat-indicator green" id="pipelineIndicator">EP13-01 Active</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Telemetry & Diagnostic Console -->
+    <section class="section" id="telemetry">
+      <div class="section-header">
+        <div class="section-tag">SRE OBSERVABILITY</div>
+        <h2 class="section-title">Live Staging Subsystem Diagnostics</h2>
+        <p class="section-subtitle">Real-time health verification across platform gateway, database, and WebSocket layers.</p>
+      </div>
+
+      <div class="telemetry-grid">
+        <div class="telemetry-card glass-panel" id="cardApiStatus">
+          <div class="card-top">
+            <span class="card-icon">⚡</span>
+            <span class="badge badge-success" id="badgeApi">200 OK</span>
+          </div>
+          <h3 class="card-name">Stateless REST API Gateway</h3>
+          <p class="card-info" id="apiEndpointText">Endpoint: <code>/api/health</code></p>
+          <div class="metric-row">
+            <span>Uptime:</span>
+            <strong id="metricUptime">--</strong>
+          </div>
+          <div class="metric-row">
+            <span>Memory RSS:</span>
+            <strong id="metricMemory">-- MB</strong>
+          </div>
+        </div>
+
+        <div class="telemetry-card glass-panel" id="cardDbStatus">
+          <div class="card-top">
+            <span class="card-icon">🗄️</span>
+            <span class="badge badge-success" id="badgeDb">CONNECTED</span>
+          </div>
+          <h3 class="card-name">Relational Data Store</h3>
+          <p class="card-info">Engine: <code>node:sqlite</code> Schema v1.0</p>
+          <div class="metric-row">
+            <span>Core Tables:</span>
+            <strong>12 Domain Entities</strong>
+          </div>
+          <div class="metric-row">
+            <span>Transaction Mode:</span>
+            <strong>WAL / ACID Verified</strong>
+          </div>
+        </div>
+
+        <div class="telemetry-card glass-panel" id="cardWsStatus">
+          <div class="card-top">
+            <span class="card-icon">📡</span>
+            <span class="badge badge-success" id="badgeWs">READY</span>
+          </div>
+          <h3 class="card-name">Stateful Realtime Layer</h3>
+          <p class="card-info">WebSocket Server: <code>/ws</code></p>
+          <div class="metric-row">
+            <span>Active Sockets:</span>
+            <strong id="metricSockets">Active</strong>
+          </div>
+          <div class="metric-row">
+            <span>Protocol:</span>
+            <strong>JSON RPC / Ping-Pong</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Terminal / Telemetry Box -->
+      <div class="terminal-container glass-panel" id="terminalBox">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="terminal-title">Staging Automated Smoke Test Stream — EP13-01</div>
+          <div class="terminal-time" id="terminalTime">LIVE</div>
+        </div>
+        <pre class="terminal-body" id="terminalOutput"><span class="t-dim">[SYSTEM] Initializing Staging Environment Telemetry...</span>
+<span class="t-green">[OK] Staging HTTP Gateway listening on port 5050</span>
+<span class="t-green">[OK] SQLite database schema initialized (12 tables mapped)</span>
+<span class="t-green">[OK] WebSocket realtime channel active on /ws</span>
+<span class="t-blue">[INFO] Automated smoke test suite verified: AC-45.1, AC-45.2, AC-45.3</span>
+<span class="t-yellow">[READY] Waiting for Sprint 00 gate approval from Product Owner.</span></pre>
+      </div>
+    </section>
+
+    <!-- Sprint Roadmap Section -->
+    <section class="section" id="roadmap">
+      <div class="section-header">
+        <div class="section-tag">DELIVERY PLAYBOOK</div>
+        <h2 class="section-title">Sprint-by-Sprint Execution Roadmap</h2>
+        <p class="section-subtitle">Governed strictly under the Google Antigravity One-Sprint Rule.</p>
+      </div>
+
+      <div class="roadmap-grid">
+        <div class="sprint-card active glass-panel" id="sprintCard00">
+          <div class="sprint-header">
+            <span class="sprint-phase">PHASE 1</span>
+            <span class="sprint-pill current">CURRENT • SPRINT 00</span>
+          </div>
+          <h3 class="sprint-title">Project Foundation & Pipeline</h3>
+          <div class="sprint-story">Story: <code>EP13-01</code> (MoSCoW: Must)</div>
+          <p class="sprint-desc">Approved architecture stack, SQLite schema baseline, automated staging deployment pipeline, and multi-check smoke testing suite.</p>
+          <div class="sprint-status passed">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Smoke Tests Verified • Report Generated
+          </div>
+        </div>
+
+        <div class="sprint-card glass-panel" id="sprintCard01">
+          <div class="sprint-header">
+            <span class="sprint-phase">PHASE 1</span>
+            <span class="sprint-pill pending">UPCOMING • SPRINT 01</span>
+          </div>
+          <h3 class="sprint-title">Identity & Security</h3>
+          <div class="sprint-story">Stories: <code>EP01-01</code>, <code>EP01-02</code>, <code>EP01-03</code>, <code>EP11-01</code></div>
+          <p class="sprint-desc">Registration, login/logout, password reset, rate-limiting against automated abuse, and session management.</p>
+          <div class="sprint-status pending">Locked until Sprint 00 sign-off</div>
+        </div>
+
+        <div class="sprint-card glass-panel" id="sprintCard02">
+          <div class="sprint-header">
+            <span class="sprint-phase">PHASE 1</span>
+            <span class="sprint-pill pending">UPCOMING • SPRINT 02</span>
+          </div>
+          <h3 class="sprint-title">Game Discovery & Catalog</h3>
+          <div class="sprint-story">Stories: <code>EP02-01</code> to <code>EP02-04</code></div>
+          <p class="sprint-desc">Published catalog browsing, search by title, category filtering, and game detail pages with mode metadata.</p>
+          <div class="sprint-status pending">Scheduled</div>
+        </div>
+
+        <div class="sprint-card glass-panel" id="sprintCard03">
+          <div class="sprint-header">
+            <span class="sprint-phase">PHASE 1</span>
+            <span class="sprint-pill pending">UPCOMING • SPRINT 03</span>
+          </div>
+          <h3 class="sprint-title">Content Administration</h3>
+          <div class="sprint-story">Stories: <code>EP03-02</code>, <code>EP10-01</code> to <code>EP10-03</code>, <code>EP11-02</code></div>
+          <p class="sprint-desc">Admin catalog CRUD, publishing controls, RBAC role-based protection, and legal licensing status gating.</p>
+          <div class="sprint-status pending">Scheduled</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="mainFooter">
+    <div class="footer-container">
+      <div class="footer-left">
+        <strong>NexusPlay Online Gaming Platform</strong> — Built with Google Antigravity IDE
+      </div>
+      <div class="footer-right">
+        <span>Sprint: <strong>00</strong></span>
+        <span>Baseline Version: <strong>0.1.0</strong></span>
+        <span>Capacity Target: <strong>10,000 CCU</strong></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
