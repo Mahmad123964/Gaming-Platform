@@ -205,11 +205,11 @@ async function runSmokeTests(options = {}) {
   // Check 3: Platform Version & Status (/api/v1/status)
   try {
     const res = await httpProbe('/api/v1/status');
-    const passed = res.statusCode === 200 && res.json && res.json.activeSprint === '00';
+    const passed = res.statusCode === 200 && res.json && ['00', '01'].includes(res.json.activeSprint);
     testResults.push({
       id: 'SMOKE-03',
       name: 'Platform Metadata API (/api/v1/status)',
-      expected: 'HTTP 200 with activeSprint=00',
+      expected: 'HTTP 200 with valid activeSprint (00 or 01)',
       actual: `HTTP ${res.statusCode} (sprint=${res.json?.activeSprint})`,
       durationMs: res.durationMs,
       passed

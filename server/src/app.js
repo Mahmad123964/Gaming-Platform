@@ -74,17 +74,21 @@ function createApp() {
     });
   });
 
+  // Mount Identity & Authentication routes (Sprint 01: EP01-01, EP01-02, EP01-03, EP11-01)
+  const { authRouter } = require('./modules/identity');
+  app.use('/api/v1/auth', authRouter);
+
   // Detailed platform status
   app.get('/api/v1/status', (req, res) => {
     res.status(200).json({
       platform: 'Online Gaming Platform',
-      version: '0.1.0',
-      activeSprint: '00',
+      version: '0.2.0',
+      activeSprint: '01',
       phase: '1',
       environment: process.env.NODE_ENV || 'development',
       features: {
         gameCatalog: 'pending (Sprint 02)',
-        authentication: 'pending (Sprint 01)',
+        authentication: 'active (Sprint 01: Registration, Login, Recovery, Rate Limiting)',
         multiplayer: 'pending (Sprint 08)',
         payments: 'pending (Sprint 12)',
         stagingPipeline: 'active (Sprint 00)'

@@ -9,6 +9,7 @@
     "build:client": "vite build",
     "start": "node server/src/index.js",
     "start:staging": "node server/src/index.js --env=staging --port=5050",
+    "test:auth": "node scripts/test-sprint01-auth.js",
     "test:smoke": "node scripts/smoke-test.js",
     "test:smoke:fail": "node scripts/smoke-test.js --simulate-failure",
     "deploy:staging": "node scripts/deploy-staging.js",

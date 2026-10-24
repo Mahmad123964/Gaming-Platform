@@ -1,11 +1,16 @@
 import React from 'react';
 import styles from './Navbar.module.css';
+import { User } from './AuthModal';
 
 interface NavbarProps {
   environment: string;
   isOnline: boolean;
   latencyMs: number | null;
   onProbe: () => void;
+  currentUser: User | null;
+  onOpenLogin: () => void;
+  onOpenRegister: () => void;
+  onSignOut: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -13,6 +18,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   isOnline,
   latencyMs,
   onProbe,
+  currentUser,
+  onOpenLogin,
+  onOpenRegister,
+  onSignOut,
 }) => {
   return (
     <header className={styles.navbar} id="mainNavbar">
@@ -59,6 +68,46 @@ export const Navbar: React.FC<NavbarProps> = ({
             </svg>
             Probe Health
           </button>
+
+          {/* SPRINT 01 AUTH CONTROLS */}
+          <div className={styles.authGroup}>
+            {currentUser ? (
+              <div className={styles.userBadge} id="userSessionBadge">
+                <div className={styles.userAvatar}>
+                  {currentUser.displayName.charAt(0).toUpperCase()}
+                </div>
+                <span className={styles.userName}>{currentUser.displayName}</span>
+                <button
+                  type="button"
+                  className={styles.btnSignOut}
+                  onClick={onSignOut}
+                  id="btnSignOut"
+                  title="Sign Out of Session"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className={styles.btnSignIn}
+                  onClick={onOpenLogin}
+                  id="btnOpenLogin"
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  className={styles.btnRegister}
+                  onClick={onOpenRegister}
+                  id="btnOpenRegister"
+                >
+                  Register
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </header>
