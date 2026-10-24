@@ -1,6 +1,6 @@
 # NexusPlay — Authentication & Identity API Specification
-**Sprint:** Sprint 01 — Identity & Security (Security Hardened Baseline)  
-**Version:** 1.1.0  
+**Sprint:** Sprint 01 — Identity & Security (Final Approval Baseline)  
+**Version:** 1.2.0  
 **Status:** Authoritative Implementation Baseline  
 **Base URL:** `http://localhost:5050/api/v1/auth` (Staging) | `https://api.nexusplay.gg/v1/auth` (Production)  
 
@@ -11,9 +11,11 @@
 The NexusPlay Identity & Security subsystem implements user registration, credential authentication, multi-device session management, single-use password recovery, and multi-layer brute-force rate limiting.
 
 ### Security Highlights & Governance:
-1. **Secure HttpOnly Cookie Authentication**:
+1. **Secure HttpOnly Cookie Authentication & Trusted Proxy Security**:
    - The primary browser authentication mechanism is an `HttpOnly`, `SameSite=Lax` cookie named `nexusplay_session`.
-   - In production (`process.env.NODE_ENV === 'production'`) or over HTTPS (`X-Forwarded-Proto: https`), the `Secure` attribute is strictly enforced.
+   - **Reverse Proxy Header Validation**: Proxy-originated security metadata (`X-Forwarded-Proto`, `X-Forwarded-For`) is accepted **only** when the immediate TCP socket connection originates from an explicitly trusted reverse proxy (configured via `TRUSTED_PROXIES`, defaulting to loopback `127.0.0.1, ::1`). Direct client header spoofing from untrusted IPs is discarded.
+   - In production (`process.env.NODE_ENV === 'production'`), the `Secure` attribute is unconditionally enforced on all authentication cookies.
+   - In local development (`NODE_ENV === 'development'`), `Secure` is omitted on direct HTTP loopback connections to permit localhost development without TLS errors.
    - **Zero Token Persistence**: Authentication tokens are **never** persisted in `localStorage` or `sessionStorage`, completely neutralizing client-side token exfiltration via Cross-Site Scripting (XSS).
 2. **Cryptographically Session-Bound CSRF Protection**:
    - Accompanied by a client-readable `nexusplay_csrf` cookie (`SameSite=Lax`, `Max-Age=86400`).
@@ -26,9 +28,11 @@ The NexusPlay Identity & Security subsystem implements user registration, creden
    - Session secrets are hashed at rest using SHA-256 (`crypto.createHash('sha256')`) and stored in `auth_sessions.token`. The raw token exists only in the client's HttpOnly cookie.
    - **Database Dump Defense**: An attacker with a full database dump cannot reuse the stored token hashes as valid authentication credentials. Incoming tokens are hashed before querying (`WHERE s.token = ?`), so submitting a stolen hash yields `SHA256(hash)` which fails validation with HTTP 401 Unauthorized.
    - Password reset tokens are cryptographically hashed at rest using SHA-256 (`password_resets.token`).
-4. **Recovery Outbox Security Posture**:
+4. **Internal QA Secret Security & Recovery Outbox Isolation**:
    - The testing outbox endpoint `/api/v1/auth/test/outbox` is **permanently disabled in production** (`process.env.NODE_ENV === 'production'`), returning HTTP 404 Not Found.
-   - Access in non-production environments is strictly gated by the `X-Internal-Test-Key` header (returning HTTP 403 Forbidden on missing or mismatched key).
+   - **Zero Hardcoded Secrets**: All hardcoded QA keys have been permanently removed and retired. Non-production access is gated strictly by the protected environment secret `INTERNAL_TEST_KEY`.
+   - If `INTERNAL_TEST_KEY` is unconfigured, outbox access is completely locked out (`HTTP 403 Forbidden`).
+   - Timing-safe comparison (`crypto.timingSafeEqual`) prevents side-channel timing attacks against the secret header.
    - Staging outbox logs are isolated in `server/data/email-outbox.log`, which is excluded from static web serving routes and protected by `.gitignore` against repository commits.
 5. **Anti-Enumeration & Constant-Time Observable Behavior**:
    - Registration, login, and forgot-password endpoints return identical status codes and error messages regardless of whether the email exists.
@@ -312,8 +316,9 @@ Inspects outbound password reset emails for automated QA test harnesses without 
 
 #### Headers
 ```http
-X-Internal-Test-Key: nexusplay-internal-qa-key
+X-Internal-Test-Key: <configured_internal_test_key>
 ```
+*Note: Hardcoded fallback keys have been permanently removed and rotated. Access requires an environment-provisioned secret (`INTERNAL_TEST_KEY`), compared using `crypto.timingSafeEqual`.*
 
 #### Response — 200 OK (Staging / Dev with Valid Key)
 ```json
@@ -336,12 +341,12 @@ X-Internal-Test-Key: nexusplay-internal-qa-key
 }
 ```
 
-#### Response — 403 Forbidden (Missing or Invalid Test Key)
+#### Response — 403 Forbidden (Missing, Invalid, or Unconfigured Test Key)
 ```json
 {
   "error": "Forbidden",
   "message": "Access denied: Valid X-Internal-Test-Key header required for outbox inspection",
-  "timestamp": "2026-10-24T13:44:33.812Z"
+  "timestamp": "2026-10-24T15:36:33.236Z"
 }
 ```
 
@@ -350,7 +355,7 @@ X-Internal-Test-Key: nexusplay-internal-qa-key
 {
   "error": "Not Found",
   "message": "Outbox inspection endpoint is permanently disabled in production environments",
-  "timestamp": "2026-10-24T13:44:33.824Z"
+  "timestamp": "2026-10-24T15:36:33.263Z"
 }
 ```
 
@@ -366,7 +371,7 @@ X-Internal-Test-Key: nexusplay-internal-qa-key
 | `token` | String | 64 | 64 | 256-bit CSPRNG hex string | 400 | "Password reset token is invalid or has already been used" |
 | `X-CSRF-Token` | Header | 64 | 64 | Must match session HMAC binding & cookie value | 403 | "CSRF token validation failed" / "Cross-session CSRF token rejected" |
 | `Origin` / `Referer` | Header | — | — | Allowed origins: host, localhost, 127.0.0.1, *.nexusplay.gg | 403 | "Untrusted Cross-Origin Request. Origin or Referer header rejected." |
-| `X-Internal-Test-Key` | Header | 1 | 128 | Required for `/test/outbox` non-prod inspection | 403 | "Access denied: Valid X-Internal-Test-Key header required for outbox inspection" |
+| `X-Internal-Test-Key` | Header | 1 | 128 | Dynamic secret matching `process.env.INTERNAL_TEST_KEY` | 403 | "Access denied: Valid X-Internal-Test-Key header required for outbox inspection" |
 
 ---
 
@@ -376,10 +381,29 @@ X-Internal-Test-Key: nexusplay-internal-qa-key
 2. **Session Token Hashing at Rest:** `node:crypto.createHash('sha256')` stored in `auth_sessions.token`. Database dumps cannot be directly reused for authentication.
 3. **Cryptographic Session-Bound CSRF Tokens:** `node:crypto.createHmac('sha256')` derives CSRF token from raw session secret. Prevents cross-session injection.
 4. **Origin & Referer Validation:** Protects all state-changing endpoints against cross-origin attacks from unauthorized web origins.
-5. **Timing-Safe Equality:** `crypto.timingSafeEqual` used on derived buffers. Dummy constant-time evaluation prevents timing leaks.
-6. **Reset Token Hashing at Rest:** SHA-256 hash stored in `password_resets.token`. Raw token transmitted only to user's verified email.
-7. **Session Cascade Revocation:** Single logout invalidates that token; password reset invalidates all active sessions for the player across all devices (`UPDATE auth_sessions SET revoked = 1 WHERE player_id = ?`).
-8. **Rate Limiting Persistence & Distributed Protection:**
-   - Backed by SQLite table `auth_rate_limits`.
-   - Dual thresholds: 5 attempts / 15m window per `ip:email`; 10 attempts / 15m window globally per `target_email` against distributed IP rotation attacks.
-9. **Outbox Isolation:** Public access to outbox logs disabled; static server routes restrict access to client bundle only. Production access returns HTTP 404.
+5. **Reverse Proxy Trust Verification:** Header forwarding metadata (`X-Forwarded-Proto`, `X-Forwarded-For`) is honored only when incoming TCP socket IP is in `TRUSTED_PROXIES`. Untrusted direct clients spoofing forwarding headers are discarded.
+6. **Strict Production Cookie Flags:** In `production`, cookies unconditionally enforce `Secure` and `HttpOnly`.
+7. **Timing-Safe Equality:** `crypto.timingSafeEqual` used on derived buffers. Dummy constant-time evaluation prevents timing leaks.
+8. **Reset Token Hashing at Rest:** SHA-256 hash stored in `password_resets.token`. Raw token transmitted only to user's verified email.
+9. **Session Cascade Revocation:** Single logout invalidates that token; password reset invalidates all active sessions for the player across all devices (`UPDATE auth_sessions SET revoked = 1 WHERE player_id = ?`).
+10. **Rate Limiting Persistence & Distributed Protection:**
+    - Backed by SQLite table `auth_rate_limits`.
+    - Dual thresholds: 5 attempts / 15m window per `ip:email`; 10 attempts / 15m window globally per `target_email` against distributed IP rotation attacks.
+11. **Outbox Isolation & Zero Hardcoded Secrets:** Public access to outbox logs disabled; static server routes restrict access to client bundle only. Production access returns HTTP 404. Non-production access requires dynamically injected environment secrets.
+
+---
+
+## 6. Unresolved Deployment-Security Requirements
+
+The following infrastructure-level deployment requirements must be coordinated with DevOps / SRE prior to production launch (Sprint 13+):
+1. **Ingress TLS Termination & Trusted Proxy CIDRs**:
+   - Production reverse proxies (AWS ALB, Cloudflare, or Nginx Ingress) must terminate TLS with valid CA-signed certificates.
+   - The platform application must be configured with `TRUSTED_PROXIES` containing the exact private subnet CIDR blocks of the ingress controllers (e.g. `10.0.0.0/16`), ensuring untrusted external traffic cannot spoof forwarding metadata.
+2. **HSTS Header Enforcement**:
+   - Ingress proxies must inject the `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` header to ensure browsers never downgrade to unencrypted HTTP.
+3. **Protected Secret Management Pipeline**:
+   - Production secrets (`INTERNAL_TEST_KEY`, database credentials, session secrets) must be injected via a managed secret store (e.g. AWS Secrets Manager, HashiCorp Vault, or Kubernetes Secrets), with continuous secret rotation policies.
+4. **Production Transactional Email Gateway Authentication**:
+   - Staging relies on local outbox logging. Production requires provisioning AWS SES or SendGrid with strict SPF, DKIM, and DMARC DNS records to prevent email spoofing and guarantee deliverability.
+5. **Open Browser Verification Limitation**:
+   - Automated browser screenshots are marked `NOT CAPTURED` due to upstream Azure CDN driver download unavailability. Browser verification remains an open QA tracking item until an interactive test agent with display capabilities is provisioned.

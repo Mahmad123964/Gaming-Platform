@@ -1,21 +1,14 @@
 const express = require('express');
+const crypto = require('node:crypto');
 const { getAuthService } = require('./authService');
 const { requireAuth } = require('./middleware');
 const { emailService } = require('./emailService');
+const { getClientIp, isSecureRequest } = require('../../config');
 
 const router = express.Router();
 
-function getClientIp(req) {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (forwarded) {
-    return forwarded.split(',')[0].trim();
-  }
-  return req.ip || req.socket.remoteAddress || '127.0.0.1';
-}
-
 function setAuthCookies(req, res, sessionToken, csrfToken) {
-  const isProd = process.env.NODE_ENV === 'production';
-  const isSecure = isProd || req.secure || req.headers['x-forwarded-proto'] === 'https';
+  const isSecure = isSecureRequest(req);
 
   const sessionCookieOptions = {
     httpOnly: true,
@@ -38,8 +31,7 @@ function setAuthCookies(req, res, sessionToken, csrfToken) {
 }
 
 function clearAuthCookies(req, res) {
-  const isProd = process.env.NODE_ENV === 'production';
-  const isSecure = isProd || (req && (req.secure || req.headers['x-forwarded-proto'] === 'https'));
+  const isSecure = isSecureRequest(req);
   const secureAttr = isSecure ? '; Secure' : '';
   res.setHeader('Set-Cookie', [
     `nexusplay_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; HttpOnly; SameSite=Lax${secureAttr}`,
@@ -197,10 +189,30 @@ router.get('/test/outbox', (req, res) => {
     });
   }
 
-  const INTERNAL_TEST_KEY = process.env.INTERNAL_TEST_KEY || 'nexusplay-internal-qa-key';
-  const providedKey = req.headers['x-internal-test-key'];
+  const configuredKey = process.env.INTERNAL_TEST_KEY;
+  if (!configuredKey || typeof configuredKey !== 'string' || configuredKey.trim() === '') {
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'Access denied: Internal QA outbox access is not configured in this environment',
+      timestamp: new Date().toISOString()
+    });
+  }
 
-  if (!providedKey || providedKey !== INTERNAL_TEST_KEY) {
+  const providedKey = req.headers['x-internal-test-key'];
+  if (!providedKey || typeof providedKey !== 'string') {
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'Access denied: Valid X-Internal-Test-Key header required for outbox inspection',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Timing-safe secret comparison to prevent side-channel timing leaks
+  const providedBuffer = Buffer.from(providedKey);
+  const configuredBuffer = Buffer.from(configuredKey);
+  const isMatch = providedBuffer.length === configuredBuffer.length && crypto.timingSafeEqual(providedBuffer, configuredBuffer);
+
+  if (!isMatch) {
     return res.status(403).json({
       error: 'Forbidden',
       message: 'Access denied: Valid X-Internal-Test-Key header required for outbox inspection',

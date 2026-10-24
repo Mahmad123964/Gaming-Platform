@@ -98,6 +98,10 @@ async function runSprint01Tests() {
   console.log(`  Timestamp: ${new Date().toISOString()}`);
   console.log(`======================================================================\n`);
 
+  // Generate dynamic, rotated internal QA key for this test execution session
+  const ROTATED_INTERNAL_TEST_KEY = crypto.randomBytes(32).toString('hex');
+  process.env.INTERNAL_TEST_KEY = ROTATED_INTERNAL_TEST_KEY;
+
   // Start isolated HTTP test server
   const app = createApp();
   const db = getDb();
@@ -844,9 +848,9 @@ async function runSprint01Tests() {
     }
 
     // ---------------------------------------------------------
-    // Task 1: Recovery Outbox Security Verification
+    // Task 1: Internal QA Secret Security & Recovery Outbox
     // ---------------------------------------------------------
-    console.log(`\n--- [Task 1: Recovery Outbox Security Verification] ---`);
+    console.log(`\n--- [Task 1: Internal QA Secret Security & Recovery Outbox] ---`);
 
     // AUTH-OUT-01: Outbox access without X-Internal-Test-Key header returns HTTP 403 Forbidden
     {
@@ -864,35 +868,35 @@ async function runSprint01Tests() {
       );
     }
 
-    // AUTH-OUT-02: Outbox access with invalid X-Internal-Test-Key header returns HTTP 403 Forbidden
+    // AUTH-OUT-02: Outbox access with previously exposed, retired key returns HTTP 403 Forbidden (verifies rotation)
     {
       const res = await makeRequest('GET', '/api/v1/auth/test/outbox', {
-        'X-Internal-Test-Key': 'unauthorized-external-probe-key'
+        'X-Internal-Test-Key': 'nexusplay-internal-qa-key'
       });
       const passed = res.statusCode === 403;
       recordTest(
         'AUTH-OUT-02',
         'EP01-03',
         'AC-3.1',
-        'Access to /api/v1/auth/test/outbox with invalid test key returns HTTP 403 Forbidden',
+        'Retired / previously exposed static QA key rejected with HTTP 403 (verifies rotation)',
         passed,
-        'HTTP 403 Forbidden',
+        'HTTP 403 Forbidden for retired legacy key',
         `HTTP ${res.statusCode} (${res.body?.message})`,
         res.durationMs
       );
     }
 
-    // AUTH-OUT-03: Outbox access with valid X-Internal-Test-Key in non-prod returns HTTP 200 OK
+    // AUTH-OUT-03: Outbox access with authorized rotated key returns HTTP 200 OK
     {
       const res = await makeRequest('GET', '/api/v1/auth/test/outbox', {
-        'X-Internal-Test-Key': 'nexusplay-internal-qa-key'
+        'X-Internal-Test-Key': ROTATED_INTERNAL_TEST_KEY
       });
       const passed = res.statusCode === 200 && res.body?.success === true && Array.isArray(res.body?.outbox);
       recordTest(
         'AUTH-OUT-03',
         'EP01-03',
         'AC-3.1',
-        'Access to /api/v1/auth/test/outbox with authorized test key returns HTTP 200 and outbox array',
+        'Access with authorized rotated test key returns HTTP 200 and outbox array',
         passed,
         'HTTP 200 OK with outbox array',
         `HTTP ${res.statusCode} (outboxLength=${res.body?.outbox?.length})`,
@@ -900,17 +904,41 @@ async function runSprint01Tests() {
       );
     }
 
-    // AUTH-OUT-04: Production environment denies outbox access (returns HTTP 404 Not Found)
+    // AUTH-OUT-04: Outbox access when INTERNAL_TEST_KEY is unconfigured in environment returns HTTP 403
+    {
+      const savedKey = process.env.INTERNAL_TEST_KEY;
+      delete process.env.INTERNAL_TEST_KEY;
+      try {
+        const res = await makeRequest('GET', '/api/v1/auth/test/outbox', {
+          'X-Internal-Test-Key': ROTATED_INTERNAL_TEST_KEY
+        });
+        const passed = res.statusCode === 403 && res.body?.message?.includes('not configured in this environment');
+        recordTest(
+          'AUTH-OUT-04',
+          'EP01-03',
+          'AC-3.1',
+          'Unconfigured environment rejects outbox access with HTTP 403 (no hardcoded fallback)',
+          passed,
+          'HTTP 403 "Internal QA outbox access is not configured in this environment"',
+          `HTTP ${res.statusCode} (${res.body?.message})`,
+          res.durationMs
+        );
+      } finally {
+        process.env.INTERNAL_TEST_KEY = savedKey;
+      }
+    }
+
+    // AUTH-OUT-05: Production environment permanently denies outbox access (returns HTTP 404 Not Found)
     {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'production';
       try {
         const res = await makeRequest('GET', '/api/v1/auth/test/outbox', {
-          'X-Internal-Test-Key': 'nexusplay-internal-qa-key'
+          'X-Internal-Test-Key': ROTATED_INTERNAL_TEST_KEY
         });
         const passed = res.statusCode === 404 && res.body?.message?.includes('disabled in production');
         recordTest(
-          'AUTH-OUT-04',
+          'AUTH-OUT-05',
           'EP01-03',
           'AC-3.1',
           'Production environment permanently disables outbox access (HTTP 404 Not Found)',
@@ -924,13 +952,13 @@ async function runSprint01Tests() {
       }
     }
 
-    // AUTH-OUT-05: Direct web probe for outbox log file returns HTTP 404 (zero public file leakage)
+    // AUTH-OUT-06: Direct web probe for outbox log file returns HTTP 404 (zero public file leakage)
     {
       const resDataLog = await makeRequest('GET', '/server/data/email-outbox.log');
       const resRootLog = await makeRequest('GET', '/email-outbox.log');
       const passed = resDataLog.statusCode === 404 && resRootLog.statusCode === 404;
       recordTest(
-        'AUTH-OUT-05',
+        'AUTH-OUT-06',
         'EP01-03',
         'AC-3.1',
         'Direct static requests for email outbox log files return HTTP 404 (no file leakage)',
@@ -1269,6 +1297,140 @@ async function runSprint01Tests() {
       );
     }
 
+    // ---------------------------------------------------------
+    // Task 2: Reverse Proxy and HTTPS Security Audit
+    // ---------------------------------------------------------
+    console.log(`\n--- [Task 2: Reverse Proxy and HTTPS Security Audit] ---`);
+
+    // AUTH-PRX-01: Untrusted client sending spoofed X-Forwarded-Proto does NOT get Secure cookie
+    {
+      const originalProxies = process.env.TRUSTED_PROXIES;
+      // Configure trusted proxies to an external IP, so 127.0.0.1 is UNTRUSTED
+      process.env.TRUSTED_PROXIES = '192.0.2.1';
+      try {
+        const res = await makeRequest('POST', '/api/v1/auth/login', {
+          'X-Forwarded-Proto': 'https'
+        }, {
+          email: sessionUser.email,
+          password: sessionUser.password
+        });
+        const cookies = extractCookies(res.headers);
+        const sessionCookieRaw = cookies.raw.find(c => c.startsWith('nexusplay_session=')) || '';
+        const isNotSecure = !sessionCookieRaw.toLowerCase().includes('secure');
+
+        const passed = res.statusCode === 200 && isNotSecure;
+        recordTest(
+          'AUTH-PRX-01',
+          'EP01-02',
+          'AC-2.1',
+          'Reverse Proxy Security: Untrusted client spoofed X-Forwarded-Proto: https ignored',
+          passed,
+          'Secure flag omitted when X-Forwarded-Proto originates from untrusted client IP',
+          `secureOmitted=${isNotSecure} (spoofed header ignored from untrusted IP)`,
+          res.durationMs
+        );
+      } finally {
+        if (originalProxies !== undefined) {
+          process.env.TRUSTED_PROXIES = originalProxies;
+        } else {
+          delete process.env.TRUSTED_PROXIES;
+        }
+      }
+    }
+
+    // AUTH-PRX-02: Explicitly trusted proxy forwarding X-Forwarded-Proto: https sets Secure cookie
+    {
+      const res = await makeRequest('POST', '/api/v1/auth/login', {
+        'X-Forwarded-Proto': 'https'
+      }, {
+        email: sessionUser.email,
+        password: sessionUser.password
+      });
+      const cookies = extractCookies(res.headers);
+      const sessionCookieRaw = cookies.raw.find(c => c.startsWith('nexusplay_session=')) || '';
+      const hasSecure = sessionCookieRaw.toLowerCase().includes('secure');
+
+      const passed = res.statusCode === 200 && hasSecure;
+      recordTest(
+        'AUTH-PRX-02',
+        'EP01-02',
+        'AC-2.1',
+        'Reverse Proxy Security: Trusted proxy forwarding X-Forwarded-Proto: https sets Secure cookie',
+        passed,
+        'Secure flag enforced when X-Forwarded-Proto originates from trusted proxy',
+        `secureEnforced=${hasSecure} (trusted proxy metadata accepted)`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-PRX-03: Production environment (NODE_ENV=production) ALWAYS enforces Secure cookies
+    {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+      try {
+        const res = await makeRequest('POST', '/api/v1/auth/login', {}, {
+          email: sessionUser.email,
+          password: sessionUser.password
+        });
+        const cookies = extractCookies(res.headers);
+        const sessionCookieRaw = cookies.raw.find(c => c.startsWith('nexusplay_session=')) || '';
+        const hasSecure = sessionCookieRaw.toLowerCase().includes('secure');
+        const hasHttpOnly = sessionCookieRaw.toLowerCase().includes('httponly');
+
+        const passed = res.statusCode === 200 && hasSecure && hasHttpOnly;
+        recordTest(
+          'AUTH-PRX-03',
+          'EP01-02',
+          'AC-2.1',
+          'Production Configuration: Session cookies ALWAYS enforce Secure and HttpOnly attributes',
+          passed,
+          'Secure=true and HttpOnly=true unconditionally in production',
+          `secure=${hasSecure}, httpOnly=${hasHttpOnly} (production strict security)`,
+          res.durationMs
+        );
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
+    }
+
+    // AUTH-PRX-04: Untrusted client spoofed X-Forwarded-For ignored for IP tracking
+    {
+      const originalProxies = process.env.TRUSTED_PROXIES;
+      // Untrust 127.0.0.1
+      process.env.TRUSTED_PROXIES = '192.0.2.1';
+      try {
+        const spoofedTarget = `spoof_target_${Date.now()}@nexusplay.gg`;
+        // Attempt login with spoofed X-Forwarded-For: 203.0.113.199
+        const res = await makeRequest('POST', '/api/v1/auth/login', {
+          'X-Forwarded-For': '203.0.113.199'
+        }, {
+          email: spoofedTarget,
+          password: 'WrongPassword!'
+        });
+        // Check rate limiter record: it should be registered against 127.0.0.1, NOT the spoofed 203.0.113.199
+        const spoofedRecord = authRateLimiter.checkLimit(`203.0.113.199:${spoofedTarget}`);
+        const actualRecord = authRateLimiter.checkLimit(`127.0.0.1:${spoofedTarget}`);
+
+        const passed = res.statusCode === 401 && spoofedRecord.allowed && actualRecord.remainingAttempts < 5;
+        recordTest(
+          'AUTH-PRX-04',
+          'EP11-01',
+          'AC-38.3',
+          'Reverse Proxy Security: Untrusted client spoofed X-Forwarded-For ignored for IP tracking',
+          passed,
+          'Rate limit tracked against physical socket IP, spoofed X-Forwarded-For discarded',
+          `spoofedAttempts=${5 - spoofedRecord.remainingAttempts}, actualSocketAttempts=${5 - actualRecord.remainingAttempts}`,
+          res.durationMs
+        );
+      } finally {
+        if (originalProxies !== undefined) {
+          process.env.TRUSTED_PROXIES = originalProxies;
+        } else {
+          delete process.env.TRUSTED_PROXIES;
+        }
+      }
+    }
+
   } finally {
     // Close test server
     if (serverInstance) {
@@ -1322,6 +1484,13 @@ async function runSprint01Tests() {
       'Genuine Password Reset Email Dispatch to Outbox',
       'Production Outbox Access Permanent Denial (HTTP 404)',
       'X-Internal-Test-Key Restricted Outbox Inspection in Staging/Dev',
+      'Rotated Dynamic Internal QA Key (Zero Hardcoded Secrets)',
+      'Unconfigured Environment Outbox Lockout',
+      'Retired Legacy Key Invalidation (AUTH-OUT-02)',
+      'Trusted Proxy Validation (TRUSTED_PROXIES)',
+      'Spoofed X-Forwarded-Proto Rejection from Untrusted IP',
+      'Spoofed X-Forwarded-For Rejection from Untrusted IP',
+      'Unconditional Production HTTPS Secure Cookie Enforcement',
       'Zero Outbox Log & Token Public Exposure',
       'Anti-Enumeration Response & Timing Equalization',
       'SQLite-Backed Rate Limiting Surviving Process Restarts',

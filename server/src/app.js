@@ -2,11 +2,15 @@ const express = require('express');
 const path = require('node:path');
 const fs = require('node:fs');
 const { getDb } = require('./db');
+const { isTrustedProxy } = require('./config');
 
 function createApp() {
   const app = express();
   const db = getDb();
   const startTime = Date.now();
+
+  // Reverse Proxy Security: Accept proxy metadata only from explicitly trusted proxies
+  app.set('trust proxy', isTrustedProxy);
 
   app.use(express.json());
 
