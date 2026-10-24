@@ -292,3 +292,46 @@ Retrieves complete game details, gameplay modes, player capacity, bot opponent s
 | **EP02-04** | `AC-8.1` | Game details page displays mode & access specs | `GET /api/v1/catalog/games/:idOrSlug` | `CAT-DET-01`, `CAT-DET-02` | **PASS (100%)** |
 | **EP02-04** | `AC-8.2` | Premium requirement is visible before launch | `GET /api/v1/catalog/games/:idOrSlug` | `CAT-DET-03`, `CAT-DET-04` | **PASS (100%)** |
 | **EP02-04** | `AC-8.3` | Unavailable/unpublished game shows unavailable state | `GET /api/v1/catalog/games/:idOrSlug` | `CAT-DET-05`, `CAT-DET-06` | **PASS (100%)** |
+
+---
+
+## 4. Content Data Classification & Intellectual Property Guardrails
+
+In strict adherence to platform governance and intellectual property standards, all games currently seeded in the platform catalog are formally classified as follows:
+
+| Game Identifier | Game Title | Category | Access Tier | Content Classification | Distribution Rights & Licensing Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `cyber-invaders` | Cyber Invaders | Arcade | Free | **Original Demonstration Content** | Platform-authored original game concept. Proprietary vector artwork. Not a commercial third-party product. |
+| `quantum-grid` | Quantum Grid | Puzzle | Free | **Original Demonstration Content** | Platform-authored logic puzzle concept. Proprietary vector artwork. Not a commercial third-party product. |
+| `obsidian-chess` | Obsidian Chess | Strategy | Free | **Original Demonstration Content** | Public domain chess rules with proprietary Obsidian UI theme. Authoritative solo/multiplayer engine. |
+| `neon-horizon` | Neon Horizon | Arcade | Premium VIP | **Original Demonstration Content** | Platform-authored endless runner concept. Original audio/visual design tokens. Demonstrates VIP subscription gating. |
+| `chrono-tactics` | Chrono Tactics | Strategy | Premium VIP | **Original Demonstration Content** | Platform-authored turn-based tactics concept. Demonstrates multi-player squad metadata and VIP gating. |
+| `vortex-arena` | Vortex Arena | Action | Free | **Original Demonstration Content** | Platform-authored kinetic physics brawler concept. Demonstrates 1–4 player multiplayer metadata. |
+| `cipher-matrix` | Cipher Matrix | Puzzle | Free | **Original Demonstration Content** | Platform-authored procedural deduction concept. Original terminal typography and puzzles. |
+| `solitaire-royale` | Solitaire Royale | Card & Board | Free | **Original Demonstration Content** | Public domain Klondike/Spider discipline with proprietary theme. Original card assets. |
+| `shadow-protocol` | Shadow Protocol | Action | Free | **Internal Demonstration Prototype** | Unpublished draft prototype (`is_published: 0`). Excluded from public discoverability; used for QA gating verification. |
+
+### Legal & Licensing Guardrails:
+1. **Zero Copyrighted Third-Party Assets:** No copyrighted ROMs, commercial brand names, or third-party assets are bundled or distributed.
+2. **Demonstration Disclosure:** Demonstration games are not advertised as commercial licensed titles. Playable container runtime integrations are scheduled for Phase 1 Sprint 03/04.
+
+---
+
+## 5. Browser Automation & Genuine Screenshot Evidence
+
+Genuine browser UI interaction was automated directly via the **Chrome DevTools Protocol (CDP)** engine on Google Chrome (`C:\Program Files\Google\Chrome\Application\chrome.exe`):
+
+| Screenshot File | Verification Step | Description |
+| :--- | :--- | :--- |
+| [`01_catalog_grid_published_games.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/01_catalog_grid_published_games.png) | `UI-VER-01`, `UI-VER-02` | Desktop 1440px: 8 published game cards visible; unpublished draft `Shadow Protocol` strictly absent. |
+| [`02_catalog_search_partial.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/02_catalog_search_partial.png) | `UI-VER-03` | Debounced title search for `"grid"`: only `Quantum Grid` matches and renders in grid. |
+| [`03_catalog_search_no_results.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/03_catalog_search_no_results.png) | `UI-VER-04` | Non-matching search: displays `#catalog-empty-state` with "Clear Active Filters" action button. |
+| [`04_catalog_category_filter_strategy.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/04_catalog_category_filter_strategy.png) | `UI-VER-05` | Category tab filter for "Strategy": displays exactly 2 matching games (`Chrono Tactics`, `Obsidian Chess`). |
+| [`05_catalog_empty_category_simulation.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/05_catalog_empty_category_simulation.png) | `UI-VER-06` | Category tab filter for "Simulation" (0 published games): clean empty state rendered (`AC-7.2`). |
+| [`06_catalog_filter_cleared.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/06_catalog_filter_cleared.png) | `UI-VER-07` | Reset filters action: all 8 published games cleanly restored (`AC-7.3`). |
+| [`07_catalog_sorted_reverse.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/07_catalog_sorted_reverse.png) | `UI-VER-08` | Sort dropdown set to "Title (Z – A)": `Vortex Arena` positioned first in grid. |
+| [`08_game_details_modal_free.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/08_game_details_modal_free.png) | `UI-VER-09`, `UI-VER-10` | Modal for `Obsidian Chess`: reflects 1–2 Players, AI Bots Supported, and Free to Play tier. |
+| [`09_game_details_modal_premium_vip.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/09_game_details_modal_premium_vip.png) | `UI-VER-11` | Modal for `Neon Horizon`: prominent purple "Obsidian VIP Subscription Required" warning banner rendered (`AC-8.2`). |
+| [`10_catalog_responsive_tablet_768px.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/10_catalog_responsive_tablet_768px.png) | `UI-VER-12` | Tablet viewport (768px width): two-column responsive reflow and accessible control spacing. |
+| [`11_catalog_responsive_mobile_375px.png`](file:///c:/Users/haali/Desktop/Gaming%20Platform/evidence/sprint-02/screenshots/11_catalog_responsive_mobile_375px.png) | `UI-VER-13` | Mobile viewport (375px width): single-column game card stack and scrollable horizontal category tabs. |
+
