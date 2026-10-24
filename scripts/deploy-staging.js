@@ -104,13 +104,10 @@ async function runPipeline() {
     log(`Staging server is ONLINE and responding.`);
 
     log(`[Step 4/5] Executing Automated Smoke Test Suite against Staging...`);
-    // Pass simulate failure argument if requested
-    if (SIMULATE_FAILURE) {
-      process.argv.push('--simulate-failure');
-    }
-    process.argv.push(`--port=${PORT}`);
-
-    const { allPassed, resultPayload } = await runSmokeTests();
+    const { allPassed, resultPayload } = await runSmokeTests({
+      port: PORT,
+      simulateFailure: SIMULATE_FAILURE
+    });
 
     log(`[Step 5/5] Evaluating deployment release outcome...`);
 

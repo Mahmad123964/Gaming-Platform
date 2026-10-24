@@ -1,0 +1,16 @@
+{
+  "deploymentId": "dep-1792835063604",
+  "commitSha": "0cbf7cbde7607ee5cac8db1a949784bf4decc25d",
+  "environment": "staging",
+  "status": "FAILED",
+  "smokeTestPassed": false,
+  "durationMs": 1300,
+  "timestamp": "2026-10-24T09:44:23.366Z",
+  "port": 5050,
+  "testSummary": {
+    "totalChecks": 5,
+    "passed": 4,
+    "failed": 1
+  },
+  "logFile": "staging-deploy-failed-2026-10-24T09-44-24-683Z.log"
+}

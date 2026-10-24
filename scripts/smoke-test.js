@@ -82,12 +82,82 @@ function testWebSocket() {
   });
 }
 
-async function runSmokeTests() {
+async function runSmokeTests(options = {}) {
+  const testPort = options.port || PORT;
+  const testHost = options.host || HOST;
+  const isSimulatedFail = options.simulateFailure !== undefined ? options.simulateFailure : SIMULATE_FAILURE;
   const testResults = [];
+
+  console.log(`\n======================================================`);
+  console.log(`  ONLINE GAMING PLATFORM — AUTOMATED SMOKE TEST SUITE`);
+  console.log(`  Target: http://${testHost}:${testPort}`);
+  console.log(`  Timestamp: ${new Date().toISOString()}`);
+  if (isSimulatedFail) {
+    console.log(`  ⚠️ SIMULATE_FAILURE=TRUE: Inducing deliberate failure for AC-45.2 validation`);
+  }
+  console.log(`======================================================\n`);
+
+  function httpProbe(urlPath) {
+    return new Promise((resolve, reject) => {
+      const startTime = Date.now();
+      const req = http.get(`http://${testHost}:${testPort}${urlPath}`, { timeout: 3000 }, (res) => {
+        let body = '';
+        res.on('data', chunk => body += chunk);
+        res.on('end', () => {
+          const duration = Date.now() - startTime;
+          let json = null;
+          try { json = JSON.parse(body); } catch(e) {}
+          resolve({
+            statusCode: res.statusCode,
+            headers: res.headers,
+            durationMs: duration,
+            body,
+            json
+          });
+        });
+      });
+
+      req.on('error', err => reject(err));
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error(`Timeout after 3000ms requesting ${urlPath}`));
+      });
+    });
+  }
+
+  function wsProbe() {
+    return new Promise((resolve, reject) => {
+      const startTime = Date.now();
+      const ws = new WebSocket(`ws://${testHost}:${testPort}/ws`);
+      const timer = setTimeout(() => {
+        ws.terminate();
+        reject(new Error('WebSocket connection timed out after 3000ms'));
+      }, 3000);
+
+      ws.on('open', () => {
+        ws.send(JSON.stringify({ type: 'PING' }));
+      });
+
+      ws.on('message', (data) => {
+        clearTimeout(timer);
+        const duration = Date.now() - startTime;
+        ws.close();
+        resolve({
+          durationMs: duration,
+          message: data.toString()
+        });
+      });
+
+      ws.on('error', (err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+    });
+  }
 
   // Check 1: Liveness Endpoint
   try {
-    const res = await httpGet('/health');
+    const res = await httpProbe('/health');
     const passed = res.statusCode === 200 && res.json && res.json.status === 'UP';
     testResults.push({
       id: 'SMOKE-01',
@@ -109,10 +179,10 @@ async function runSmokeTests() {
 
   // Check 2: Readiness & Subsystems (/api/health)
   try {
-    if (SIMULATE_FAILURE) {
+    if (isSimulatedFail) {
       throw new Error('SIMULATED_SMOKE_FAILURE: Database connection probe timed out (AC-45.2 test injection)');
     }
-    const res = await httpGet('/api/health');
+    const res = await httpProbe('/api/health');
     const passed = res.statusCode === 200 && res.json && res.json.database === 'connected';
     testResults.push({
       id: 'SMOKE-02',
@@ -134,7 +204,7 @@ async function runSmokeTests() {
 
   // Check 3: Platform Version & Status (/api/v1/status)
   try {
-    const res = await httpGet('/api/v1/status');
+    const res = await httpProbe('/api/v1/status');
     const passed = res.statusCode === 200 && res.json && res.json.activeSprint === '00';
     testResults.push({
       id: 'SMOKE-03',
@@ -156,7 +226,7 @@ async function runSmokeTests() {
 
   // Check 4: Static UI Shell & Assets (/)
   try {
-    const res = await httpGet('/');
+    const res = await httpProbe('/');
     const passed = res.statusCode === 200 && res.body.includes('NexusPlay');
     testResults.push({
       id: 'SMOKE-04',
@@ -178,7 +248,7 @@ async function runSmokeTests() {
 
   // Check 5: WebSocket Realtime Channel (/ws)
   try {
-    const wsRes = await testWebSocket();
+    const wsRes = await wsProbe();
     testResults.push({
       id: 'SMOKE-05',
       name: 'Realtime WebSocket Handshake (/ws)',
