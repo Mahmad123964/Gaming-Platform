@@ -1,4 +1,5 @@
 const { getAuthService } = require('./authService');
+const { verifyCsrfBinding } = require('./crypto');
 
 function parseCookies(req) {
   const list = {};
@@ -12,6 +13,33 @@ function parseCookies(req) {
     }
   });
   return list;
+}
+
+function validateOrigin(req) {
+  const origin = req.headers['origin'];
+  const referer = req.headers['referer'];
+  const target = origin || referer;
+  if (!target) return true; // Standard same-origin or non-browser client
+
+  try {
+    const url = new URL(target);
+    const hostHeader = (req.headers['host'] || '').split(':')[0].toLowerCase();
+    const targetHost = url.hostname.toLowerCase();
+
+    // Allow current host, loopback, and official domain
+    if (
+      targetHost === hostHeader ||
+      targetHost === 'localhost' ||
+      targetHost === '127.0.0.1' ||
+      targetHost === 'nexusplay.gg' ||
+      targetHost.endsWith('.nexusplay.gg')
+    ) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    return false;
+  }
 }
 
 function requireAuth(req, res, next) {
@@ -35,15 +63,12 @@ function requireAuth(req, res, next) {
     });
   }
 
-  // CSRF Protection: When ambient browser cookies are used for mutating operations,
-  // enforce double-submit X-CSRF-Token validation
+  // 1. Origin / Referer Validation for ambient cookie mutating requests
   if (isCookieAuth && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method.toUpperCase())) {
-    const clientCsrf = req.headers['x-csrf-token'];
-    const cookieCsrf = cookies.nexusplay_csrf;
-    if (!clientCsrf || !cookieCsrf || clientCsrf !== cookieCsrf) {
+    if (!validateOrigin(req)) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: 'CSRF token validation failed. Missing or invalid X-CSRF-Token header.',
+        message: 'Untrusted Cross-Origin Request. Origin or Referer header rejected.',
         timestamp: new Date().toISOString()
       });
     }
@@ -58,6 +83,30 @@ function requireAuth(req, res, next) {
       message: 'Invalid, revoked, or expired session token.',
       timestamp: new Date().toISOString()
     });
+  }
+
+  // 2. Session-Bound CSRF Token Validation
+  if (isCookieAuth && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method.toUpperCase())) {
+    const clientCsrf = req.headers['x-csrf-token'];
+    const cookieCsrf = cookies.nexusplay_csrf;
+
+    if (!clientCsrf || !cookieCsrf || clientCsrf !== cookieCsrf) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'CSRF token validation failed. Missing or invalid X-CSRF-Token header.',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Cryptographic session-binding check: Ensures CSRF token was issued specifically for this session
+    const isSessionBound = verifyCsrfBinding(clientCsrf, player.rawToken) || (player.csrfToken && player.csrfToken === clientCsrf);
+    if (!isSessionBound) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Cross-session CSRF token rejected. Token is not bound to this authenticated session.',
+        timestamp: new Date().toISOString()
+      });
+    }
   }
 
   req.player = player;
@@ -90,6 +139,7 @@ function optionalAuth(req, res, next) {
 
 module.exports = {
   parseCookies,
+  validateOrigin,
   requireAuth,
   optionalAuth
 };

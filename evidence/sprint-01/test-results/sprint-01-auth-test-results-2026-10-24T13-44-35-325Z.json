@@ -1,0 +1,472 @@
+{
+  "testSuite": "NexusPlay Sprint 01 Identity & Security Advanced Verification (Hardened)",
+  "timestamp": "2026-10-24T13:44:35.325Z",
+  "totalTests": 44,
+  "passedCount": 43,
+  "failedCount": 1,
+  "allPassed": false,
+  "securityControlsVerified": [
+    "HttpOnly Cookie Authentication",
+    "SameSite=Lax Enforcement",
+    "Double-Submit CSRF Token Protection",
+    "Cryptographic Session-Bound CSRF Tokens (HMAC-SHA256)",
+    "Cross-Session CSRF Attack Invalidation",
+    "Origin and Referer Validation on Mutating Requests",
+    "Zero Token Persistence in localStorage/sessionStorage",
+    "SHA-256 Hashed Session Secrets at Rest (auth_sessions.token)",
+    "Database Dump Direct Authentication Invalidation",
+    "SHA-256 Hashed Password Reset Tokens at Rest (password_resets.token)",
+    "Single-Use Reset Token Invalidation",
+    "15-Minute Reset Token Expiration",
+    "Cascade Session Revocation Across Devices on Reset",
+    "Genuine Password Reset Email Dispatch to Outbox",
+    "Production Outbox Access Permanent Denial (HTTP 404)",
+    "X-Internal-Test-Key Restricted Outbox Inspection in Staging/Dev",
+    "Zero Outbox Log & Token Public Exposure",
+    "Anti-Enumeration Response & Timing Equalization",
+    "SQLite-Backed Rate Limiting Surviving Process Restarts",
+    "Distributed Brute-Force & IP Rotation Protection"
+  ],
+  "tests": [
+    {
+      "id": "AUTH-REG-01",
+      "story": "EP01-01",
+      "ac": "AC-1.1",
+      "name": "Successful registration issues user profile, session token, and HttpOnly SameSite=Lax cookie",
+      "passed": true,
+      "expected": "HTTP 201 with session token and HttpOnly cookie",
+      "actual": "HTTP 201 (cookie=true, httpOnly=true)",
+      "durationMs": 207
+    },
+    {
+      "id": "AUTH-REG-02",
+      "story": "EP01-01",
+      "ac": "AC-1.2",
+      "name": "Duplicate email registration is rejected with HTTP 409 Conflict",
+      "passed": true,
+      "expected": "HTTP 409 Conflict",
+      "actual": "HTTP 409 (An account with this email address already exists)",
+      "durationMs": 5
+    },
+    {
+      "id": "AUTH-REG-03",
+      "story": "EP01-01",
+      "ac": "AC-1.3",
+      "name": "Invalid email format rejected with HTTP 400 Bad Request",
+      "passed": true,
+      "expected": "HTTP 400 Bad Request",
+      "actual": "HTTP 400 (Invalid email address format)",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-REG-04",
+      "story": "EP01-01",
+      "ac": "AC-1.3",
+      "name": "Password shorter than 8 chars rejected with HTTP 400 Bad Request",
+      "passed": true,
+      "expected": "HTTP 400 with length constraint error",
+      "actual": "HTTP 400 (Password must be between 8 and 64 characters in length (inclusive))",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-REG-05",
+      "story": "EP01-01",
+      "ac": "AC-1.3",
+      "name": "Password without numbers rejected with HTTP 400 Bad Request",
+      "passed": true,
+      "expected": "HTTP 400 with number requirement error",
+      "actual": "HTTP 400 (Password must contain at least one number)",
+      "durationMs": 4
+    },
+    {
+      "id": "AUTH-REG-06",
+      "story": "EP01-01",
+      "ac": "AC-1.3",
+      "name": "Display name under 2 chars rejected with HTTP 400 Bad Request",
+      "passed": true,
+      "expected": "HTTP 400 with display name constraint error",
+      "actual": "HTTP 400 (Display name must be between 2 and 32 characters in length (inclusive))",
+      "durationMs": 4
+    },
+    {
+      "id": "AUTH-LOG-01",
+      "story": "EP01-02",
+      "ac": "AC-2.1",
+      "name": "Valid credentials return HTTP 200 with HttpOnly session cookie & CSRF token",
+      "passed": true,
+      "expected": "HTTP 200 with HttpOnly session cookie",
+      "actual": "HTTP 200 (token=true, cookie=true)",
+      "durationMs": 136
+    },
+    {
+      "id": "AUTH-LOG-02",
+      "story": "EP01-02",
+      "ac": "AC-2.3",
+      "name": "Incorrect password returns HTTP 401 with generic error message",
+      "passed": true,
+      "expected": "HTTP 401 \"Invalid email or password\"",
+      "actual": "HTTP 401 (Invalid email or password)",
+      "durationMs": 164
+    },
+    {
+      "id": "AUTH-LOG-03",
+      "story": "EP01-02",
+      "ac": "AC-2.3",
+      "name": "Non-existent email returns identical HTTP 401 (prevents user enumeration)",
+      "passed": true,
+      "expected": "HTTP 401 \"Invalid email or password\"",
+      "actual": "HTTP 401 (Invalid email or password)",
+      "durationMs": 153
+    },
+    {
+      "id": "AUTH-LOG-04",
+      "story": "EP01-02",
+      "ac": "AC-2.1",
+      "name": "Session validates via ambient HttpOnly Cookie without Authorization header",
+      "passed": true,
+      "expected": "HTTP 200 with authenticated player context",
+      "actual": "HTTP 200 (user=ObsidianKnight)",
+      "durationMs": 11
+    },
+    {
+      "id": "AUTH-LOG-05",
+      "story": "EP01-02",
+      "ac": "AC-2.2",
+      "name": "CSRF Protection: Mutating cookie request without X-CSRF-Token rejected with HTTP 403",
+      "passed": true,
+      "expected": "HTTP 403 Forbidden CSRF failure",
+      "actual": "HTTP 403 (CSRF token validation failed. Missing or invalid X-CSRF-Token header.)",
+      "durationMs": 5
+    },
+    {
+      "id": "AUTH-LOG-06",
+      "story": "EP01-02",
+      "ac": "AC-2.2",
+      "name": "Logout invalidates session and clears HttpOnly session cookies",
+      "passed": true,
+      "expected": "HTTP 200 with cleared session cookies",
+      "actual": "HTTP 200 (cookieCleared=true)",
+      "durationMs": 10
+    },
+    {
+      "id": "AUTH-LOG-07",
+      "story": "EP01-02",
+      "ac": "AC-2.2",
+      "name": "Revoked session cookie rejected on subsequent requests with HTTP 401",
+      "passed": true,
+      "expected": "HTTP 401 Unauthorized",
+      "actual": "HTTP 401 (Invalid, revoked, or expired session token.)",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-REC-01",
+      "story": "EP01-03",
+      "ac": "AC-3.1",
+      "name": "Forgot password generates 15m reset token and dispatches genuine email to outbox",
+      "passed": true,
+      "expected": "HTTP 200 and email dispatched with resetToken",
+      "actual": "HTTP 200 (emailDispatched=true, token=true)",
+      "durationMs": 53
+    },
+    {
+      "id": "AUTH-REC-02",
+      "story": "EP01-03",
+      "ac": "AC-3.1",
+      "name": "Password reset token is cryptographically hashed at rest (SHA-256) in persistence",
+      "passed": true,
+      "expected": "DB token matches SHA-256 hash of raw reset token",
+      "actual": "DB token=24f15404fbc481ff... (matches SHA-256 hash)",
+      "durationMs": 1
+    },
+    {
+      "id": "AUTH-REC-03",
+      "story": "EP01-03",
+      "ac": "AC-3.1",
+      "name": "Forgot password for unknown email returns identical HTTP 200 with zero outbound email",
+      "passed": true,
+      "expected": "HTTP 200 identical generic response",
+      "actual": "HTTP 200 (timing=124ms, no email dispatched)",
+      "durationMs": 124
+    },
+    {
+      "id": "AUTH-REC-04",
+      "story": "EP01-03",
+      "ac": "AC-3.2",
+      "name": "Reset password with valid token updates credentials with HTTP 200",
+      "passed": true,
+      "expected": "HTTP 200 password reset successful",
+      "actual": "HTTP 200 (Password has been reset successfully. Please log in with your new credentials.)",
+      "durationMs": 144
+    },
+    {
+      "id": "AUTH-REC-05",
+      "story": "EP01-03",
+      "ac": "AC-3.2",
+      "name": "Re-using already spent reset token rejected with HTTP 400 Bad Request",
+      "passed": true,
+      "expected": "HTTP 400 token already used",
+      "actual": "HTTP 400 (Password reset token is invalid or has already been used)",
+      "durationMs": 4
+    },
+    {
+      "id": "AUTH-REC-06",
+      "story": "EP01-03",
+      "ac": "AC-3.3",
+      "name": "Password reset immediately revokes all prior active sessions across devices",
+      "passed": true,
+      "expected": "HTTP 401 Unauthorized for prior active session",
+      "actual": "HTTP 401 (Invalid, revoked, or expired session token.)",
+      "durationMs": 5
+    },
+    {
+      "id": "AUTH-REC-07",
+      "story": "EP01-03",
+      "ac": "AC-3.2",
+      "name": "Successfully login with updated password following reset",
+      "passed": true,
+      "expected": "HTTP 200 with new active session",
+      "actual": "HTTP 200 (token=true)",
+      "durationMs": 145
+    },
+    {
+      "id": "AUTH-REC-08",
+      "story": "EP01-03",
+      "ac": "AC-3.3",
+      "name": "Expired reset token (>15m) rejected with HTTP 400 Bad Request",
+      "passed": true,
+      "expected": "HTTP 400 token has expired",
+      "actual": "HTTP 400 (Password reset token has expired. Please request a new reset link.)",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-RAT-01",
+      "story": "EP11-01",
+      "ac": "AC-38.2",
+      "name": "5 consecutive failed login attempts trigger HTTP 429 lockout with Retry-After header",
+      "passed": true,
+      "expected": "HTTP 429 on 5th failure with Retry-After header",
+      "actual": "5th: HTTP 429, 6th: HTTP 429 (retryAfter=900s)",
+      "durationMs": 2
+    },
+    {
+      "id": "AUTH-RAT-02",
+      "story": "EP11-01",
+      "ac": "AC-38.2",
+      "name": "Rate limit lockout persists across application restarts via persistent database storage",
+      "passed": true,
+      "expected": "Lockout remains active after in-memory state wipe (HTTP 429)",
+      "actual": "Status allowed=false, Server response=HTTP 429",
+      "durationMs": 4
+    },
+    {
+      "id": "AUTH-RAT-03",
+      "story": "EP11-01",
+      "ac": "AC-38.3",
+      "name": "Rate limit lockout isolates by IP+email composite key without blocking other users",
+      "passed": true,
+      "expected": "HTTP 200 for independent account",
+      "actual": "HTTP 200 (auth allowed for different email)",
+      "durationMs": 153
+    },
+    {
+      "id": "AUTH-RAT-04",
+      "story": "EP11-01",
+      "ac": "AC-38.3",
+      "name": "Successful login clears failed attempt counter, preventing premature lockout",
+      "passed": true,
+      "expected": "HTTP 200 resets counter; subsequent failure shows remainingAttempts=4",
+      "actual": "Success: HTTP 200, Next failure: remainingAttempts=4",
+      "durationMs": 148
+    },
+    {
+      "id": "AUTH-RAT-05",
+      "story": "EP11-01",
+      "ac": "AC-38.2",
+      "name": "Distributed Brute-Force Defense: Enforces target email protection against rotating IPs",
+      "passed": true,
+      "expected": "HTTP 429 on 10th distributed attempt across rotating IPs",
+      "actual": "10th attempt from new IP -> HTTP 429 (Too many failed authentication attempts. Account access is temporarily locked.)",
+      "durationMs": 169
+    },
+    {
+      "id": "AUTH-SEC-01",
+      "story": "EP01-02",
+      "ac": "AC-2.1",
+      "name": "Accessing protected /api/v1/auth/me without token returns HTTP 401 Unauthorized",
+      "passed": true,
+      "expected": "HTTP 401 Unauthorized",
+      "actual": "HTTP 401 (Authentication required. No session token or cookie provided.)",
+      "durationMs": 2
+    },
+    {
+      "id": "AUTH-SEC-02",
+      "story": "EP01-02",
+      "ac": "AC-2.1",
+      "name": "Accessing protected endpoint with invalid token returns HTTP 401 Unauthorized",
+      "passed": true,
+      "expected": "HTTP 401 Unauthorized",
+      "actual": "HTTP 401 (Invalid, revoked, or expired session token.)",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-OUT-01",
+      "story": "EP01-03",
+      "ac": "AC-3.1",
+      "name": "Access to /api/v1/auth/test/outbox without test key header returns HTTP 403 Forbidden",
+      "passed": true,
+      "expected": "HTTP 403 Forbidden with key requirement message",
+      "actual": "HTTP 403 (Access denied: Valid X-Internal-Test-Key header required for outbox inspection)",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-OUT-02",
+      "story": "EP01-03",
+      "ac": "AC-3.1",
+      "name": "Access to /api/v1/auth/test/outbox with invalid test key returns HTTP 403 Forbidden",
+      "passed": true,
+      "expected": "HTTP 403 Forbidden",
+      "actual": "HTTP 403 (Access denied: Valid X-Internal-Test-Key header required for outbox inspection)",
+      "durationMs": 4
+    },
+    {
+      "id": "AUTH-OUT-03",
+      "story": "EP01-03",
+      "ac": "AC-3.1",
+      "name": "Access to /api/v1/auth/test/outbox with authorized test key returns HTTP 200 and outbox array",
+      "passed": true,
+      "expected": "HTTP 200 OK with outbox array",
+      "actual": "HTTP 200 (outboxLength=1)",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-OUT-04",
+      "story": "EP01-03",
+      "ac": "AC-3.1",
+      "name": "Production environment permanently disables outbox access (HTTP 404 Not Found)",
+      "passed": true,
+      "expected": "HTTP 404 Not Found (outbox disabled in production)",
+      "actual": "HTTP 404 (Outbox inspection endpoint is permanently disabled in production environments)",
+      "durationMs": 2
+    },
+    {
+      "id": "AUTH-OUT-05",
+      "story": "EP01-03",
+      "ac": "AC-3.1",
+      "name": "Direct static requests for email outbox log files return HTTP 404 (no file leakage)",
+      "passed": true,
+      "expected": "HTTP 404 Not Found for static log file URLs",
+      "actual": "/server/data/email-outbox.log: 404, /email-outbox.log: 404",
+      "durationMs": 7
+    },
+    {
+      "id": "AUTH-CSRF-01",
+      "story": "EP01-02",
+      "ac": "AC-2.2",
+      "name": "State-changing cookie request missing X-CSRF-Token header rejected with HTTP 403",
+      "passed": true,
+      "expected": "HTTP 403 Forbidden with missing token error",
+      "actual": "HTTP 403 (CSRF token validation failed. Missing or invalid X-CSRF-Token header.)",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-CSRF-02",
+      "story": "EP01-02",
+      "ac": "AC-2.2",
+      "name": "State-changing cookie request with mismatched X-CSRF-Token header rejected with HTTP 403",
+      "passed": true,
+      "expected": "HTTP 403 Forbidden with mismatched token error",
+      "actual": "HTTP 403 (CSRF token validation failed. Missing or invalid X-CSRF-Token header.)",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-CSRF-03",
+      "story": "EP01-02",
+      "ac": "AC-2.2",
+      "name": "Cross-session CSRF token attack rejected: Token is not cryptographically bound to session",
+      "passed": true,
+      "expected": "HTTP 403 \"Cross-session CSRF token rejected\"",
+      "actual": "HTTP 403 (Cross-session CSRF token rejected. Token is not bound to this authenticated session.)",
+      "durationMs": 4
+    },
+    {
+      "id": "AUTH-CSRF-04",
+      "story": "EP01-02",
+      "ac": "AC-2.2",
+      "name": "Untrusted Origin header rejected on state-changing authenticated cookie request",
+      "passed": true,
+      "expected": "HTTP 403 Untrusted Cross-Origin Request",
+      "actual": "HTTP 403 (Untrusted Cross-Origin Request. Origin or Referer header rejected.)",
+      "durationMs": 3
+    },
+    {
+      "id": "AUTH-CSRF-05",
+      "story": "EP01-02",
+      "ac": "AC-2.2",
+      "name": "Untrusted Referer header rejected on state-changing authenticated cookie request",
+      "passed": true,
+      "expected": "HTTP 403 Untrusted Cross-Origin Request",
+      "actual": "HTTP 403 (Untrusted Cross-Origin Request. Origin or Referer header rejected.)",
+      "durationMs": 4
+    },
+    {
+      "id": "AUTH-CSRF-06",
+      "story": "EP01-02",
+      "ac": "AC-2.2",
+      "name": "Valid session-bound CSRF token with valid Origin allows state-changing logout",
+      "passed": true,
+      "expected": "HTTP 200 OK with successful logout",
+      "actual": "HTTP 200 (Successfully logged out and session revoked)",
+      "durationMs": 12
+    },
+    {
+      "id": "AUTH-SES-01",
+      "story": "EP01-02",
+      "ac": "AC-2.1",
+      "name": "Session secret is cryptographically hashed with SHA-256 at rest in auth_sessions table",
+      "passed": true,
+      "expected": "DB token equals SHA-256(rawToken) and does not store raw token plaintext",
+      "actual": "DB token=4edb1a3460ecfd5e... (matches SHA-256, plaintext prevented)",
+      "durationMs": 1
+    },
+    {
+      "id": "AUTH-SES-02",
+      "story": "EP01-02",
+      "ac": "AC-2.1",
+      "name": "Database dump defense: Stored database token hash cannot directly authenticate",
+      "passed": false,
+      "expected": "HTTP 401 Unauthorized for both Bearer and Cookie submissions of stored DB hash",
+      "actual": "Bearer: HTTP 200, Cookie: HTTP 200",
+      "durationMs": 6
+    },
+    {
+      "id": "AUTH-SES-03",
+      "story": "EP01-02",
+      "ac": "AC-2.1",
+      "name": "Local environment cookie attributes enforce HttpOnly and SameSite=Lax without Secure lock",
+      "passed": true,
+      "expected": "HttpOnly=true, SameSite=Lax, Secure=false for local HTTP dev",
+      "actual": "httpOnly=true, sameSiteLax=true, secure=false",
+      "durationMs": 147
+    },
+    {
+      "id": "AUTH-SES-04",
+      "story": "EP01-02",
+      "ac": "AC-2.1",
+      "name": "HTTPS environment cookie attributes enforce Secure flag on all authentication cookies",
+      "passed": true,
+      "expected": "Secure=true on both nexusplay_session and nexusplay_csrf in HTTPS",
+      "actual": "sessionSecure=true, csrfSecure=true",
+      "durationMs": 166
+    },
+    {
+      "id": "AUTH-SES-05",
+      "story": "EP01-03",
+      "ac": "AC-3.3",
+      "name": "Concurrent multi-device sessions supported; password reset revokes all devices in cascade",
+      "passed": true,
+      "expected": "Concurrent active (200/200); Post-reset both revoked (401/401)",
+      "actual": "Concurrent: 200/200, Post-Reset: 401/401",
+      "durationMs": 8
+    }
+  ]
+}

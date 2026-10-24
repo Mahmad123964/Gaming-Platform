@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
     id TEXT PRIMARY KEY,
     player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
     token TEXT UNIQUE NOT NULL,
+    csrf_token TEXT,
     expires_at DATETIME NOT NULL,
     revoked INTEGER NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP

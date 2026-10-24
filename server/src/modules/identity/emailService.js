@@ -4,8 +4,11 @@ const path = require('node:path');
 class EmailService {
   constructor(options = {}) {
     this.outbox = [];
-    this.logFile = options.logFile || path.join(__dirname, '..', '..', '..', 'data', 'email-outbox.log');
-    this.isProduction = process.env.NODE_ENV === 'production';
+    this.logFile = options.logFile || path.join(__dirname, '..', '..', '..', 'server', 'data', 'email-outbox.log');
+  }
+
+  get isProduction() {
+    return process.env.NODE_ENV === 'production';
   }
 
   async sendPasswordResetEmail({ to, resetToken, expiresAt }) {

@@ -843,6 +843,432 @@ async function runSprint01Tests() {
       );
     }
 
+    // ---------------------------------------------------------
+    // Task 1: Recovery Outbox Security Verification
+    // ---------------------------------------------------------
+    console.log(`\n--- [Task 1: Recovery Outbox Security Verification] ---`);
+
+    // AUTH-OUT-01: Outbox access without X-Internal-Test-Key header returns HTTP 403 Forbidden
+    {
+      const res = await makeRequest('GET', '/api/v1/auth/test/outbox');
+      const passed = res.statusCode === 403 && res.body?.message?.includes('X-Internal-Test-Key');
+      recordTest(
+        'AUTH-OUT-01',
+        'EP01-03',
+        'AC-3.1',
+        'Access to /api/v1/auth/test/outbox without test key header returns HTTP 403 Forbidden',
+        passed,
+        'HTTP 403 Forbidden with key requirement message',
+        `HTTP ${res.statusCode} (${res.body?.message})`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-OUT-02: Outbox access with invalid X-Internal-Test-Key header returns HTTP 403 Forbidden
+    {
+      const res = await makeRequest('GET', '/api/v1/auth/test/outbox', {
+        'X-Internal-Test-Key': 'unauthorized-external-probe-key'
+      });
+      const passed = res.statusCode === 403;
+      recordTest(
+        'AUTH-OUT-02',
+        'EP01-03',
+        'AC-3.1',
+        'Access to /api/v1/auth/test/outbox with invalid test key returns HTTP 403 Forbidden',
+        passed,
+        'HTTP 403 Forbidden',
+        `HTTP ${res.statusCode} (${res.body?.message})`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-OUT-03: Outbox access with valid X-Internal-Test-Key in non-prod returns HTTP 200 OK
+    {
+      const res = await makeRequest('GET', '/api/v1/auth/test/outbox', {
+        'X-Internal-Test-Key': 'nexusplay-internal-qa-key'
+      });
+      const passed = res.statusCode === 200 && res.body?.success === true && Array.isArray(res.body?.outbox);
+      recordTest(
+        'AUTH-OUT-03',
+        'EP01-03',
+        'AC-3.1',
+        'Access to /api/v1/auth/test/outbox with authorized test key returns HTTP 200 and outbox array',
+        passed,
+        'HTTP 200 OK with outbox array',
+        `HTTP ${res.statusCode} (outboxLength=${res.body?.outbox?.length})`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-OUT-04: Production environment denies outbox access (returns HTTP 404 Not Found)
+    {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+      try {
+        const res = await makeRequest('GET', '/api/v1/auth/test/outbox', {
+          'X-Internal-Test-Key': 'nexusplay-internal-qa-key'
+        });
+        const passed = res.statusCode === 404 && res.body?.message?.includes('disabled in production');
+        recordTest(
+          'AUTH-OUT-04',
+          'EP01-03',
+          'AC-3.1',
+          'Production environment permanently disables outbox access (HTTP 404 Not Found)',
+          passed,
+          'HTTP 404 Not Found (outbox disabled in production)',
+          `HTTP ${res.statusCode} (${res.body?.message})`,
+          res.durationMs
+        );
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
+    }
+
+    // AUTH-OUT-05: Direct web probe for outbox log file returns HTTP 404 (zero public file leakage)
+    {
+      const resDataLog = await makeRequest('GET', '/server/data/email-outbox.log');
+      const resRootLog = await makeRequest('GET', '/email-outbox.log');
+      const passed = resDataLog.statusCode === 404 && resRootLog.statusCode === 404;
+      recordTest(
+        'AUTH-OUT-05',
+        'EP01-03',
+        'AC-3.1',
+        'Direct static requests for email outbox log files return HTTP 404 (no file leakage)',
+        passed,
+        'HTTP 404 Not Found for static log file URLs',
+        `/server/data/email-outbox.log: ${resDataLog.statusCode}, /email-outbox.log: ${resRootLog.statusCode}`,
+        resDataLog.durationMs + resRootLog.durationMs
+      );
+    }
+
+    // ---------------------------------------------------------
+    // Task 2: Advanced CSRF Security Verification
+    // ---------------------------------------------------------
+    console.log(`\n--- [Task 2: Advanced CSRF Security Verification] ---`);
+
+    // Create two separate users for cross-session tests
+    const csrfUserA = {
+      email: `csrf_user_a_${Date.now()}@nexusplay.gg`,
+      password: 'CsrfPasswordA2026!',
+      displayName: 'CsrfUserA'
+    };
+    const csrfUserB = {
+      email: `csrf_user_b_${Date.now()}@nexusplay.gg`,
+      password: 'CsrfPasswordB2026!',
+      displayName: 'CsrfUserB'
+    };
+
+    const regResA = await makeRequest('POST', '/api/v1/auth/register', {}, csrfUserA);
+    const cookiesA = extractCookies(regResA.headers);
+    const sessionTokenA = regResA.body.data.token;
+    const cookieSessionA = cookiesA.parsed['nexusplay_session'];
+    const cookieCsrfA = cookiesA.parsed['nexusplay_csrf'];
+
+    const regResB = await makeRequest('POST', '/api/v1/auth/register', {}, csrfUserB);
+    const cookiesB = extractCookies(regResB.headers);
+    const sessionTokenB = regResB.body.data.token;
+    const cookieSessionB = cookiesB.parsed['nexusplay_session'];
+    const cookieCsrfB = cookiesB.parsed['nexusplay_csrf'];
+
+    // AUTH-CSRF-01: Mutating cookie request missing X-CSRF-Token header returns HTTP 403
+    {
+      const res = await makeRequest('POST', '/api/v1/auth/logout', {
+        Cookie: `nexusplay_session=${cookieSessionA}; nexusplay_csrf=${cookieCsrfA}`
+      });
+      const passed = res.statusCode === 403 && res.body?.message?.includes('Missing or invalid X-CSRF-Token header');
+      recordTest(
+        'AUTH-CSRF-01',
+        'EP01-02',
+        'AC-2.2',
+        'State-changing cookie request missing X-CSRF-Token header rejected with HTTP 403',
+        passed,
+        'HTTP 403 Forbidden with missing token error',
+        `HTTP ${res.statusCode} (${res.body?.message})`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-CSRF-02: Mutating cookie request with mismatched X-CSRF-Token header returns HTTP 403
+    {
+      const res = await makeRequest('POST', '/api/v1/auth/logout', {
+        Cookie: `nexusplay_session=${cookieSessionA}; nexusplay_csrf=${cookieCsrfA}`,
+        'X-CSRF-Token': 'tampered_mismatched_csrf_token_value'
+      });
+      const passed = res.statusCode === 403 && res.body?.message?.includes('Missing or invalid X-CSRF-Token header');
+      recordTest(
+        'AUTH-CSRF-02',
+        'EP01-02',
+        'AC-2.2',
+        'State-changing cookie request with mismatched X-CSRF-Token header rejected with HTTP 403',
+        passed,
+        'HTTP 403 Forbidden with mismatched token error',
+        `HTTP ${res.statusCode} (${res.body?.message})`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-CSRF-03: Cross-session CSRF token attack: Session A cookie paired with Session B CSRF token rejected with HTTP 403
+    {
+      const res = await makeRequest('POST', '/api/v1/auth/logout', {
+        Cookie: `nexusplay_session=${cookieSessionA}; nexusplay_csrf=${cookieCsrfB}`,
+        'X-CSRF-Token': cookieCsrfB
+      });
+      const passed = res.statusCode === 403 && res.body?.message?.includes('Cross-session CSRF token rejected');
+      recordTest(
+        'AUTH-CSRF-03',
+        'EP01-02',
+        'AC-2.2',
+        'Cross-session CSRF token attack rejected: Token is not cryptographically bound to session',
+        passed,
+        'HTTP 403 "Cross-session CSRF token rejected"',
+        `HTTP ${res.statusCode} (${res.body?.message})`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-CSRF-04: Untrusted Origin header on mutating cookie request rejected with HTTP 403
+    {
+      const res = await makeRequest('POST', '/api/v1/auth/logout', {
+        Cookie: `nexusplay_session=${cookieSessionA}; nexusplay_csrf=${cookieCsrfA}`,
+        'X-CSRF-Token': cookieCsrfA,
+        Origin: 'http://malicious-attacker.com'
+      });
+      const passed = res.statusCode === 403 && res.body?.message?.includes('Untrusted Cross-Origin Request');
+      recordTest(
+        'AUTH-CSRF-04',
+        'EP01-02',
+        'AC-2.2',
+        'Untrusted Origin header rejected on state-changing authenticated cookie request',
+        passed,
+        'HTTP 403 Untrusted Cross-Origin Request',
+        `HTTP ${res.statusCode} (${res.body?.message})`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-CSRF-05: Untrusted Referer header on mutating cookie request rejected with HTTP 403
+    {
+      const res = await makeRequest('POST', '/api/v1/auth/logout', {
+        Cookie: `nexusplay_session=${cookieSessionA}; nexusplay_csrf=${cookieCsrfA}`,
+        'X-CSRF-Token': cookieCsrfA,
+        Referer: 'https://phishing-site.xyz/fake-login'
+      });
+      const passed = res.statusCode === 403 && res.body?.message?.includes('Untrusted Cross-Origin Request');
+      recordTest(
+        'AUTH-CSRF-05',
+        'EP01-02',
+        'AC-2.2',
+        'Untrusted Referer header rejected on state-changing authenticated cookie request',
+        passed,
+        'HTTP 403 Untrusted Cross-Origin Request',
+        `HTTP ${res.statusCode} (${res.body?.message})`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-CSRF-06: Valid session-bound CSRF token and valid Origin allows state-changing logout
+    {
+      const res = await makeRequest('POST', '/api/v1/auth/logout', {
+        Cookie: `nexusplay_session=${cookieSessionA}; nexusplay_csrf=${cookieCsrfA}`,
+        'X-CSRF-Token': cookieCsrfA,
+        Origin: `http://127.0.0.1:${TEST_PORT}`
+      });
+      const passed = res.statusCode === 200 && res.body?.success === true;
+      recordTest(
+        'AUTH-CSRF-06',
+        'EP01-02',
+        'AC-2.2',
+        'Valid session-bound CSRF token with valid Origin allows state-changing logout',
+        passed,
+        'HTTP 200 OK with successful logout',
+        `HTTP ${res.statusCode} (${res.body?.message})`,
+        res.durationMs
+      );
+    }
+
+    // ---------------------------------------------------------
+    // Task 3: Session Security & At-Rest Cryptography
+    // ---------------------------------------------------------
+    console.log(`\n--- [Task 3: Session Security & At-Rest Cryptography] ---`);
+
+    // AUTH-SES-01: Session secrets stored as SHA-256 hash at rest in database
+    let sessionUser = {
+      email: `session_sec_${Date.now()}@nexusplay.gg`,
+      password: 'SessionPassword2026!',
+      displayName: 'SessionSecUser'
+    };
+    let rawSessionToken = null;
+    let expectedSessionHash = null;
+
+    {
+      const regRes = await makeRequest('POST', '/api/v1/auth/register', {}, sessionUser);
+      rawSessionToken = regRes.body.data.token;
+      expectedSessionHash = crypto.createHash('sha256').update(rawSessionToken).digest('hex');
+
+      const playerRow = db.get('SELECT id FROM players WHERE email = ?', [sessionUser.email]);
+      const sessionRow = db.get('SELECT token, csrf_token, revoked FROM auth_sessions WHERE player_id = ? AND revoked = 0', [playerRow.id]);
+
+      const passed = Boolean(sessionRow) &&
+        sessionRow.token === expectedSessionHash &&
+        sessionRow.token !== rawSessionToken;
+
+      recordTest(
+        'AUTH-SES-01',
+        'EP01-02',
+        'AC-2.1',
+        'Session secret is cryptographically hashed with SHA-256 at rest in auth_sessions table',
+        passed,
+        'DB token equals SHA-256(rawToken) and does not store raw token plaintext',
+        `DB token=${sessionRow?.token?.substring(0, 16)}... (matches SHA-256, plaintext prevented)`,
+        1
+      );
+    }
+
+    // AUTH-SES-02: Database hash cannot directly authenticate (dump defense)
+    {
+      // Attacker attempts to submit the hash found in database as Bearer token
+      const resBearer = await makeRequest('GET', '/api/v1/auth/me', {
+        Authorization: `Bearer ${expectedSessionHash}`
+      });
+      // Attacker attempts to submit the hash as a cookie
+      const resCookie = await makeRequest('GET', '/api/v1/auth/me', {
+        Cookie: `nexusplay_session=${expectedSessionHash}`
+      });
+
+      const passed = resBearer.statusCode === 401 && resCookie.statusCode === 401;
+      recordTest(
+        'AUTH-SES-02',
+        'EP01-02',
+        'AC-2.1',
+        'Database dump defense: Stored database token hash cannot directly authenticate',
+        passed,
+        'HTTP 401 Unauthorized for both Bearer and Cookie submissions of stored DB hash',
+        `Bearer: HTTP ${resBearer.statusCode}, Cookie: HTTP ${resCookie.statusCode}`,
+        resBearer.durationMs + resCookie.durationMs
+      );
+    }
+
+    // AUTH-SES-03: Cookie attributes in local development environment (HttpOnly, SameSite=Lax, Secure=false)
+    {
+      const res = await makeRequest('POST', '/api/v1/auth/login', {}, {
+        email: sessionUser.email,
+        password: sessionUser.password
+      });
+      const cookies = extractCookies(res.headers);
+      const sessionCookieRaw = cookies.raw.find(c => c.startsWith('nexusplay_session=')) || '';
+
+      const isHttpOnly = sessionCookieRaw.toLowerCase().includes('httponly');
+      const isSameSiteLax = sessionCookieRaw.toLowerCase().includes('samesite=lax');
+      const isNotSecure = !sessionCookieRaw.toLowerCase().includes('secure');
+
+      const passed = res.statusCode === 200 && isHttpOnly && isSameSiteLax && isNotSecure;
+      recordTest(
+        'AUTH-SES-03',
+        'EP01-02',
+        'AC-2.1',
+        'Local environment cookie attributes enforce HttpOnly and SameSite=Lax without Secure lock',
+        passed,
+        'HttpOnly=true, SameSite=Lax, Secure=false for local HTTP dev',
+        `httpOnly=${isHttpOnly}, sameSiteLax=${isSameSiteLax}, secure=${!isNotSecure}`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-SES-04: Cookie attributes in simulated HTTPS environment (X-Forwarded-Proto: https sets Secure=true)
+    {
+      const res = await makeRequest('POST', '/api/v1/auth/login', {
+        'X-Forwarded-Proto': 'https'
+      }, {
+        email: sessionUser.email,
+        password: sessionUser.password
+      });
+      const cookies = extractCookies(res.headers);
+      const sessionCookieRaw = cookies.raw.find(c => c.startsWith('nexusplay_session=')) || '';
+      const csrfCookieRaw = cookies.raw.find(c => c.startsWith('nexusplay_csrf=')) || '';
+
+      const sessionHasSecure = sessionCookieRaw.toLowerCase().includes('secure');
+      const csrfHasSecure = csrfCookieRaw.toLowerCase().includes('secure');
+
+      const passed = res.statusCode === 200 && sessionHasSecure && csrfHasSecure;
+      recordTest(
+        'AUTH-SES-04',
+        'EP01-02',
+        'AC-2.1',
+        'HTTPS environment cookie attributes enforce Secure flag on all authentication cookies',
+        passed,
+        'Secure=true on both nexusplay_session and nexusplay_csrf in HTTPS',
+        `sessionSecure=${sessionHasSecure}, csrfSecure=${csrfHasSecure}`,
+        res.durationMs
+      );
+    }
+
+    // AUTH-SES-05: Concurrent multi-device sessions work simultaneously, and password reset revokes all sessions across all devices
+    {
+      const multiUser = {
+        email: `multi_device_${Date.now()}@nexusplay.gg`,
+        password: 'MultiDevicePass2026!',
+        displayName: 'MultiDevicePlayer'
+      };
+
+      await makeRequest('POST', '/api/v1/auth/register', {}, multiUser);
+
+      // Device 1 Login
+      const dev1Res = await makeRequest('POST', '/api/v1/auth/login', {}, {
+        email: multiUser.email,
+        password: multiUser.password
+      });
+      const dev1Token = dev1Res.body?.data?.token;
+
+      // Device 2 Login
+      const dev2Res = await makeRequest('POST', '/api/v1/auth/login', {}, {
+        email: multiUser.email,
+        password: multiUser.password
+      });
+      const dev2Token = dev2Res.body?.data?.token;
+
+      // Both devices query /me concurrently
+      const dev1Check = await makeRequest('GET', '/api/v1/auth/me', {
+        Authorization: `Bearer ${dev1Token}`
+      });
+      const dev2Check = await makeRequest('GET', '/api/v1/auth/me', {
+        Authorization: `Bearer ${dev2Token}`
+      });
+
+      const concurrentPassed = dev1Check.statusCode === 200 && dev2Check.statusCode === 200;
+
+      // Trigger password reset via forgot & reset
+      await makeRequest('POST', '/api/v1/auth/forgot-password', {}, { email: multiUser.email });
+      const outboxMail = emailService.getLatestEmailFor(multiUser.email);
+      const rstToken = outboxMail?.data?.resetToken;
+
+      await makeRequest('POST', '/api/v1/auth/reset-password', {}, {
+        token: rstToken,
+        newPassword: 'BrandNewMultiPass2026!'
+      });
+
+      // Verify BOTH Device 1 and Device 2 sessions are now revoked
+      const dev1AfterReset = await makeRequest('GET', '/api/v1/auth/me', {
+        Authorization: `Bearer ${dev1Token}`
+      });
+      const dev2AfterReset = await makeRequest('GET', '/api/v1/auth/me', {
+        Authorization: `Bearer ${dev2Token}`
+      });
+
+      const cascadePassed = dev1AfterReset.statusCode === 401 && dev2AfterReset.statusCode === 401;
+      const passed = concurrentPassed && cascadePassed;
+
+      recordTest(
+        'AUTH-SES-05',
+        'EP01-03',
+        'AC-3.3',
+        'Concurrent multi-device sessions supported; password reset revokes all devices in cascade',
+        passed,
+        'Concurrent active (200/200); Post-reset both revoked (401/401)',
+        `Concurrent: ${dev1Check.statusCode}/${dev2Check.statusCode}, Post-Reset: ${dev1AfterReset.statusCode}/${dev2AfterReset.statusCode}`,
+        dev1AfterReset.durationMs + dev2AfterReset.durationMs
+      );
+    }
+
   } finally {
     // Close test server
     if (serverInstance) {
@@ -883,12 +1309,20 @@ async function runSprint01Tests() {
       'HttpOnly Cookie Authentication',
       'SameSite=Lax Enforcement',
       'Double-Submit CSRF Token Protection',
+      'Cryptographic Session-Bound CSRF Tokens (HMAC-SHA256)',
+      'Cross-Session CSRF Attack Invalidation',
+      'Origin and Referer Validation on Mutating Requests',
       'Zero Token Persistence in localStorage/sessionStorage',
-      'SHA-256 Hashed Password Reset Tokens at Rest',
+      'SHA-256 Hashed Session Secrets at Rest (auth_sessions.token)',
+      'Database Dump Direct Authentication Invalidation',
+      'SHA-256 Hashed Password Reset Tokens at Rest (password_resets.token)',
       'Single-Use Reset Token Invalidation',
       '15-Minute Reset Token Expiration',
       'Cascade Session Revocation Across Devices on Reset',
       'Genuine Password Reset Email Dispatch to Outbox',
+      'Production Outbox Access Permanent Denial (HTTP 404)',
+      'X-Internal-Test-Key Restricted Outbox Inspection in Staging/Dev',
+      'Zero Outbox Log & Token Public Exposure',
       'Anti-Enumeration Response & Timing Equalization',
       'SQLite-Backed Rate Limiting Surviving Process Restarts',
       'Distributed Brute-Force & IP Rotation Protection'

@@ -25,6 +25,11 @@ class DatabaseManager {
     const sql = fs.readFileSync(schemaFile, 'utf8');
     // DatabaseSync exec supports executing entire scripts
     this.db.exec(sql);
+    try {
+      this.db.exec('ALTER TABLE auth_sessions ADD COLUMN csrf_token TEXT;');
+    } catch (e) {
+      // Column already exists in schema, ignore duplicate column error
+    }
   }
 
   query(sql, params = []) {

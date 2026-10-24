@@ -1,5 +1,5 @@
 const { getDb } = require('../../db');
-const { hashPassword, verifyPassword, generateToken, hashToken, constantTimeDummyWork, generateId } = require('./crypto');
+const { hashPassword, verifyPassword, generateToken, hashToken, deriveCsrfToken, constantTimeDummyWork, generateId } = require('./crypto');
 const { validateEmail, validatePassword, validateDisplayName } = require('./validation');
 const { authRateLimiter } = require('./rateLimiter');
 const { emailService } = require('./emailService');
@@ -52,15 +52,17 @@ class AuthService {
       [playerId, cleanEmail, passwordHash, cleanDisplayName]
     );
 
-    // Create initial 24h session
-    const sessionToken = generateToken();
+    // Create initial 24h session (Session token hashed at rest with SHA-256)
+    const rawSessionToken = generateToken();
+    const sessionTokenHash = hashToken(rawSessionToken);
+    const csrfToken = deriveCsrfToken(rawSessionToken); // Session-bound CSRF token
     const sessionId = generateId('ses');
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     this.db.run(
-      `INSERT INTO auth_sessions (id, player_id, token, expires_at, revoked)
-       VALUES (?, ?, ?, ?, 0)`,
-      [sessionId, playerId, sessionToken, expiresAt]
+      `INSERT INTO auth_sessions (id, player_id, token, csrf_token, expires_at, revoked)
+       VALUES (?, ?, ?, ?, ?, 0)`,
+      [sessionId, playerId, sessionTokenHash, csrfToken, expiresAt]
     );
 
     return {
@@ -70,7 +72,8 @@ class AuthService {
         displayName: cleanDisplayName,
         role: 'player'
       },
-      token: sessionToken,
+      token: rawSessionToken,
+      csrfToken,
       expiresAt
     };
   }
@@ -150,15 +153,17 @@ class AuthService {
     authRateLimiter.resetLimit(rateKey);
     authRateLimiter.resetLimit(targetKey);
 
-    // Issue new 24h session token (concurrent sessions allowed across devices per AC-2.1)
-    const sessionToken = generateToken();
+    // Issue new 24h session token (Hashed at rest with SHA-256; concurrent sessions supported)
+    const rawSessionToken = generateToken();
+    const sessionTokenHash = hashToken(rawSessionToken);
+    const csrfToken = deriveCsrfToken(rawSessionToken); // Session-bound CSRF token
     const sessionId = generateId('ses');
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     this.db.run(
-      `INSERT INTO auth_sessions (id, player_id, token, expires_at, revoked)
-       VALUES (?, ?, ?, ?, 0)`,
-      [sessionId, player.id, sessionToken, expiresAt]
+      `INSERT INTO auth_sessions (id, player_id, token, csrf_token, expires_at, revoked)
+       VALUES (?, ?, ?, ?, ?, 0)`,
+      [sessionId, player.id, sessionTokenHash, csrfToken, expiresAt]
     );
 
     return {
@@ -168,7 +173,8 @@ class AuthService {
         displayName: player.display_name,
         role: player.role
       },
-      token: sessionToken,
+      token: rawSessionToken,
+      csrfToken,
       expiresAt
     };
   }
@@ -180,9 +186,12 @@ class AuthService {
       throw err;
     }
 
+    const cleanToken = token.startsWith('Bearer ') ? token.slice(7).trim() : token.trim();
+    const tokenHash = hashToken(cleanToken);
+
     this.db.run(
       'UPDATE auth_sessions SET revoked = 1 WHERE token = ?',
-      [token]
+      [tokenHash]
     );
 
     return {
@@ -214,7 +223,7 @@ class AuthService {
 
     if (player) {
       rawResetToken = generateToken();
-      const tokenHash = hashToken(rawResetToken); // Store cryptographic hash at rest
+      const tokenHash = hashToken(rawResetToken); // Store cryptographic SHA-256 hash at rest
       const resetId = generateId('rst');
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15-minute validity per AC-3.1
 
@@ -318,14 +327,15 @@ class AuthService {
     }
 
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7).trim() : token.trim();
+    const tokenHash = hashToken(cleanToken);
 
     const row = this.db.get(
-      `SELECT s.id as session_id, s.token, s.expires_at, s.revoked,
+      `SELECT s.id as session_id, s.token, s.csrf_token, s.expires_at, s.revoked,
               p.id as player_id, p.email, p.display_name, p.role, p.status
        FROM auth_sessions s
        JOIN players p ON s.player_id = p.id
        WHERE s.token = ?`,
-      [cleanToken]
+      [tokenHash]
     );
 
     if (!row || row.revoked === 1) {
@@ -346,7 +356,8 @@ class AuthService {
       displayName: row.display_name,
       role: row.role,
       sessionId: row.session_id,
-      token: row.token
+      rawToken: cleanToken,
+      csrfToken: row.csrf_token || deriveCsrfToken(cleanToken)
     };
   }
 }

@@ -1,7 +1,6 @@
 const express = require('express');
 const { getAuthService } = require('./authService');
-const { requireAuth, parseCookies } = require('./middleware');
-const { generateToken } = require('./crypto');
+const { requireAuth } = require('./middleware');
 const { emailService } = require('./emailService');
 
 const router = express.Router();
@@ -14,10 +13,9 @@ function getClientIp(req) {
   return req.ip || req.socket.remoteAddress || '127.0.0.1';
 }
 
-function setAuthCookies(req, res, sessionToken) {
+function setAuthCookies(req, res, sessionToken, csrfToken) {
   const isProd = process.env.NODE_ENV === 'production';
   const isSecure = isProd || req.secure || req.headers['x-forwarded-proto'] === 'https';
-  const csrfToken = generateToken();
 
   const sessionCookieOptions = {
     httpOnly: true,
@@ -28,7 +26,7 @@ function setAuthCookies(req, res, sessionToken) {
   };
 
   const csrfCookieOptions = {
-    httpOnly: false, // Accessible by JavaScript to read and include in X-CSRF-Token header
+    httpOnly: false, // Accessible by JavaScript to supply in X-CSRF-Token header
     sameSite: 'lax',
     path: '/',
     maxAge: 24 * 60 * 60 * 1000,
@@ -37,14 +35,15 @@ function setAuthCookies(req, res, sessionToken) {
 
   res.cookie('nexusplay_session', sessionToken, sessionCookieOptions);
   res.cookie('nexusplay_csrf', csrfToken, csrfCookieOptions);
-
-  return csrfToken;
 }
 
-function clearAuthCookies(res) {
+function clearAuthCookies(req, res) {
+  const isProd = process.env.NODE_ENV === 'production';
+  const isSecure = isProd || (req && (req.secure || req.headers['x-forwarded-proto'] === 'https'));
+  const secureAttr = isSecure ? '; Secure' : '';
   res.setHeader('Set-Cookie', [
-    'nexusplay_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; HttpOnly; SameSite=Lax',
-    'nexusplay_csrf=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; SameSite=Lax'
+    `nexusplay_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; HttpOnly; SameSite=Lax${secureAttr}`,
+    `nexusplay_csrf=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; SameSite=Lax${secureAttr}`
   ]);
 }
 
@@ -55,14 +54,11 @@ router.post('/register', (req, res) => {
     const authService = getAuthService();
     const result = authService.register({ email, password, displayName });
 
-    const csrfToken = setAuthCookies(req, res, result.token);
+    setAuthCookies(req, res, result.token, result.csrfToken);
 
     res.status(201).json({
       success: true,
-      data: {
-        ...result,
-        csrfToken
-      },
+      data: result,
       timestamp: new Date().toISOString()
     });
   } catch (err) {
@@ -83,14 +79,11 @@ router.post('/login', (req, res) => {
     const authService = getAuthService();
     const result = authService.login({ email, password, ip });
 
-    const csrfToken = setAuthCookies(req, res, result.token);
+    setAuthCookies(req, res, result.token, result.csrfToken);
 
     res.status(200).json({
       success: true,
-      data: {
-        ...result,
-        csrfToken
-      },
+      data: result,
       timestamp: new Date().toISOString()
     });
   } catch (err) {
@@ -110,44 +103,13 @@ router.post('/login', (req, res) => {
   }
 });
 
-// POST /api/v1/auth/logout (EP01-02)
-router.post('/logout', (req, res) => {
+// POST /api/v1/auth/logout (EP01-02) - Guarded by requireAuth (enforces CSRF and Origin checks)
+router.post('/logout', requireAuth, (req, res) => {
   try {
-    const cookies = parseCookies(req);
-    let token = req.body?.token;
-    const authHeader = req.headers['authorization'];
-
-    if (!token && authHeader) {
-      token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : authHeader.trim();
-    }
-    if (!token && cookies.nexusplay_session) {
-      token = cookies.nexusplay_session;
-    }
-
-    if (!token) {
-      return res.status(400).json({
-        error: 'Bad Request',
-        message: 'Session token or cookie is required to log out',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // CSRF verification if logging out via cookie
-    if (cookies.nexusplay_session) {
-      const clientCsrf = req.headers['x-csrf-token'];
-      if (!clientCsrf || !cookies.nexusplay_csrf || clientCsrf !== cookies.nexusplay_csrf) {
-        return res.status(403).json({
-          error: 'Forbidden',
-          message: 'CSRF token validation failed. Missing or invalid X-CSRF-Token header.',
-          timestamp: new Date().toISOString()
-        });
-      }
-    }
-
     const authService = getAuthService();
-    const result = authService.logout(token);
+    const result = authService.logout(req.sessionToken);
 
-    clearAuthCookies(res);
+    clearAuthCookies(req, res);
 
     res.status(200).json({
       success: true,
@@ -199,7 +161,7 @@ router.post('/reset-password', (req, res) => {
     const authService = getAuthService();
     const result = authService.resetPassword({ token, newPassword });
 
-    clearAuthCookies(res);
+    clearAuthCookies(req, res);
 
     res.status(200).json({
       success: true,
@@ -225,15 +187,32 @@ router.get('/me', requireAuth, (req, res) => {
   });
 });
 
-// Staging & Test Email Outbox Inspection (Non-Production Only)
-if (process.env.NODE_ENV !== 'production') {
-  router.get('/test/outbox', (req, res) => {
-    res.status(200).json({
-      success: true,
-      outbox: emailService.getOutbox(),
+// Staging & Test Email Outbox Inspection (Strictly Denied in Production; Key Required in Staging)
+router.get('/test/outbox', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({
+      error: 'Not Found',
+      message: 'Outbox inspection endpoint is permanently disabled in production environments',
       timestamp: new Date().toISOString()
     });
+  }
+
+  const INTERNAL_TEST_KEY = process.env.INTERNAL_TEST_KEY || 'nexusplay-internal-qa-key';
+  const providedKey = req.headers['x-internal-test-key'];
+
+  if (!providedKey || providedKey !== INTERNAL_TEST_KEY) {
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'Access denied: Valid X-Internal-Test-Key header required for outbox inspection',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    outbox: emailService.getOutbox(),
+    timestamp: new Date().toISOString()
   });
-}
+});
 
 module.exports = router;

@@ -13,19 +13,27 @@ The NexusPlay Identity & Security subsystem implements user registration, creden
 ### Security Highlights & Governance:
 1. **Secure HttpOnly Cookie Authentication**:
    - The primary browser authentication mechanism is an `HttpOnly`, `SameSite=Lax` cookie named `nexusplay_session`.
-   - In production (`process.env.NODE_ENV === 'production'`) or over HTTPS, the `Secure` attribute is strictly enforced.
+   - In production (`process.env.NODE_ENV === 'production'`) or over HTTPS (`X-Forwarded-Proto: https`), the `Secure` attribute is strictly enforced.
    - **Zero Token Persistence**: Authentication tokens are **never** persisted in `localStorage` or `sessionStorage`, completely neutralizing client-side token exfiltration via Cross-Site Scripting (XSS).
-2. **Double-Submit CSRF Protection**:
+2. **Cryptographically Session-Bound CSRF Protection**:
    - Accompanied by a client-readable `nexusplay_csrf` cookie (`SameSite=Lax`, `Max-Age=86400`).
-   - State-changing cookie requests (`POST`, `PUT`, `DELETE`, `PATCH`) require the matching `X-CSRF-Token` HTTP request header.
+   - The CSRF token is cryptographically derived via HMAC-SHA256 from the session secret (`deriveCsrfToken`), binding it uniquely to that authenticated session.
+   - Cross-session CSRF attacks are strictly rejected with HTTP 403 (`Cross-session CSRF token rejected. Token is not bound to this authenticated session.`), preventing attackers from substituting foreign CSRF tokens.
+   - Origin & Referer Validation: State-changing cookie requests (`POST`, `PUT`, `DELETE`, `PATCH`) validate the `Origin` and `Referer` headers against allowed domains (`localhost`, `127.0.0.1`, and `*.nexusplay.gg`).
    - Dual-Auth Compatibility: Headless API and automated test clients may continue providing `Authorization: Bearer <token>`, bypassing ambient cookie CSRF checks.
-3. **Cryptographic Hashing at Rest**:
+3. **Cryptographic Hashing at Rest & Database Dump Defense**:
    - Passwords hashed with salted `scryptSync` (16 bytes random salt, 64 bytes derived key).
-   - Password reset tokens are cryptographically hashed at rest using SHA-256 (`crypto.createHash('sha256')`). Even in the event of database exfiltration, raw reset tokens cannot be reconstructed.
-4. **Anti-Enumeration & Constant-Time Observable Behavior**:
+   - Session secrets are hashed at rest using SHA-256 (`crypto.createHash('sha256')`) and stored in `auth_sessions.token`. The raw token exists only in the client's HttpOnly cookie.
+   - **Database Dump Defense**: An attacker with a full database dump cannot reuse the stored token hashes as valid authentication credentials. Incoming tokens are hashed before querying (`WHERE s.token = ?`), so submitting a stolen hash yields `SHA256(hash)` which fails validation with HTTP 401 Unauthorized.
+   - Password reset tokens are cryptographically hashed at rest using SHA-256 (`password_resets.token`).
+4. **Recovery Outbox Security Posture**:
+   - The testing outbox endpoint `/api/v1/auth/test/outbox` is **permanently disabled in production** (`process.env.NODE_ENV === 'production'`), returning HTTP 404 Not Found.
+   - Access in non-production environments is strictly gated by the `X-Internal-Test-Key` header (returning HTTP 403 Forbidden on missing or mismatched key).
+   - Staging outbox logs are isolated in `server/data/email-outbox.log`, which is excluded from static web serving routes and protected by `.gitignore` against repository commits.
+5. **Anti-Enumeration & Constant-Time Observable Behavior**:
    - Registration, login, and forgot-password endpoints return identical status codes and error messages regardless of whether the email exists.
    - Forgot-password executes a dummy constant-time cryptographic workload (`constantTimeDummyWork`) for unregistered emails, equalizing response timing and defeating timing oracle attacks.
-5. **Multi-Layer Persistent Rate Limiting (EP11-01)**:
+6. **Multi-Layer Persistent Rate Limiting (EP11-01)**:
    - **Persistence**: Rate limit records are persisted in the SQLite `auth_rate_limits` table, ensuring lockouts survive application crashes, service restarts, and worker restarts.
    - **Layer 1 (Composite IP+Email)**: 5 failed attempts per 15-minute sliding window per IP + email combination triggers a 15-minute lockout with HTTP 429 and `Retry-After: 900` header.
    - **Layer 2 (Distributed Target Email Protection)**: 10 failed attempts against the same target email across *rotating IPs* triggers a 15-minute account lockout, directly thwarting distributed credential-stuffing attacks.
@@ -296,12 +304,18 @@ Validates the caller's session via ambient `HttpOnly` cookie or `Authorization: 
 ---
 
 ### 3.7. Staging Email Outbox Inspection (Non-Production Only)
-Inspects outbound password reset emails for automated QA test harnesses without accessing mailbox servers.
+Inspects outbound password reset emails for automated QA test harnesses without accessing external mailbox servers. Strictly disabled in production.
 
 - **Method / Path:** `GET /api/v1/auth/test/outbox`
-- **Authentication:** Internal / Staging Only
+- **Authentication:** Requires `X-Internal-Test-Key` header matching server internal test secret
+- **Environment Restriction:** Disabled in `production` (`process.env.NODE_ENV === 'production'`)
 
-#### Response — 200 OK
+#### Headers
+```http
+X-Internal-Test-Key: nexusplay-internal-qa-key
+```
+
+#### Response — 200 OK (Staging / Dev with Valid Key)
 ```json
 {
   "success": true,
@@ -322,6 +336,24 @@ Inspects outbound password reset emails for automated QA test harnesses without 
 }
 ```
 
+#### Response — 403 Forbidden (Missing or Invalid Test Key)
+```json
+{
+  "error": "Forbidden",
+  "message": "Access denied: Valid X-Internal-Test-Key header required for outbox inspection",
+  "timestamp": "2026-10-24T13:44:33.812Z"
+}
+```
+
+#### Response — 404 Not Found (Production Environment)
+```json
+{
+  "error": "Not Found",
+  "message": "Outbox inspection endpoint is permanently disabled in production environments",
+  "timestamp": "2026-10-24T13:44:33.824Z"
+}
+```
+
 ---
 
 ## 4. Input Validation Matrix
@@ -332,16 +364,22 @@ Inspects outbound password reset emails for automated QA test harnesses without 
 | `password` | String | 8 | 64 | At least 1 letter, at least 1 number | 400 | "Password must be between 8 and 64 characters in length (inclusive)" / "Password must contain at least one number" |
 | `displayName` | String | 2 | 32 | Trimmed, non-empty | 400 | "Display name must be between 2 and 32 characters in length (inclusive)" |
 | `token` | String | 64 | 64 | 256-bit CSPRNG hex string | 400 | "Password reset token is invalid or has already been used" |
-| `X-CSRF-Token` | Header | 64 | 64 | Must match `nexusplay_csrf` cookie value | 403 | "CSRF token validation failed. Missing or invalid X-CSRF-Token header." |
+| `X-CSRF-Token` | Header | 64 | 64 | Must match session HMAC binding & cookie value | 403 | "CSRF token validation failed" / "Cross-session CSRF token rejected" |
+| `Origin` / `Referer` | Header | — | — | Allowed origins: host, localhost, 127.0.0.1, *.nexusplay.gg | 403 | "Untrusted Cross-Origin Request. Origin or Referer header rejected." |
+| `X-Internal-Test-Key` | Header | 1 | 128 | Required for `/test/outbox` non-prod inspection | 403 | "Access denied: Valid X-Internal-Test-Key header required for outbox inspection" |
 
 ---
 
 ## 5. Security & Rate Limiting Controls
 
 1. **Password Hashing:** `node:crypto.scryptSync`, 16-byte random salt, 64-byte key length.
-2. **Timing-Safe Equality:** `crypto.timingSafeEqual` used on derived buffers. Dummy constant-time evaluation prevents timing leaks.
-3. **Reset Token Hashing at Rest:** SHA-256 hash stored in `password_resets.token`. Raw token transmitted only to user's verified email.
-4. **Session Cascade Revocation:** Single logout invalidates that token; password reset invalidates all active sessions for the player (`UPDATE auth_sessions SET revoked = 1 WHERE player_id = ?`).
-5. **Rate Limiting Persistence & Distributed Protection:**
+2. **Session Token Hashing at Rest:** `node:crypto.createHash('sha256')` stored in `auth_sessions.token`. Database dumps cannot be directly reused for authentication.
+3. **Cryptographic Session-Bound CSRF Tokens:** `node:crypto.createHmac('sha256')` derives CSRF token from raw session secret. Prevents cross-session injection.
+4. **Origin & Referer Validation:** Protects all state-changing endpoints against cross-origin attacks from unauthorized web origins.
+5. **Timing-Safe Equality:** `crypto.timingSafeEqual` used on derived buffers. Dummy constant-time evaluation prevents timing leaks.
+6. **Reset Token Hashing at Rest:** SHA-256 hash stored in `password_resets.token`. Raw token transmitted only to user's verified email.
+7. **Session Cascade Revocation:** Single logout invalidates that token; password reset invalidates all active sessions for the player across all devices (`UPDATE auth_sessions SET revoked = 1 WHERE player_id = ?`).
+8. **Rate Limiting Persistence & Distributed Protection:**
    - Backed by SQLite table `auth_rate_limits`.
    - Dual thresholds: 5 attempts / 15m window per `ip:email`; 10 attempts / 15m window globally per `target_email` against distributed IP rotation attacks.
+9. **Outbox Isolation:** Public access to outbox logs disabled; static server routes restrict access to client bundle only. Production access returns HTTP 404.
