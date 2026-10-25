@@ -4,6 +4,7 @@ import { Game, GameCategory, CatalogResponse, CategoriesResponse } from '../../t
 import { GameCard, GameCardSkeleton } from './GameCard';
 import { GameDetailsModal } from './GameDetailsModal';
 import { GamePlayerModal } from '../gamePlayer/GamePlayerModal';
+import { ProgressHubModal } from '../progress/ProgressHubModal';
 
 interface GameCatalogProps {
   onLog?: (msg: string, type?: 'dim' | 'green' | 'blue' | 'yellow' | 'rose') => void;
@@ -26,8 +27,10 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({ onLog }) => {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
 
-  // Sprint 04: Active Playable Session Modal State (EP03-01, EP04-01)
+  // Sprint 04 & 05: Active Playable Session & Progress State (EP03-01, EP04-01, EP07-02)
   const [activePlayingSlug, setActivePlayingSlug] = useState<string | null>(null);
+  const [resumePlaying, setResumePlaying] = useState<boolean>(false);
+  const [isProgressHubOpen, setIsProgressHubOpen] = useState<boolean>(false);
 
   // Debounce search input (300ms)
   useEffect(() => {
@@ -127,6 +130,31 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({ onLog }) => {
           <div className={styles.counterPill} id="catalog-count-pill">
             Showing <strong>{games.length}</strong> of <strong>{totalCount}</strong> published titles
           </div>
+          <button
+            type="button"
+            className={styles.stateActionBtn}
+            id="btn-open-career-hub"
+            onClick={() => setIsProgressHubOpen(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              fontSize: '0.82rem',
+              background: 'linear-gradient(135deg, rgba(255, 184, 0, 0.15), rgba(0, 240, 255, 0.1))',
+              border: '1px solid rgba(255, 184, 0, 0.4)',
+              color: '#FFB800',
+              borderRadius: '999px',
+              cursor: 'pointer',
+              fontWeight: 700,
+              marginLeft: 'auto'
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polygon points="12 2 15 8 21 9 17 14 18 20 12 17 6 20 7 14 3 9 9 8 12 2" />
+            </svg>
+            Career & Milestones (Sprint 05)
+          </button>
         </div>
 
         <h2 className={styles.title}>Obsidian Arcade Catalog</h2>
@@ -278,7 +306,7 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({ onLog }) => {
         )}
       </div>
 
-      {/* Game Details Modal (AC-8.1, AC-8.2, AC-8.3) */}
+      {/* Game Details Modal (AC-8.1, AC-8.2, AC-8.3, AC-24.1) */}
       <GameDetailsModal
         game={selectedGame}
         isOpen={isDetailsOpen}
@@ -286,18 +314,35 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({ onLog }) => {
           setIsDetailsOpen(false);
           setSelectedGame(null);
         }}
-        onLaunch={(slugOrId) => {
+        onLaunch={(slugOrId, resume) => {
           setIsDetailsOpen(false);
+          setResumePlaying(!!resume);
           setActivePlayingSlug(slugOrId);
         }}
         onLog={onLog}
       />
 
-      {/* Game Player Runtime Modal (Sprint 04: EP03-01, EP03-03, EP03-04, EP04-01, EP04-03) */}
+      {/* Progress Hub Modal (Sprint 05: EP07-01, EP07-02, EP07-03, EP07-04) */}
+      <ProgressHubModal
+        isOpen={isProgressHubOpen}
+        onClose={() => setIsProgressHubOpen(false)}
+        onResumeGame={(slug) => {
+          setIsProgressHubOpen(false);
+          setResumePlaying(true);
+          setActivePlayingSlug(slug);
+        }}
+        onLog={onLog}
+      />
+
+      {/* Game Player Runtime Modal (Sprint 04 & 05: EP03-01, EP03-03, EP04-01, EP07-01, EP07-02) */}
       {activePlayingSlug && (
         <GamePlayerModal
           gameIdOrSlug={activePlayingSlug}
-          onClose={() => setActivePlayingSlug(null)}
+          resume={resumePlaying}
+          onClose={() => {
+            setActivePlayingSlug(null);
+            setResumePlaying(false);
+          }}
           onLog={onLog}
         />
       )}

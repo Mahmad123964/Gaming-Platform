@@ -1,0 +1,380 @@
+/* Obsidian Arcade — Career Progress & History Hub Styles */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(3, 7, 18, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.modal {
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  background: #0B0F19;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.12), 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.careerIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00F0FF;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+}
+
+.titleArea h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #F8FAFC;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.playerTag {
+  font-size: 0.82rem;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+.closeButton {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94A3B8;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 0, 85, 0.15);
+  color: #FF0055;
+  border-color: rgba(255, 0, 85, 0.4);
+}
+
+/* Tabs */
+.tabBar {
+  display: flex;
+  gap: 12px;
+  padding: 12px 28px;
+  background: rgba(11, 15, 25, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tabButton {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94A3B8;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabButton:hover {
+  color: #F8FAFC;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tabActive {
+  background: rgba(0, 240, 255, 0.12) !important;
+  color: #00F0FF !important;
+  border-color: rgba(0, 240, 255, 0.3) !important;
+}
+
+/* Content Area */
+.contentArea {
+  padding: 24px 28px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* History Table (AC-25.1..25.3) */
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.historyTable th {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748B;
+  letter-spacing: 0.05em;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.historyTable td {
+  padding: 14px;
+  font-size: 0.9rem;
+  color: #E2E8F0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.historyTable tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.scoreCell {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 700;
+  color: #00F0FF;
+}
+
+.badgeVerified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.badgeUnverified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+/* Achievements Grid (AC-26.1..26.3) */
+.achievementsStats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+.statValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #F8FAFC;
+}
+
+.achievementsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.achCard {
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  gap: 14px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.achCardUnlocked {
+  background: rgba(0, 240, 255, 0.04);
+  border-color: rgba(0, 240, 255, 0.35);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.08);
+}
+
+.achCardLocked {
+  opacity: 0.6;
+}
+
+.achIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.achIconUnlocked {
+  background: rgba(0, 240, 255, 0.15);
+  color: #00F0FF;
+  border: 1px solid rgba(0, 240, 255, 0.4);
+}
+
+.achIconLocked {
+  background: rgba(255, 255, 255, 0.05);
+  color: #64748B;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.achBody {
+  flex: 1;
+}
+
+.achTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #F8FAFC;
+  margin: 0 0 4px 0;
+}
+
+.achDesc {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  margin: 0 0 8px 0;
+  line-height: 1.35;
+}
+
+.achPoints {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #F59E0B;
+}
+
+/* Checkpoint Progress (AC-24.1..24.3) */
+.checkpointCard {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.checkpointInfo h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #F8FAFC;
+  margin: 0 0 6px 0;
+}
+
+.checkpointMeta {
+  display: flex;
+  gap: 18px;
+  font-size: 0.88rem;
+  color: #94A3B8;
+}
+
+.resumeBtn {
+  background: linear-gradient(135deg, #00F0FF 0%, #7000FF 100%);
+  color: #FFFFFF;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+.resumeBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+}
+
+/* Empty States */
+.emptyState {
+  text-align: center;
+  padding: 48px 20px;
+  color: #64748B;
+}
+
+.emptyState svg {
+  margin-bottom: 12px;
+  color: #475569;
+}
+
+.emptyState p {
+  font-size: 0.95rem;
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (max-width: 640px) {
+  .header { padding: 16px; }
+  .tabBar { padding: 8px 16px; overflow-x: auto; }
+  .contentArea { padding: 16px; }
+  .checkpointCard { flex-direction: column; align-items: flex-start; }
+  .resumeBtn { width: 100%; justify-content: center; }
+}

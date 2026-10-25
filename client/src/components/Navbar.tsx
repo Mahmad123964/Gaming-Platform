@@ -13,6 +13,7 @@ interface NavbarProps {
   onSignOut: () => void;
   isAdminConsoleVisible?: boolean;
   onToggleAdminConsole?: () => void;
+  onOpenCareerHub?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -26,6 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSignOut,
   isAdminConsoleVisible = false,
   onToggleAdminConsole,
+  onOpenCareerHub,
 }) => {
   return (
     <header className={styles.navbar} id="mainNavbar">
@@ -78,6 +80,36 @@ export const Navbar: React.FC<NavbarProps> = ({
             </svg>
             Probe Health
           </button>
+
+          {/* SPRINT 05 CAREER & ACHIEVEMENTS SHORTCUT */}
+          {onOpenCareerHub && (
+            <button
+              type="button"
+              className={styles.btnCareerHub || styles.btnAdminConsole}
+              onClick={onOpenCareerHub}
+              id="nav-btn-career"
+              title="View Player Career, Session History & Achievements"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(255, 184, 0, 0.12)',
+                border: '1px solid rgba(255, 184, 0, 0.35)',
+                color: '#FFB800',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <span>Career Hub</span>
+            </button>
+          )}
 
           {/* SPRINT 03 ADMIN CONSOLE SHORTCUT */}
           {currentUser?.role === 'admin' && onToggleAdminConsole && (

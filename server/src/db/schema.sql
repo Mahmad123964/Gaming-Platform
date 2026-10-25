@@ -87,8 +87,12 @@ CREATE TABLE IF NOT EXISTS licensing_approvals (
 CREATE TABLE IF NOT EXISTS game_sessions (
     id TEXT PRIMARY KEY,
     game_id TEXT NOT NULL REFERENCES games(id),
+    player_id TEXT NOT NULL DEFAULT 'guest',
     mode TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'active',
+    score INTEGER NOT NULL DEFAULT 0,
+    state_json TEXT,
+    restart_count INTEGER NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     ended_at DATETIME
 );
@@ -149,3 +153,41 @@ CREATE TABLE IF NOT EXISTS audit_events (
     details_json TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS game_history (
+    id TEXT PRIMARY KEY,
+    player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+    game_id TEXT NOT NULL REFERENCES games(id),
+    session_id TEXT UNIQUE REFERENCES game_sessions(id),
+    score INTEGER NOT NULL DEFAULT 0,
+    level INTEGER NOT NULL DEFAULT 1,
+    duration_seconds INTEGER DEFAULT 0,
+    verification_status TEXT NOT NULL DEFAULT 'verified',
+    details_json TEXT,
+    completed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS achievements (
+    id TEXT PRIMARY KEY,
+    game_id TEXT NOT NULL REFERENCES games(id),
+    code TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    points INTEGER NOT NULL DEFAULT 10,
+    icon TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS player_achievements (
+    id TEXT PRIMARY KEY,
+    player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+    achievement_id TEXT NOT NULL REFERENCES achievements(id) ON DELETE CASCADE,
+    game_id TEXT NOT NULL REFERENCES games(id),
+    unlocked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    session_id TEXT,
+    UNIQUE(player_id, achievement_id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_game_progress_player_game ON game_progress(player_id, game_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_game_history_session ON game_history(session_id);
+

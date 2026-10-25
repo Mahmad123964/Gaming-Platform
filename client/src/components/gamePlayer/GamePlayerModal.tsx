@@ -4,13 +4,20 @@ import { CyberInvadersCanvas, CyberInvadersRef } from './CyberInvadersCanvas';
 
 interface GamePlayerModalProps {
   gameIdOrSlug: string;
+  resume?: boolean;
   onClose: () => void;
-  onLog?: (message: string, type?: 'green' | 'blue' | 'yellow' | 'rose' | 'dim') => void;
+  onLog?: (message: string, type?: 'green' | 'blue' | 'yellow' | 'rose' | 'dim' | 'cyan') => void;
 }
 
 interface LaunchData {
   launchTicket: string;
   sessionId: string;
+  resumption?: {
+    resumed: boolean;
+    level: number;
+    score: number;
+    message?: string;
+  };
   game: {
     id: string;
     title: string;
@@ -33,6 +40,7 @@ interface LaunchData {
 
 export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
   gameIdOrSlug,
+  resume = false,
   onClose,
   onLog
 }) => {
@@ -42,15 +50,19 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
   const [score, setScore] = useState<number>(0);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<any[]>([]);
+  const [scorePersisted, setScorePersisted] = useState<boolean>(false);
 
   const canvasRef = useRef<CyberInvadersRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const sessionStartTimeRef = useRef<number>(Date.now());
 
-  // Initialize Game Launch Lifecycle (EP03-01, EP03-03, EP03-04, EP04-01)
+  // Initialize Game Launch Lifecycle (EP03-01, EP03-03, EP03-04, EP04-01, EP07-02)
   useEffect(() => {
     let mounted = true;
     setLoading(true);
     setError(null);
+    sessionStartTimeRef.current = Date.now();
 
     // Evaluate client capabilities
     const clientCapabilities = {
@@ -66,7 +78,7 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
         'Content-Type': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify({ clientCapabilities })
+      body: JSON.stringify({ clientCapabilities, resume })
     })
       .then(async (res) => {
         const data = await res.json();
@@ -84,9 +96,15 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
         const resolvedSessionId = data.sessionId || (data as any).session?.sessionId || '';
         data.sessionId = resolvedSessionId;
         setLaunchData(data);
+        if (data.resumption?.resumed) {
+          setScore(data.resumption.score || 0);
+        }
         setLoading(false);
         if (onLog) {
-          onLog(`Game launched successfully: "${data.game.title}" (Session: ${resolvedSessionId.slice(0, 12)}...)`, 'green');
+          const resumeMsg = data.resumption?.resumed
+            ? ` [Resumed at Wave ${data.resumption.level}]`
+            : '';
+          onLog(`Game launched successfully: "${data.game.title}" (Session: ${resolvedSessionId.slice(0, 12)}...)${resumeMsg}`, 'green');
           if (data.compatibility.status === 'INCONCLUSIVE') {
             onLog(`Compatibility notice: ${data.compatibility.message}`, 'yellow');
           }
@@ -108,7 +126,7 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
     return () => {
       mounted = false;
     };
-  }, [gameIdOrSlug, onLog]);
+  }, [gameIdOrSlug, resume, onLog]);
 
   // Handle Session Restart (EP04-03, AC-15.1, AC-15.3)
   const handleRestart = useCallback(async () => {
@@ -158,6 +176,68 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
     onClose();
   }, [launchData, onClose, onLog]);
 
+  // Handle Game Over: record completion score in game_history and evaluate achievements (EP07-01, EP07-04)
+  const handleGameOver = useCallback(async (finalScore: number, finalWave: number) => {
+    if (!launchData) return;
+    if (onLog) {
+      onLog(`Game Over recorded for "${launchData.game.title}". Final Score: ${finalScore}, Wave: ${finalWave}`, 'yellow');
+    }
+
+    try {
+      const durationSeconds = Math.max(1, Math.round((Date.now() - sessionStartTimeRef.current) / 1000));
+      const res = await fetch('/api/v1/progress/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          gameId: launchData.game.id,
+          sessionId: launchData.sessionId,
+          score: finalScore,
+          level: finalWave,
+          durationSeconds,
+          state: { wave: finalWave, score: finalScore }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setScorePersisted(true);
+        if (onLog) {
+          onLog(`Game score ${finalScore} successfully saved to player career history (AC-23.1).`, 'green');
+        }
+        if (data.newAchievements && data.newAchievements.length > 0) {
+          setUnlockedAchievements(data.newAchievements);
+          for (const ach of data.newAchievements) {
+            if (onLog) {
+              onLog(`🏆 Achievement Unlocked: "${ach.title}" (+${ach.points} PTS)!`, 'cyan');
+            }
+          }
+        }
+      }
+    } catch (_) {}
+  }, [launchData, onLog]);
+
+  // Handle Wave Complete: save checkpoint progression (EP07-02, AC-24.1)
+  const handleWaveComplete = useCallback(async (wave: number, waveScore: number) => {
+    if (!launchData) return;
+    try {
+      await fetch('/api/v1/progress/checkpoint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          gameId: launchData.game.id,
+          level: wave,
+          score: waveScore,
+          state: { wave, score: waveScore }
+        })
+      });
+      if (onLog) {
+        onLog(`Checkpoint saved: Advanced to Wave ${wave} (Score: ${waveScore}) (AC-24.1).`, 'blue');
+      }
+    } catch (_) {}
+  }, [launchData, onLog]);
+
   // Fullscreen Toggle
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
@@ -198,6 +278,11 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
                 <span className={styles.categoryBadge}>{launchData.game.category.name}</span>
               )}
               <span className={styles.modeBadge} id="badge-solo-mode">Single Player</span>
+              {launchData?.resumption?.resumed && (
+                <span className={styles.categoryBadge} style={{ background: 'rgba(0, 240, 255, 0.2)', color: '#00F0FF' }} id="badge-resumed-wave">
+                  Resumed Wave {launchData.resumption.level}
+                </span>
+              )}
             </div>
           </div>
 
@@ -232,6 +317,11 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
                 <span className={styles.telemetryValue} id="telemetry-live-score">
                   {score}
                 </span>
+                {scorePersisted && (
+                  <span style={{ color: '#10B981', fontSize: '0.75rem', fontWeight: 700, marginLeft: '8px' }} id="score-persisted-indicator">
+                    ✓ SAVED
+                  </span>
+                )}
               </div>
             </div>
 
@@ -323,15 +413,29 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
           {/* Active Playable Canvas Viewport */}
           {launchData && !error && (
             <>
+              {/* Unlocked Achievements Banner Toast (EP07-04, AC-26.1) */}
+              {unlockedAchievements.length > 0 && (
+                <div className={styles.achievementToast} id="achievement-unlocked-banner">
+                  <div className={styles.achToastIcon}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polygon points="12 2 15 8 21 9 17 14 18 20 12 17 6 20 7 14 3 9 9 8 12 2" />
+                    </svg>
+                  </div>
+                  <div className={styles.achToastText}>
+                    <h4>🏆 Achievement Unlocked: {unlockedAchievements[0].title} (+{unlockedAchievements[0].points} PTS)</h4>
+                    <p>{unlockedAchievements[0].description}</p>
+                  </div>
+                </div>
+              )}
+
               <CyberInvadersCanvas
                 ref={canvasRef}
+                initialWave={launchData?.resumption?.level || 1}
+                initialScore={launchData?.resumption?.score || 0}
                 soundEnabled={soundEnabled}
                 onScoreUpdate={(s) => setScore(s)}
-                onGameOver={(finalScore) => {
-                  if (onLog) {
-                    onLog(`Game Over recorded for "${launchData.game.title}". Final Score: ${finalScore}`, 'yellow');
-                  }
-                }}
+                onGameOver={handleGameOver}
+                onWaveComplete={handleWaveComplete}
               />
 
               {/* In-Game Footer Controls */}

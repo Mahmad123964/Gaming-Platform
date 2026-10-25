@@ -139,7 +139,7 @@ class GameLaunchService {
    * Launch game: Validate eligibility, start single-player session, and issue secure launch ticket
    * Traceability: EP03-01, EP03-04, EP04-01, AC-9.1, AC-12.2, AC-13.1
    */
-  launchGame({ gameIdOrSlug, user = null, clientCapabilities = null, userAgent = '', ip = '127.0.0.1' }) {
+  launchGame({ gameIdOrSlug, user = null, clientCapabilities = null, userAgent = '', ip = '127.0.0.1', resume = false }) {
     // 1. Perform validation checks
     const { game, compatibility } = this.validateLaunchEligibility({
       gameIdOrSlug,
@@ -148,11 +148,42 @@ class GameLaunchService {
       userAgent
     });
 
-    // 2. Create single-player session record in database (AC-13.1)
+    // Check for saved progress if resume requested (EP07-02, AC-24.1, AC-24.2)
+    let initialWave = 1;
+    let initialScore = 0;
+    let customState = {};
+    let resumptionInfo = null;
+
+    if (resume && user) {
+      const saved = this.db.get(
+        'SELECT level, score, state_json FROM game_progress WHERE player_id = ? AND game_id = ?',
+        [user.id, game.id]
+      );
+      if (saved) {
+        initialWave = saved.level || 1;
+        initialScore = saved.score || 0;
+        try { customState = saved.state_json ? JSON.parse(saved.state_json) : {}; } catch (_) {}
+        resumptionInfo = {
+          resumed: true,
+          level: initialWave,
+          score: initialScore
+        };
+      } else {
+        resumptionInfo = {
+          resumed: false,
+          message: 'No saved progress found. Starting from Level 1 (AC-24.2).'
+        };
+      }
+    }
+
+    // 2. Create single-player session record in database (AC-13.1, AC-24.1)
     const session = this.sessionService.createSinglePlayerSession({
       gameId: game.id,
       playerId: user ? user.id : 'guest',
-      mode: 'single_player'
+      mode: 'single_player',
+      initialWave,
+      initialScore,
+      customState
     });
 
     // 3. Issue cryptographically signed, short-lived launch ticket (expires in 15 mins)
@@ -199,6 +230,7 @@ class GameLaunchService {
       launchTicket,
       sessionId: session.sessionId,
       session,
+      resumption: resumptionInfo,
       game: {
         id: game.id,
         title: game.title,

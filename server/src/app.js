@@ -94,6 +94,10 @@ function createApp() {
   const { gameLaunchRouter, directLaunchGuard } = require('./modules/gameLaunch');
   app.use('/api/v1', gameLaunchRouter);
 
+  // Mount Game Progress, History & Achievements routes (Sprint 05: EP07-01, EP07-02, EP07-03, EP07-04)
+  const { progressRouter } = require('./modules/progress');
+  app.use('/api/v1/progress', progressRouter);
+
   // Direct game launch asset protection (EP03-04, AC-12.1)
   // Direct navigation without a valid session launch ticket is rejected
   app.get('/games/:slug/index.html', directLaunchGuard, (req, res) => {
@@ -109,11 +113,12 @@ function createApp() {
   app.get('/api/v1/status', (req, res) => {
     res.status(200).json({
       platform: 'Online Gaming Platform',
-      version: '0.5.0',
-      activeSprint: '04',
+      version: '0.6.0',
+      activeSprint: '05',
       phase: '1',
       environment: process.env.NODE_ENV || 'development',
       features: {
+        progressAndHistory: 'active (Sprint 05: Game Progress, Recent Session History, Milestone Achievements, Resumption)',
         gameLaunch: 'active (Sprint 04: Game Launching, Single-Player Sessions, Device Compatibility, First Playable Engine)',
         contentAdministration: 'active (Sprint 03: Game Registration, Metadata Editing, Publication Workflow, Licensing Clearance, Audit Trail)',
         gameCatalog: 'active (Sprint 02: Browse, Search, Category Filter, Game Details)',

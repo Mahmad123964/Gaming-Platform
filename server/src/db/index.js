@@ -27,9 +27,19 @@ class DatabaseManager {
     this.db.exec(sql);
     try {
       this.db.exec('ALTER TABLE auth_sessions ADD COLUMN csrf_token TEXT;');
-    } catch (e) {
-      // Column already exists in schema, ignore duplicate column error
-    }
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE game_sessions ADD COLUMN player_id TEXT NOT NULL DEFAULT "guest";');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE game_sessions ADD COLUMN score INTEGER NOT NULL DEFAULT 0;');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE game_sessions ADD COLUMN state_json TEXT;');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE game_sessions ADD COLUMN restart_count INTEGER NOT NULL DEFAULT 0;');
+    } catch (e) {}
   }
 
   query(sql, params = []) {

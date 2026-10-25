@@ -21,11 +21,13 @@ gameLaunchRouter.post('/games/:idOrSlug/launch', optionalAuth, (req, res) => {
     const launchService = getGameLaunchService();
     const userAgent = req.headers['user-agent'] || '';
     const clientCapabilities = req.body.clientCapabilities || null;
+    const resume = req.body.resume === true || req.query.resume === 'true';
 
     const result = launchService.launchGame({
       gameIdOrSlug: req.params.idOrSlug,
       user: req.player,
       clientCapabilities,
+      resume,
       userAgent,
       ip: req.ip
     });

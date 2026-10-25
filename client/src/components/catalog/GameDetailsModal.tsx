@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './GameDetailsModal.module.css';
 import { Game } from '../../types/catalog';
 
@@ -6,7 +6,7 @@ interface GameDetailsModalProps {
   game: Game | null;
   isOpen: boolean;
   onClose: () => void;
-  onLaunch?: (gameIdOrSlug: string) => void;
+  onLaunch?: (gameIdOrSlug: string, resume?: boolean) => void;
   onLog?: (msg: string, type?: 'dim' | 'green' | 'blue' | 'yellow' | 'rose') => void;
 }
 
@@ -17,6 +17,20 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
   onLaunch,
   onLog
 }) => {
+  const [savedCheckpoint, setSavedCheckpoint] = useState<{ level: number; score: number } | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || !game) return;
+    setSavedCheckpoint(null);
+    fetch(`/api/v1/progress/checkpoint/${encodeURIComponent(game.slug)}`, { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.hasSavedProgress && data.progress) {
+          setSavedCheckpoint(data.progress);
+        }
+      })
+      .catch(() => {});
+  }, [isOpen, game]);
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -62,9 +76,9 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
 
   const isPremium = game.isPremium;
 
-  const handleLaunchClick = () => {
+  const handleLaunchClick = (resumeMode = false) => {
     if (onLaunch) {
-      onLaunch(game.slug || game.id);
+      onLaunch(game.slug || game.id, resumeMode);
       onClose();
     } else if (isPremium) {
       if (onLog) {
@@ -163,16 +177,29 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
             <button className={styles.dismissBtn} onClick={onClose} id="btn-close-modal">
               Close
             </button>
+            {savedCheckpoint && (
+              <button
+                className={styles.launchBtn}
+                style={{ background: 'linear-gradient(135deg, #10B981 0%, #00F0FF 100%)', border: 'none', color: '#0B0F19', fontWeight: 800 }}
+                onClick={() => handleLaunchClick(true)}
+                id="btn-resume-saved-level"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                Resume at Wave {savedCheckpoint.level} (AC-24.1)
+              </button>
+            )}
             <button
               className={styles.launchBtn}
-              onClick={handleLaunchClick}
+              onClick={() => handleLaunchClick(false)}
               id="btn-launch-game"
               aria-describedby={isPremium ? 'premium-requirement-banner' : undefined}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
-              {isPremium ? 'Upgrade to Launch' : 'Launch Game'}
+              {isPremium ? 'Upgrade to Launch' : (savedCheckpoint ? 'Restart Mission' : 'Launch Game')}
             </button>
           </div>
         </div>

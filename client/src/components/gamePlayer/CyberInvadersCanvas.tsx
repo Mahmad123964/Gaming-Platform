@@ -9,9 +9,12 @@ export interface CyberInvadersRef {
 }
 
 interface CyberInvadersProps {
+  initialWave?: number;
+  initialScore?: number;
   onScoreUpdate?: (score: number) => void;
-  onGameOver?: (finalScore: number) => void;
+  onGameOver?: (finalScore: number, finalWave: number) => void;
   onRestart?: () => void;
+  onWaveComplete?: (wave: number, score: number) => void;
   soundEnabled?: boolean;
 }
 
@@ -47,16 +50,19 @@ interface BunkerBlock {
 }
 
 export const CyberInvadersCanvas = forwardRef<CyberInvadersRef, CyberInvadersProps>(({
+  initialWave = 1,
+  initialScore = 0,
   onScoreUpdate,
   onGameOver,
   onRestart,
+  onWaveComplete,
   soundEnabled = true
 }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [status, setStatus] = useState<GameStatus>('IDLE');
-  const [score, setScore] = useState<number>(0);
+  const [score, setScore] = useState<number>(initialScore);
   const [lives, setLives] = useState<number>(3);
-  const [wave, setWave] = useState<number>(1);
+  const [wave, setWave] = useState<number>(initialWave);
 
   // Audio Context (Synthesizer for retro 8-bit sound effects)
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -86,9 +92,9 @@ export const CyberInvadersCanvas = forwardRef<CyberInvadersRef, CyberInvadersPro
   // Game Engine Mutable State
   const stateRef = useRef({
     status: 'IDLE' as GameStatus,
-    score: 0,
+    score: initialScore,
     lives: 3,
-    wave: 1,
+    wave: initialWave,
     playerX: 400 - 18,
     playerY: 460,
     playerWidth: 36,
@@ -249,7 +255,7 @@ export const CyberInvadersCanvas = forwardRef<CyberInvadersRef, CyberInvadersPro
       stateRef.current.lives = 0;
       setStatus('GAME_OVER');
       setLives(0);
-      if (onGameOver) onGameOver(stateRef.current.score);
+      if (onGameOver) onGameOver(stateRef.current.score, stateRef.current.wave);
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -353,7 +359,7 @@ export const CyberInvadersCanvas = forwardRef<CyberInvadersRef, CyberInvadersPro
           if (alien.y + alien.height >= s.playerY) {
             s.status = 'GAME_OVER';
             setStatus('GAME_OVER');
-            if (onGameOver) onGameOver(s.score);
+            if (onGameOver) onGameOver(s.score, s.wave);
             playTone(110, 'sawtooth', 0.6, 0.2);
           }
         }
@@ -372,6 +378,7 @@ export const CyberInvadersCanvas = forwardRef<CyberInvadersRef, CyberInvadersPro
           setWave(s.wave);
           setScore(s.score);
           if (onScoreUpdate) onScoreUpdate(s.score);
+          if (onWaveComplete) onWaveComplete(s.wave, s.score);
           initInvaders(s.wave);
           playTone(660, 'sine', 0.3);
         }
@@ -439,7 +446,7 @@ export const CyberInvadersCanvas = forwardRef<CyberInvadersRef, CyberInvadersPro
               if (s.lives <= 0) {
                 s.status = 'GAME_OVER';
                 setStatus('GAME_OVER');
-                if (onGameOver) onGameOver(s.score);
+                if (onGameOver) onGameOver(s.score, s.wave);
               }
             }
           }

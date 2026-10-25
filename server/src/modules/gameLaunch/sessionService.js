@@ -35,7 +35,14 @@ class SessionService {
    * @param {string} params.playerId (optional for guests)
    * @param {string} params.mode ('single_player')
    */
-  createSinglePlayerSession({ gameId, playerId = null, mode = 'single_player' }) {
+  createSinglePlayerSession({
+    gameId,
+    playerId = null,
+    mode = 'single_player',
+    initialWave = 1,
+    initialScore = 0,
+    customState = {}
+  }) {
     // 1. Fetch game configuration and capacity rules
     const game = this.db.get(
       'SELECT id, title, slug, min_players, max_players, is_published FROM games WHERE id = ?',
@@ -69,20 +76,25 @@ class SessionService {
       );
     }
 
-    // 3. Create new single-player session (AC-13.1)
+    // 3. Create new single-player session (AC-13.1, AC-24.1)
     const sessionId = 'ses-' + crypto.randomUUID();
+    const parsedWave = Math.max(1, parseInt(initialWave, 10) || 1);
+    const parsedScore = Math.max(0, parseInt(initialScore, 10) || 0);
+
     const initialState = {
-      wave: 1,
+      wave: parsedWave,
       lives: 3,
-      score: 0,
-      startTime: new Date().toISOString()
+      score: parsedScore,
+      resumed: parsedWave > 1,
+      startTime: new Date().toISOString(),
+      ...customState
     };
 
     this.db.run(
       `INSERT INTO game_sessions (
         id, game_id, player_id, mode, status, score, state_json, restart_count, created_at
-      ) VALUES (?, ?, ?, ?, 'active', 0, ?, 0, CURRENT_TIMESTAMP)`,
-      [sessionId, gameId, playerId || 'guest', mode, JSON.stringify(initialState)]
+      ) VALUES (?, ?, ?, ?, 'active', ?, ?, 0, CURRENT_TIMESTAMP)`,
+      [sessionId, gameId, playerId || 'guest', mode, parsedScore, JSON.stringify(initialState)]
     );
 
     return this.getSession(sessionId);

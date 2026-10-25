@@ -110,6 +110,7 @@ function requireAuth(req, res, next) {
   }
 
   req.player = player;
+  req.user = player;
   req.sessionToken = token;
   next();
 }
@@ -127,12 +128,14 @@ function optionalAuth(req, res, next) {
 
   if (!token) {
     req.player = null;
+    req.user = null;
     return next();
   }
 
   const authService = getAuthService();
   const player = authService.validateSession(token);
   req.player = player || null;
+  req.user = player || null;
   req.sessionToken = token;
   next();
 }

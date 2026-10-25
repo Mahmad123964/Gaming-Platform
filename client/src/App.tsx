@@ -7,6 +7,7 @@ import { TerminalConsole } from './components/TerminalConsole';
 import { RoadmapGrid } from './components/RoadmapGrid';
 import { GameCatalog } from './components/catalog/GameCatalog';
 import { ContentAdminConsole } from './components/admin/ContentAdminConsole';
+import { ProgressHubModal } from './components/progress/ProgressHubModal';
 import { AuthModal, AuthMode, User } from './components/AuthModal';
 import { HealthData, TerminalEntry } from './types/telemetry';
 import { getCsrfToken } from './utils/csrf';
@@ -24,6 +25,7 @@ export const App: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<AuthMode>('login');
   const [isAdminConsoleVisible, setIsAdminConsoleVisible] = useState<boolean>(true);
+  const [isCareerHubOpen, setIsCareerHubOpen] = useState<boolean>(false);
 
   const [logs, setLogs] = useState<TerminalEntry[]>([
     {
@@ -55,6 +57,12 @@ export const App: React.FC = () => {
       time: new Date().toLocaleTimeString(),
       message: 'Sprint 04 Game Launching & First Playable online: Cyber Invaders Canvas 2D engine & solo sessions active.',
       type: 'blue',
+    },
+    {
+      id: 'init-6',
+      time: new Date().toLocaleTimeString(),
+      message: 'Sprint 05 Game Progress, History & Achievements online: 10-session history, wave checkpoints & medals active.',
+      type: 'green',
     },
   ]);
 
@@ -208,6 +216,7 @@ export const App: React.FC = () => {
         onSignOut={handleSignOut}
         isAdminConsoleVisible={isAdminConsoleVisible}
         onToggleAdminConsole={() => setIsAdminConsoleVisible(v => !v)}
+        onOpenCareerHub={() => setIsCareerHubOpen(true)}
       />
 
       <main className={styles.mainContent} id="mainContent">
@@ -240,8 +249,8 @@ export const App: React.FC = () => {
             <strong>NexusPlay Online Gaming Platform</strong> — Built with React 19, TypeScript & Google Antigravity
           </div>
           <div className={styles.footerRight}>
-            <span>Active Sprint: <strong>04 (Game Launching & First Playable)</strong></span>
-            <span>Architecture: <strong>ADR-0004 Verified</strong></span>
+            <span>Active Sprint: <strong>05 (Game Progress, History & Achievements)</strong></span>
+            <span>Architecture: <strong>ADR-0005 Verified</strong></span>
             <span>Target Capacity: <strong>10,000 CCU</strong></span>
           </div>
         </div>
@@ -253,6 +262,19 @@ export const App: React.FC = () => {
         initialMode={authModalMode}
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
+        onLog={addLog}
+      />
+
+      {/* Sprint 05 Career & Milestones Hub Modal */}
+      <ProgressHubModal
+        isOpen={isCareerHubOpen}
+        onClose={() => setIsCareerHubOpen(false)}
+        onResumeGame={(slug) => {
+          setIsCareerHubOpen(false);
+          const catalogEl = document.getElementById('game-catalog');
+          if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+          addLog(`Resuming mission checkpoint for "${slug}". Launching via Discovery Engine.`, 'green');
+        }}
         onLog={addLog}
       />
     </div>
