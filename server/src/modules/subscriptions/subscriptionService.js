@@ -154,6 +154,15 @@ class SubscriptionService {
       return this.getSubscription(playerId);
     }
 
+    // Critical Security Guard: Simulated payment strictly disallowed in production environment
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.APP_ENV === 'production';
+    if (isProduction) {
+      const err = new Error('Live payment gateway is not configured for production. Subscription upgrades via simulation are prohibited in production environment.');
+      err.status = 501;
+      err.code = 'PAYMENT_GATEWAY_NOT_CONFIGURED';
+      throw err;
+    }
+
     // 30 days entitlement duration
     const durationDays = plan.interval === 'yearly' ? 365 : 30;
     const currentPeriodEnd = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString();

@@ -277,14 +277,54 @@ CREATE INDEX IF NOT EXISTS idx_lobby_participants_player ON lobby_participants(p
 
 ## 8. Summary of Scope Boundaries
 
-| Requirement Domain | Sprint 08 Scope (Approved) | Sprint 09 Scope (Deferred) | Sprint 10 Scope (Deferred) |
-|:---|:---:|:---:|:---:|
-| Two-Player Sessions | **Fully Implemented** | Maintenance | Maintenance |
-| 6-Char Code Creation | **Fully Implemented** | Maintenance | Maintenance |
-| Code-Based Joining | **Fully Implemented** | Maintenance | Maintenance |
-| 3-Player Rejection | **Fully Implemented** | Maintenance | Maintenance |
-| State Machine (waiting/full/active) | **Fully Implemented** | Maintenance | Maintenance |
-| Disconnection Recovery Messaging | **Out of Scope** | **Target Sprint 09 (EP05-04)** | Maintenance |
-| Public Matchmaking Queue | **Out of Scope** | **Target Sprint 09 (EP06-03)** | Maintenance |
-| 3-4 Player Lobbies & AI Bots | **Out of Scope** | **Out of Scope** | **Target Sprint 10** |
-| Payment Gateway / Monetary Wagers| **Out of Scope** | **Out of Scope** | **Sprint 12 / Future Phase**|
+| Requirement Domain | Sprint 08 Status | Sprint 09 Status | Sprint 10 Status | Sprint 11 Status |
+|:---|:---:|:---:|:---:|:---:|
+| Two-Player Sessions | **Fully Implemented** | Certified | Certified | Certified |
+| 6-Char Code Creation | **Fully Implemented** | Certified | Certified | Certified |
+| Code-Based Joining | **Fully Implemented** | Certified | Certified | Certified |
+| State Machine (waiting/full/active) | **Fully Implemented** | Certified | Certified | Certified |
+| Disconnection Recovery (30s grace) | Deferred | **Fully Implemented (EP05-04)** | Certified | Certified |
+| Public Matchmaking Queues | Deferred | **Fully Implemented (EP06-03)** | Certified | Certified |
+| SRE Error Counters & Degradation | Deferred | **Fully Implemented (EP12-03/04)** | Certified | Certified |
+| AI Bot Opponents (Easy/Med/Hard) | Out of Scope | Out of Scope | **Fully Implemented (EP04-02)** | Certified |
+| 3-Player & 4-Player Group Lobbies | Out of Scope | Out of Scope | **Fully Implemented (EP06-01/02)** | Certified |
+| Premium Entitlements Gating | Out of Scope | Out of Scope | Out of Scope | **Fully Implemented (EP08-01..04)** |
+| Live Payment Gateway / Webhooks | Out of Scope | Out of Scope | Out of Scope | **Sprint 12 (Gated)** |
+
+---
+
+## 9. Sprint 09: Matchmaking & Disconnection Recovery Architecture
+
+### 9.1 In-Memory Queue vs. Persistent Lobbies
+- **Queue State:** Public matchmaking tickets are held in Node.js heap memory (`MatchmakingService.queues: Map<gameSlug, Ticket[]>`). This enables O(1) atomic pair evaluation without SQL contention.
+- **Match State:** Once two players are matched, a persistent lobby is written to SQLite (`lobbies` and `lobby_participants`).
+- **Process Restart Boundary (Limitation):** If the Node.js server process restarts, in-flight tickets waiting in the matchmaking queue are lost; waiting players must re-queue. However, active matches and lobbies persisted in SQLite survive process restarts, allowing disconnected clients to re-authenticate and query room state.
+
+### 9.2 Grace Period & Reconnection Finite State Machine
+- When a WebSocket disconnects, `realtimeService` flags the player in SQLite as `disconnected` with a 30-second `reconnect_deadline`.
+- Real-time event `PLAYER_DISCONNECTED` is broadcast to remaining participants.
+- If the player reconnects via `POST /api/v1/lobbies/:id/reconnect` within the 30-second window, their seat is restored, board state is synchronized, and `PLAYER_RECONNECTED` is broadcast.
+- If the 30-second grace window expires without reconnection, any subsequent reconnect attempt returns HTTP `410 MATCH_FORFEITED`. The match is authoritatively marked `ended`, and the remaining connected player is awarded the forfeit win.
+
+---
+
+## 10. Sprint 10: AI Bot Opponents & Group Multiplayer Architecture
+
+### 10.1 AI Bot Engine Architecture
+- **Bot Opponent Generation:** Initiated via `POST /api/v1/lobbies/bot` with `difficulty: "easy" | "medium" | "hard"`.
+- **Identity Isolation:** Bot opponents use synthetic identifiers (`bot-uuid`) and database flag `is_bot = 1`. Bot match results are isolated from human global Elo rating calculations.
+- **Move Calculation:** Handled in `server/src/modules/multiplayer/botService.js`. Combines an opening book table with tactical heuristic evaluations. Artificial thinking delays (500ms–1500ms) are injected to simulate realistic human cadence.
+
+### 10.2 Group Multiplayer & Circular Turn Sequencing (3–4 Players)
+- **Game Eligibility Gate:** Group lobby creation (3–4 players) is strictly validated against game capabilities. Games with `max_players = 2` (such as *Obsidian Chess*) reject 3–4 player lobby creation with HTTP `422 CAPACITY_EXCEEDS_GAME_LIMIT`. Group multiplayer is supported on certified group titles (e.g., *Vortex Arena*).
+- **Capacity Enforcement:** Atomic participant insertion ensures that lobbies reaching `max_players` reject additional join requests with HTTP `409 LOBBY_FULL`.
+- **Circular Turn Sequencing:** The server validates that player moves arrive in strict circular order (Player 1 -> Player 2 -> Player 3 [-> Player 4] -> Player 1). Out-of-turn move submissions are rejected with HTTP `400 / WS 4001 INVALID_TURN`.
+
+---
+
+## 11. Gameplay Authority & Anti-Cheat Classification
+
+To maintain rigorous technical transparency, gameplay throughout Sprints 08–11 is classified as:
+**Client-Side Move Calculation with Server-Validated Turn Sequencing and Authoritative State Persistence.**
+- **Anti-Cheat Scope:** The server enforces valid authentication, seat ownership, capacity limits, and circular turn sequencing.
+- **Rule Engine Limitations:** The platform does **not** execute a full server-side chess engine or physics simulation for real-time move legality. Moves are computed client-side and relayed with turn validation. Complete server-authoritative physics and rule validation are designated for future roadmap phases.

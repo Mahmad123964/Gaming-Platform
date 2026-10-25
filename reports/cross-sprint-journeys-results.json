@@ -1,0 +1,155 @@
+{
+  "timestamp": "2026-10-25T19:33:39.064Z",
+  "total": 21,
+  "passed": 21,
+  "failed": 0,
+  "details": [
+    {
+      "journey": "Journey A",
+      "stepId": "JA-01",
+      "description": "Player 1 queues for matchmaking",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey A",
+      "stepId": "JA-02",
+      "description": "Player 2 queues and pairs with Player 1",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey A",
+      "stepId": "JA-03",
+      "description": "Both players establish authenticated WebSockets and subscribe",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey A",
+      "stepId": "JA-04",
+      "description": "Player 1 receives real-time PLAYER_DISCONNECTED event",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey A",
+      "stepId": "JA-05",
+      "description": "Player 2 calls HTTP reconnect within grace period and recovers state",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey A",
+      "stepId": "JA-06",
+      "description": "Player 1 receives PLAYER_RECONNECTED event over WebSocket; match continues",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey B",
+      "stepId": "JB-01",
+      "description": "Match started between Player 1 and Player 2",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey B",
+      "stepId": "JB-02",
+      "description": "Expired reconnect attempt rejected with HTTP 410 MATCH_FORFEITED",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey B",
+      "stepId": "JB-03",
+      "description": "Match authoritatively ended in SQLite with remaining player as winner",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey C",
+      "stepId": "JC-01",
+      "description": "Player initiates instant single-player bot match in Obsidian Chess",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey C",
+      "stepId": "JC-02",
+      "description": "Bot calculates heuristic move within required latency window (500-1500ms)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey C",
+      "stepId": "JC-03",
+      "description": "Bot match conclusion recorded with is_bot=1 schema isolation",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey D",
+      "stepId": "JD-01",
+      "description": "Host provisions 3-player lobby on Vortex Arena",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey D",
+      "stepId": "JD-02",
+      "description": "Lobby reaches exact 3-player capacity and transitions to full",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey D",
+      "stepId": "JD-03",
+      "description": "4th player entry attempt rejected with HTTP 409 Conflict",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey D",
+      "stepId": "JD-04",
+      "description": "Host starts match, transitioning group to active status",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey E",
+      "stepId": "JE-01",
+      "description": "Free player launch of premium title blocked with HTTP 403 ENTITLEMENT_REQUIRED",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey E",
+      "stepId": "JE-02",
+      "description": "Public plan comparison matrix returned with 3 standard tiers",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey E",
+      "stepId": "JE-03",
+      "description": "SECURITY AUDIT: Production mode rejects simulated paid upgrade with HTTP 501",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey E",
+      "stepId": "JE-04",
+      "description": "Staging sandbox allows simulated upgrade with explicit simulation metadata",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "journey": "Journey E",
+      "stepId": "JE-05",
+      "description": "Newly upgraded subscriber successfully launches premium title with launch ticket",
+      "status": "PASSED",
+      "details": ""
+    }
+  ]
+}

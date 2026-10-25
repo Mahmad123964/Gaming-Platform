@@ -319,13 +319,15 @@ export const SubscriptionPlansModal: React.FC<SubscriptionPlansModalProps> = ({
                     id={`btn-plan-action-${plan.id}`}
                   >
                     {isSubscribing ? (
-                      'Processing Upgrade...'
+                      'Simulating Processing...'
                     ) : current ? (
                       '✓ Current Plan'
                     ) : !currentUser ? (
                       'Sign In to Upgrade'
+                    ) : plan.id === 'plan-free' ? (
+                      'Select Free Tier'
                     ) : (
-                      `Upgrade to ${plan.name}`
+                      `Simulate Upgrade to ${plan.name}`
                     )}
                   </button>
                 </div>
@@ -334,7 +336,7 @@ export const SubscriptionPlansModal: React.FC<SubscriptionPlansModalProps> = ({
           </div>
 
           <div className={styles.footerNote}>
-            <span>🔒 Secure Single-Host SQLite & Session Sandbox</span>
+            <span>🔒 Sandbox Simulation Mode (Live Payment Integration Reserved for Sprint 12)</span>
             <span>⚡ Zero-Latency AI Matchmaking Included</span>
             <span>↺ Cancel Anytime</span>
           </div>

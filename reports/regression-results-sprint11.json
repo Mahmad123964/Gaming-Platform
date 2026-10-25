@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-25T18:56:35.913Z",
+  "timestamp": "2026-10-25T19:33:49.849Z",
   "totalSuites": 12,
   "suitesPassed": 12,
   "suitesFailed": 0,
@@ -14,7 +14,7 @@
       "passed": 5,
       "failed": 0,
       "total": 5,
-      "durationMs": 217,
+      "durationMs": 337,
       "status": "PASSED"
     },
     {
@@ -24,7 +24,7 @@
       "passed": 49,
       "failed": 0,
       "total": 49,
-      "durationMs": 4306,
+      "durationMs": 8470,
       "status": "PASSED"
     },
     {
@@ -34,7 +34,7 @@
       "passed": 31,
       "failed": 0,
       "total": 31,
-      "durationMs": 797,
+      "durationMs": 1834,
       "status": "PASSED"
     },
     {
@@ -44,7 +44,7 @@
       "passed": 69,
       "failed": 0,
       "total": 69,
-      "durationMs": 680,
+      "durationMs": 1113,
       "status": "PASSED"
     },
     {
@@ -54,7 +54,7 @@
       "passed": 40,
       "failed": 0,
       "total": 40,
-      "durationMs": 639,
+      "durationMs": 1128,
       "status": "PASSED"
     },
     {
@@ -64,7 +64,7 @@
       "passed": 60,
       "failed": 0,
       "total": 60,
-      "durationMs": 751,
+      "durationMs": 1372,
       "status": "PASSED"
     },
     {
@@ -74,7 +74,7 @@
       "passed": 30,
       "failed": 0,
       "total": 30,
-      "durationMs": 712,
+      "durationMs": 917,
       "status": "PASSED"
     },
     {
@@ -84,7 +84,7 @@
       "passed": 70,
       "failed": 0,
       "total": 70,
-      "durationMs": 1344,
+      "durationMs": 1706,
       "status": "PASSED"
     },
     {
@@ -94,7 +94,7 @@
       "passed": 51,
       "failed": 0,
       "total": 51,
-      "durationMs": 1175,
+      "durationMs": 1450,
       "status": "PASSED"
     },
     {
@@ -104,7 +104,7 @@
       "passed": 29,
       "failed": 0,
       "total": 29,
-      "durationMs": 1285,
+      "durationMs": 1476,
       "status": "PASSED"
     },
     {
@@ -114,7 +114,7 @@
       "passed": 29,
       "failed": 0,
       "total": 29,
-      "durationMs": 2386,
+      "durationMs": 2546,
       "status": "PASSED"
     },
     {
@@ -124,7 +124,7 @@
       "passed": 31,
       "failed": 0,
       "total": 31,
-      "durationMs": 583,
+      "durationMs": 611,
       "status": "PASSED"
     }
   ]

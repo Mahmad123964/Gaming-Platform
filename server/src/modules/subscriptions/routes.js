@@ -80,6 +80,17 @@ subscriptionRouter.post('/subscribe', requireAuth, (req, res) => {
       });
     }
 
+    const isProduction = process.env.NODE_ENV === 'production' || 
+                         process.env.APP_ENV === 'production' ||
+                         (process.env.NODE_ENV !== 'production' && req.headers['x-test-env'] === 'production');
+    if (isProduction && planId !== 'plan-free') {
+      return res.status(501).json({
+        error: 'PAYMENT_GATEWAY_NOT_CONFIGURED',
+        message: 'Live payment gateway is not configured for production. Subscription upgrades via simulation are strictly prohibited in production environment.',
+        timestamp: new Date().toISOString()
+      });
+    }
+
     const subscription = subService.subscribe({
       playerId,
       planId,
@@ -90,6 +101,8 @@ subscriptionRouter.post('/subscribe', requireAuth, (req, res) => {
       status: 'SUCCESS',
       message: `Successfully subscribed to ${subscription.tier}`,
       subscription,
+      isSimulated: planId !== 'plan-free',
+      simulationNotice: planId !== 'plan-free' ? 'Non-production test simulation: No real financial transaction was executed.' : null,
       timestamp: new Date().toISOString()
     });
   } catch (err) {

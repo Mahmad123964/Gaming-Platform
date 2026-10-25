@@ -273,12 +273,14 @@ async function runBrowserVerification() {
     await sleep(1800);
     await client.screenshot(path.join(SCREENSHOT_DIR, '03-bot-response-latency-move.png'));
 
-    // Close bot match
+    // Close and leave bot match
     await client.eval(`
+      const leaveBtn = document.getElementById('btn-leave-lobby');
+      if (leaveBtn) leaveBtn.click();
       const closeBtn = document.getElementById('btn-close-lobby-modal');
       if (closeBtn) closeBtn.click();
     `);
-    await sleep(600);
+    await sleep(800);
 
     // -----------------------------------------------------------------------
     // SCREENSHOT 4: 04-3player-lobby-created.png

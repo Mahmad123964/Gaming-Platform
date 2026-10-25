@@ -375,6 +375,7 @@ async function runBrowserVerification() {
     const db = new DatabaseSync(DB_PATH);
     const pastDate = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
     db.prepare("UPDATE subscriptions SET current_period_end = ?, status = 'expired'").run(pastDate);
+    db.close();
 
     // Attempt to launch Neon Horizon again
     await client.eval(`

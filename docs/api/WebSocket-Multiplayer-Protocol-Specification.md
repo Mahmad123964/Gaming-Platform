@@ -227,14 +227,44 @@ Transmitted prior to hard termination if the user's session is invalidated on th
 ### 3.8 `ERROR`
 Standard error message payload.
 
+### 3.9 `PLAYER_DISCONNECTED` (Sprint 09: EP05-04, AC-19.1)
+Broadcast when a participant abruptly disconnects during an active match, starting the 30-second grace window.
+
 ```json
 {
-  "type": "ERROR",
-  "error": {
-    "code": "FORBIDDEN_ROOM_ACCESS",
-    "message": "Player is not an authorized participant of this lobby."
-  },
-  "timestamp": "2026-10-25T14:30:20.000Z"
+  "type": "PLAYER_DISCONNECTED",
+  "lobbyId": "lobby-9a8b-1234",
+  "playerId": "user-guest-02",
+  "graceSeconds": 30,
+  "reconnectDeadline": "2026-10-25T14:35:30.000Z",
+  "timestamp": "2026-10-25T14:35:00.000Z"
+}
+```
+
+### 3.10 `PLAYER_RECONNECTED` (Sprint 09: EP05-04, AC-19.2)
+Broadcast when a disconnected participant successfully re-establishes their session within the grace period.
+
+```json
+{
+  "type": "PLAYER_RECONNECTED",
+  "lobbyId": "lobby-9a8b-1234",
+  "playerId": "user-guest-02",
+  "boardState": { "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" },
+  "turn": "guest",
+  "timestamp": "2026-10-25T14:35:10.000Z"
+}
+```
+
+### 3.11 `MATCH_FORFEITED` (Sprint 09: EP05-04, AC-19.3)
+Broadcast when the 30-second grace period expires without reconnection, ending the match in a forfeit win for the connected player.
+
+```json
+{
+  "type": "MATCH_FORFEITED",
+  "lobbyId": "lobby-9a8b-1234",
+  "winnerPlayerId": "user-host-01",
+  "reason": "GRACE_PERIOD_EXPIRED",
+  "timestamp": "2026-10-25T14:35:31.000Z"
 }
 ```
 
@@ -322,9 +352,12 @@ Server responds with:
 | `RATE_LIMITED` | 429 | Exceeded invalid invitation code lookup or join threshold (5 attempts / 5 mins). |
 | `FORBIDDEN_ROOM_ACCESS` | 403 | Attempted to subscribe or send events to a lobby where player is not a participant. |
 | `LOBBY_NOT_FOUND` | 404 | Specified `lobbyId` or invitation code does not exist. |
-| `LOBBY_FULL` | 409 | Attempted to join or assign a slot when room capacity (2/2) has been reached. |
+| `LOBBY_FULL` | 409 | Attempted to join or assign a slot when room capacity has been reached. |
 | `LOBBY_EXPIRED` | 410 | Invitation code has exceeded its 30-minute validity window. |
+| `MATCH_FORFEITED` | 410 | Attempted to reconnect to a match whose 30-second grace countdown has expired. |
+| `INVALID_TURN` | 400 | Move submitted out of turn in 2-player or circular 3/4-player rotation. |
 | `GAME_NOT_ELIGIBLE_FOR_MULTIPLAYER` | 422 | Target game has `max_players < 2` (single-player title). |
+| `CAPACITY_EXCEEDS_GAME_LIMIT` | 422 | Target game does not support requested group capacity (e.g. 3P/4P on 2P chess). |
 | `INVALID_STATE_TRANSITION` | 409 | Action cannot be performed in current state (e.g., starting an unfilled lobby). |
 | `SESSION_REVOKED` | 401 | Backend session invalidated; socket forcefully disconnected (code 4001). |
 | `MALFORMED_MESSAGE` | 400 | Payload fails JSON parsing or lacks required `type` field. |
