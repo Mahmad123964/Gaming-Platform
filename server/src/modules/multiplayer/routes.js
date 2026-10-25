@@ -318,6 +318,66 @@ router.post('/:id/start', requireAuth, (req, res) => {
 });
 
 /**
+ * POST /api/v1/lobbies/:id/reconnect
+ * EP05-04 / AC-19.2: Reconnect to active match within grace period
+ * AC-19.3: Clear unavailable message if no longer resumable (HTTP 410)
+ */
+router.post('/:id/reconnect', requireAuth, (req, res) => {
+  try {
+    const player = req.player || req.user;
+    const lobby = lobbyService.reconnectParticipant({
+      lobbyId: req.params.id,
+      playerId: player.id
+    });
+
+    // Clear forfeit timer in realtimeService
+    const timerKey = `${lobby.id}:${player.id}`;
+    if (realtimeService.reconnectTimers && realtimeService.reconnectTimers.has(timerKey)) {
+      clearTimeout(realtimeService.reconnectTimers.get(timerKey));
+      realtimeService.reconnectTimers.delete(timerKey);
+    }
+
+    realtimeService.subscribePlayerToRoom(player.id, lobby.id);
+
+    // Broadcast AC-19.2 PLAYER_RECONNECTED and MATCH_RESUMED to room
+    realtimeService.broadcastToRoom(lobby.id, {
+      type: 'PLAYER_RECONNECTED',
+      lobbyId: lobby.id,
+      playerId: player.id,
+      displayName: player.displayName,
+      boardState: lobby.boardState,
+      participants: lobby.participants,
+      timestamp: new Date().toISOString()
+    });
+
+    realtimeService.broadcastToRoom(lobby.id, {
+      type: 'MATCH_RESUMED',
+      lobbyId: lobby.id,
+      reconnectedPlayerId: player.id,
+      reconnectedPlayerName: player.displayName,
+      boardState: lobby.boardState,
+      participants: lobby.participants,
+      message: `${player.displayName} has successfully reconnected. Match resumed.`,
+      timestamp: new Date().toISOString()
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Successfully reconnected to match.',
+      lobby,
+      boardState: lobby.boardState
+    });
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({
+      error: err.code || 'ReconnectError',
+      message: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
  * GET /api/v1/lobbies
  * List joinable lobbies
  */
@@ -357,4 +417,126 @@ router.get('/', (req, res) => {
   }
 });
 
-module.exports = { lobbyRouter: router };
+// ==============================================================================
+// PUBLIC MATCHMAKING ROUTER (EP06-03)
+// ==============================================================================
+const matchmakingRouter = express.Router();
+const { getMatchmakingService } = require('./matchmakingService');
+
+/**
+ * POST /api/v1/matchmaking/queue
+ * EP06-03 / AC-22.1: Join matchmaking; match formed if opponent available
+ * AC-22.2: Returns waiting state if no opponent
+ */
+matchmakingRouter.post('/queue', requireAuth, (req, res) => {
+  try {
+    const player = req.player || req.user;
+    const { gameId, gameSlug, gameIdOrSlug } = req.body || {};
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip = (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null) || req.ip || req.socket?.remoteAddress || '127.0.0.1';
+
+    const gameTarget = gameId || gameSlug || gameIdOrSlug;
+    const mm = getMatchmakingService();
+    const result = mm.queuePlayer({
+      playerId: player.id,
+      gameIdOrSlug: gameTarget,
+      ip
+    });
+
+    return res.status(200).json({
+      success: true,
+      ...result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({
+      error: err.code || 'MatchmakingError',
+      message: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * DELETE /api/v1/matchmaking/queue
+ * EP06-03 / AC-22.3: Cancel matchmaking queue request
+ */
+matchmakingRouter.delete('/queue', requireAuth, (req, res) => {
+  try {
+    const player = req.player || req.user;
+    const { queueTicketId } = req.body || {};
+    const mm = getMatchmakingService();
+    const result = mm.cancelQueue({
+      queueTicketId,
+      playerId: player.id
+    });
+
+    return res.status(200).json({
+      success: true,
+      cancelled: true,
+      ...result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({
+      error: err.code || 'CancelMatchmakingError',
+      message: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+matchmakingRouter.post('/cancel', requireAuth, (req, res) => {
+  try {
+    const player = req.player || req.user;
+    const { queueTicketId } = req.body || {};
+    const mm = getMatchmakingService();
+    const result = mm.cancelQueue({
+      queueTicketId,
+      playerId: player.id
+    });
+
+    return res.status(200).json({
+      success: true,
+      cancelled: true,
+      ...result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({
+      error: err.code || 'CancelMatchmakingError',
+      message: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * GET /api/v1/matchmaking/status
+ * Check current matchmaking queue status for player
+ */
+matchmakingRouter.get('/status', requireAuth, (req, res) => {
+  try {
+    const player = req.player || req.user;
+    const mm = getMatchmakingService();
+    const status = mm.getQueueStatus({ playerId: player.id });
+    return res.status(200).json({
+      success: true,
+      ...status,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: 'MatchmakingStatusError',
+      message: err.message
+    });
+  }
+});
+
+module.exports = {
+  lobbyRouter: router,
+  matchmakingRouter
+};

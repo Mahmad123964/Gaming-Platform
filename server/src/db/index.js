@@ -59,6 +59,21 @@ class DatabaseManager {
       this.db.exec('ALTER TABLE lobbies ADD COLUMN ended_at DATETIME;');
     } catch (e) {}
     try {
+      this.db.exec('ALTER TABLE lobby_participants ADD COLUMN disconnected_at DATETIME;');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE lobby_participants ADD COLUMN reconnect_deadline DATETIME;');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE lobbies ADD COLUMN board_state_json TEXT;');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE lobbies ADD COLUMN is_matchmaking INTEGER NOT NULL DEFAULT 0;');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE lobbies ADD COLUMN winner_id TEXT REFERENCES players(id);');
+    } catch (e) {}
+    try {
       this.db.exec(`CREATE TABLE IF NOT EXISTS lobby_participants (
         id TEXT PRIMARY KEY,
         lobby_id TEXT NOT NULL REFERENCES lobbies(id) ON DELETE CASCADE,
@@ -66,6 +81,8 @@ class DatabaseManager {
         role TEXT NOT NULL DEFAULT 'guest',
         status TEXT NOT NULL DEFAULT 'connected',
         joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        disconnected_at DATETIME,
+        reconnect_deadline DATETIME,
         UNIQUE(lobby_id, player_id)
       );`);
     } catch (e) {}

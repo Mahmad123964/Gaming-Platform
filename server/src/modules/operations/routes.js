@@ -102,6 +102,23 @@ operationsRouter.get('/metrics', (req, res) => {
 });
 
 /**
+ * GET /api/v1/admin/operations/metrics/matchmaking
+ * Query params: service, environment
+ * Traceability: EP12-03 (AC-43.1, AC-43.2, AC-43.3)
+ */
+operationsRouter.get('/metrics/matchmaking', (req, res) => {
+  const { service, environment } = req.query;
+  const metricsService = getMetricsService();
+  const data = metricsService.getMatchmakingMetrics({ service, environment });
+  return res.status(200).json({
+    success: true,
+    ...data,
+    data,
+    timestamp: new Date().toISOString()
+  });
+});
+
+/**
  * POST /api/v1/admin/operations/metrics/toggle-telemetry
  * Controlled fault injection to simulate telemetry outage (AC-41.3)
  * Task 3: Blocked in production, CSRF-protected, logged in audit_events.

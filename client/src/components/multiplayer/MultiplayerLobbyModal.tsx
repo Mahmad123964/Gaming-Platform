@@ -54,13 +54,24 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
   preselectedGameSlug,
   onLog
 }) => {
-  const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
+  const [activeTab, setActiveTab] = useState<'create' | 'join' | 'matchmaking'>('create');
   const [selectedGameId, setSelectedGameId] = useState<string>(preselectedGameSlug || 'obsidian-chess');
   const [joinCode, setJoinCode] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+
+  // Matchmaking State (EP06-03)
+  const [isSearchingMatch, setIsSearchingMatch] = useState<boolean>(false);
+  const [queueTicketId, setQueueTicketId] = useState<string | null>(null);
+  const [queuePosition, setQueuePosition] = useState<number>(1);
+  const [searchSeconds, setSearchSeconds] = useState<number>(0);
+
+  // Disconnection / Reconnection State (EP05-04)
+  const [peerDisconnected, setPeerDisconnected] = useState<boolean>(false);
+  const [disconnectCountdown, setDisconnectCountdown] = useState<number>(60);
+  const [matchOutcome, setMatchOutcome] = useState<string | null>(null);
 
   // Active lobby & real-time match state
   const [activeLobby, setActiveLobby] = useState<Lobby | null>(null);
@@ -69,6 +80,35 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
   const [selectedPos, setSelectedPos] = useState<[number, number] | null>(null);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
+
+  // Matchmaking timer
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isSearchingMatch) {
+      setSearchSeconds(0);
+      timer = setInterval(() => {
+        setSearchSeconds((s) => s + 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isSearchingMatch]);
+
+  // Disconnection countdown timer
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (peerDisconnected && disconnectCountdown > 0) {
+      timer = setInterval(() => {
+        setDisconnectCountdown((c) => {
+          if (c <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return c - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [peerDisconnected, disconnectCountdown]);
 
   // Sync preselected game
   useEffect(() => {
@@ -129,6 +169,32 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
             setTurn(nextTurn || (turn === 'w' ? 'b' : 'w'));
             setMoveHistory((prev) => [...prev, `${move.player || 'Player'}: ${move.notation || 'Move'}`]);
           }
+        } else if (data.type === 'MATCHMAKING_QUEUED') {
+          setIsSearchingMatch(true);
+          setQueuePosition(data.queuePosition || 1);
+          if (data.queueTicketId) setQueueTicketId(data.queueTicketId);
+          if (onLog) onLog(`In Matchmaking Queue for ${data.gameTitle || 'Game'}. Position #${data.queuePosition || 1}`, 'blue');
+        } else if (data.type === 'MATCHMAKING_MATCHED') {
+          setIsSearchingMatch(false);
+          const lobbyData = data.lobby || data.match || data;
+          setActiveLobby(lobbyData);
+          if (onLog) onLog(`Matchmaking paired! Joined match for ${lobbyData.game?.title || 'Game'}!`, 'green');
+        } else if (data.type === 'MATCHMAKING_CANCELLED') {
+          setIsSearchingMatch(false);
+          setQueueTicketId(null);
+          if (onLog) onLog(`Matchmaking search cancelled.`, 'yellow');
+        } else if (data.type === 'PLAYER_DISCONNECTED') {
+          setPeerDisconnected(true);
+          setDisconnectCountdown(data.reconnectGraceSeconds || 60);
+          if (onLog) onLog(data.message || `Opponent disconnected. Waiting for reconnection...`, 'yellow');
+        } else if (data.type === 'MATCH_RESUMED') {
+          setPeerDisconnected(false);
+          if (data.boardState) setBoardState(data.boardState);
+          if (onLog) onLog(data.message || `Opponent reconnected! Match resumed.`, 'green');
+        } else if (data.type === 'MATCH_FORFEITED') {
+          setPeerDisconnected(false);
+          setMatchOutcome(data.message || 'Match forfeited: Opponent failed to reconnect.');
+          if (onLog) onLog(data.message || 'Match forfeited.', 'rose');
         } else if (data.type === 'PLAYER_LEFT') {
           const lobbyData = data.lobby || data.payload?.lobby;
           if (lobbyData) {
@@ -320,6 +386,95 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
     }
   };
 
+  // Start Matchmaking Handler (EP06-03 / AC-22.1, AC-22.2)
+  const handleStartMatchmaking = async () => {
+    if (!currentUser) {
+      onOpenLogin();
+      return;
+    }
+    setLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      const res = await fetch('/api/v1/matchmaking/queue', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        },
+        body: JSON.stringify({ gameIdOrSlug: selectedGameId })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || data.error || `HTTP ${res.status}`);
+      }
+      if (data.status === 'matched') {
+        setActiveLobby(data.lobby || data.match);
+        setSuccessMsg('Opponent found! Match starting now.');
+      } else {
+        setIsSearchingMatch(true);
+        setQueueTicketId(data.queueTicketId);
+        setQueuePosition(data.queuePosition || 1);
+        setSuccessMsg('Searching for an available opponent...');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cancel Matchmaking Handler (EP06-03 / AC-22.3)
+  const handleCancelMatchmaking = async () => {
+    setLoading(true);
+    try {
+      await fetch('/api/v1/matchmaking/queue', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        },
+        body: JSON.stringify({ queueTicketId })
+      });
+      setIsSearchingMatch(false);
+      setQueueTicketId(null);
+      setSuccessMsg('Matchmaking search cancelled.');
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Reconnect Handler (EP05-04 / AC-19.2)
+  const handleReconnect = async () => {
+    if (!activeLobby) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/lobbies/${activeLobby.id}/reconnect`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || data.error);
+      }
+      setPeerDisconnected(false);
+      if (data.boardState) setBoardState(data.boardState);
+      setSuccessMsg('Reconnected successfully! Match resumed.');
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Leave Lobby Handler
   const handleLeaveLobby = async () => {
     if (!activeLobby) return;
@@ -395,16 +550,15 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({
           type: 'GAME_MOVE',
-          payload: {
-            lobbyId: activeLobby.id,
-            move: {
-              from: { row: fromR, col: fromC },
-              to: { row: r, col: c },
-              player: currentUser?.displayName,
-              notation: moveNotation
-            },
-            nextTurn
-          }
+          lobbyId: activeLobby.id,
+          move: {
+            from: { row: fromR, col: fromC },
+            to: { row: r, col: c },
+            player: currentUser?.displayName,
+            notation: moveNotation
+          },
+          boardState: nextBoard,
+          nextTurn
         }));
       }
     }
@@ -515,6 +669,20 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
                   </svg>
                   Join via Code (EP05-02)
                 </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'matchmaking'}
+                  className={`${styles.tabBtn} ${activeTab === 'matchmaking' ? styles.activeTab : ''}`}
+                  onClick={() => { setActiveTab('matchmaking'); setErrorMsg(null); }}
+                  id="tab-matchmaking-lobby"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                  </svg>
+                  Find Opponent (EP06-03)
+                </button>
               </div>
 
               {/* CREATE LOBBY TAB */}
@@ -584,10 +752,104 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
                   </button>
                 </form>
               )}
+
+              {/* PUBLIC MATCHMAKING TAB (EP06-03) */}
+              {activeTab === 'matchmaking' && (
+                <div id="matchmaking-panel">
+                  <div className={styles.formGroup}>
+                    <label className={styles.label} htmlFor="select-matchmaking-game">
+                      Select Game Title
+                    </label>
+                    <select
+                      id="select-matchmaking-game"
+                      className={styles.select}
+                      value={selectedGameId}
+                      onChange={(e) => setSelectedGameId(e.target.value)}
+                      disabled={isSearchingMatch}
+                    >
+                      <option value="obsidian-chess">Obsidian Chess (2 Players — Eligible)</option>
+                      <option value="cyber-invaders">Cyber Invaders (1 Player — Ineligible Test AC-16.2)</option>
+                      <option value="neon-drift">Neon Drift: Cyber Circuit (Multiplayer Ready)</option>
+                    </select>
+                  </div>
+
+                  {!isSearchingMatch ? (
+                    <div>
+                      <div className={styles.infoBanner}>
+                        <strong>Public Matchmaking (EP06-03):</strong> Request an available opponent in the public queue. If a compatible player is waiting, an active match is formed immediately.
+                      </div>
+                      <button
+                        type="button"
+                        className={styles.primaryBtn}
+                        disabled={loading || !currentUser}
+                        onClick={handleStartMatchmaking}
+                        id="btn-start-matchmaking"
+                      >
+                        {loading ? 'Entering Matchmaking Queue...' : 'Find Opponent (AC-22.1)'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.matchmakingRadar} id="matchmaking-waiting-card">
+                      <div className={styles.radarPulse}>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="12" x2="19" y2="5" />
+                        </svg>
+                      </div>
+                      <h4 style={{ margin: '0 0 8px 0', color: '#00F0FF', fontSize: '1.1rem' }}>
+                        Searching for an Opponent... (AC-22.2)
+                      </h4>
+                      <p style={{ margin: '0 0 16px 0', color: '#9CA3AF', fontSize: '0.88rem' }}>
+                        Queue Position: <strong>#{queuePosition}</strong> • Elapsed: <strong>{searchSeconds}s</strong>
+                      </p>
+                      <button
+                        type="button"
+                        className={styles.secondaryBtn}
+                        style={{ width: 'auto', padding: '8px 24px' }}
+                        disabled={loading}
+                        onClick={handleCancelMatchmaking}
+                        id="btn-cancel-matchmaking"
+                      >
+                        Cancel Search (AC-22.3)
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             /* VIEW B: ACTIVE LOBBY ROOM VIEW (AC-18.1, AC-18.2, AC-18.3) */
             <div id="active-lobby-room-view">
+              {/* Disconnect Grace Period Banner (EP05-04 / AC-19.1) */}
+              {peerDisconnected && (
+                <div className={styles.disconnectWarning} id="disconnect-grace-banner">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <div style={{ flex: 1 }}>
+                    <strong>Opponent Temporarily Disconnected:</strong> Reconnection grace period active ({disconnectCountdown}s remaining).
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    style={{ padding: '6px 12px', fontSize: '0.8rem', width: 'auto' }}
+                    onClick={handleReconnect}
+                    id="btn-reconnect-session"
+                  >
+                    Sync Status (AC-19.2)
+                  </button>
+                </div>
+              )}
+
+              {/* Match Outcome / Forfeit Notice (EP05-04 / AC-19.3) */}
+              {matchOutcome && (
+                <div className={styles.forfeitNotice} id="match-outcome-banner">
+                  <span>🏆 {matchOutcome}</span>
+                </div>
+              )}
+
               {/* Room Header with Status Badge */}
               <div className={styles.roomHeader}>
                 <div>

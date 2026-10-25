@@ -35,6 +35,13 @@ class MetricsService {
       this._updateCpuPercent();
     }, 2000);
     if (this._cpuInterval.unref) this._cpuInterval.unref();
+
+    // EP12-03: SRE Matchmaking error counters and success tracking
+    this.matchmakingMetrics = {
+      successTotal: 0,
+      failures: new Map(),
+      failureEvents: []
+    };
   }
 
   _updateCpuPercent() {
@@ -287,6 +294,75 @@ class MetricsService {
           activeConnections: this.wsClientCount
         }
       }
+    };
+  }
+
+  /**
+   * EP12-03 / AC-43.2: Record matchmaking success (does NOT increment failure counter)
+   */
+  recordMatchmakingSuccess() {
+    this.matchmakingMetrics.successTotal++;
+  }
+
+  /**
+   * EP12-03 / AC-43.1: Record matchmaking failure labeled by service and environment
+   */
+  recordMatchmakingFailure({ service = 'matchmaking', environment = 'staging', reason = 'TIMEOUT', details = {} } = {}) {
+    const key = `${service}:${environment}`;
+    const count = this.matchmakingMetrics.failures.get(key) || 0;
+    this.matchmakingMetrics.failures.set(key, count + 1);
+    this.matchmakingMetrics.failureEvents.push({
+      service,
+      environment,
+      reason,
+      details,
+      timestamp: new Date().toISOString()
+    });
+    if (this.matchmakingMetrics.failureEvents.length > 1000) {
+      this.matchmakingMetrics.failureEvents.shift();
+    }
+  }
+
+  /**
+   * EP12-03 / AC-43.3: Retrieve matchmaking error metrics filtered by service and environment
+   */
+  getMatchmakingMetrics({ service, environment } = {}) {
+    let filteredCount = 0;
+    const filteredEvents = [];
+
+    for (const event of this.matchmakingMetrics.failureEvents) {
+      const matchService = !service || event.service === service;
+      const matchEnv = !environment || event.environment === environment;
+      if (matchService && matchEnv) {
+        filteredCount++;
+        filteredEvents.push(event);
+      }
+    }
+
+    const breakdown = {};
+    for (const [key, count] of this.matchmakingMetrics.failures.entries()) {
+      const [s, e] = key.split(':');
+      const matchService = !service || s === service;
+      const matchEnv = !environment || e === environment;
+      if (matchService && matchEnv) {
+        breakdown[key] = count;
+      }
+    }
+
+    return {
+      service: service || 'matchmaking',
+      environment: environment || 'staging',
+      metrics: {
+        matchmaking_pairs_total: this.matchmakingMetrics.successTotal,
+        matchmaking_errors_total: filteredCount,
+        matchmaking_failures_total: filteredCount
+      },
+      successTotal: this.matchmakingMetrics.successTotal,
+      totalFailures: filteredCount,
+      filter: { service: service || 'all', environment: environment || 'all' },
+      breakdown,
+      recentEvents: filteredEvents.slice(-50),
+      timestamp: new Date().toISOString()
     };
   }
 

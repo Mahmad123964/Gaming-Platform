@@ -524,6 +524,73 @@
   color: #FFFFFF;
 }
 
+.matchmakingRadar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 20px;
+  background: rgba(0, 240, 255, 0.03);
+  border: 1px dashed rgba(0, 240, 255, 0.3);
+  border-radius: 16px;
+  margin: 16px 0;
+  text-align: center;
+}
+
+.radarPulse {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(0, 240, 255, 0.15);
+  border: 2px solid #00F0FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00F0FF;
+  margin-bottom: 16px;
+  animation: radarAnim 1.8s infinite ease-in-out;
+}
+
+@keyframes radarAnim {
+  0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.5); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 16px rgba(0, 240, 255, 0); }
+  100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
+}
+
+.disconnectWarning {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #FBBF24;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  animation: pulseWarn 1.5s infinite;
+}
+
+@keyframes pulseWarn {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+
+.forfeitNotice {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34D399;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
 @media (max-width: 640px) {
   .participantsGrid {
     grid-template-columns: 1fr;

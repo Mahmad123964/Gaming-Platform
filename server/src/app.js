@@ -108,9 +108,10 @@ function createApp() {
   // Mount SRE Operations & Monitoring routes (Sprint 07: EP12-01, EP12-02, EP13-02)
   app.use('/api/v1/admin/operations', operationsRouter);
 
-  // Mount Multiplayer Lobbies & Sessions routes (Sprint 08: EP05-01, EP05-02, EP05-03)
-  const { lobbyRouter } = require('./modules/multiplayer');
+  // Mount Multiplayer Lobbies & Sessions routes (Sprint 08 & Sprint 09: EP05-01..EP05-04, EP06-03)
+  const { lobbyRouter, matchmakingRouter } = require('./modules/multiplayer');
   app.use('/api/v1/lobbies', lobbyRouter);
+  app.use('/api/v1/matchmaking', matchmakingRouter);
 
   // Direct game launch asset protection (EP03-04, AC-12.1)
   // Direct navigation without a valid session launch ticket is rejected

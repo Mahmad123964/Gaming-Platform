@@ -114,7 +114,10 @@ CREATE TABLE IF NOT EXISTS lobbies (
     host_player_id TEXT NOT NULL REFERENCES players(id),
     code TEXT UNIQUE NOT NULL,
     max_players INTEGER NOT NULL DEFAULT 2,
-    status TEXT NOT NULL DEFAULT 'waiting', -- 'waiting', 'full', 'active', 'ended'
+    status TEXT NOT NULL DEFAULT 'waiting', -- 'waiting', 'full', 'active', 'ended', 'forfeited'
+    is_matchmaking INTEGER NOT NULL DEFAULT 0,
+    board_state_json TEXT,
+    winner_id TEXT REFERENCES players(id),
     expires_at DATETIME,
     started_at DATETIME,
     ended_at DATETIME,
@@ -128,6 +131,8 @@ CREATE TABLE IF NOT EXISTS lobby_participants (
     role TEXT NOT NULL DEFAULT 'guest', -- 'host', 'guest'
     status TEXT NOT NULL DEFAULT 'connected', -- 'connected', 'disconnected', 'left'
     joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    disconnected_at DATETIME,
+    reconnect_deadline DATETIME,
     UNIQUE(lobby_id, player_id)
 );
 

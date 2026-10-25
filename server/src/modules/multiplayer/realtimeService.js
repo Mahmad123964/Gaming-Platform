@@ -13,6 +13,7 @@ class RealtimeSessionService {
     this.rooms = new Map();       // lobbyId -> Set<socketId>
     this.playerSockets = new Map(); // playerId -> Set<socketId>
     this.tickets = new Map();     // ticketId -> { ticket, playerId, audience, expiresAt, createdAt }
+    this.reconnectTimers = new Map(); // "${lobbyId}:${playerId}" -> timeoutId (EP05-04)
   }
 
   /**
@@ -225,6 +226,10 @@ class RealtimeSessionService {
         this.handleJoinLobby(client, data);
         break;
 
+      case 'SUBSCRIBE_LOBBY':
+        this.handleSubscribeLobby(client, data);
+        break;
+
       case 'LEAVE_LOBBY':
         this.handleLeaveLobby(client, data);
         break;
@@ -235,6 +240,18 @@ class RealtimeSessionService {
 
       case 'GAME_MOVE':
         this.handleGameMove(client, data);
+        break;
+
+      case 'RECONNECT_MATCH':
+        this.handleReconnectMatch(client, data);
+        break;
+
+      case 'MATCHMAKING_QUEUE':
+        this.handleMatchmakingQueue(client, data);
+        break;
+
+      case 'MATCHMAKING_CANCEL':
+        this.handleMatchmakingCancel(client, data);
         break;
 
       default:
@@ -399,6 +416,54 @@ class RealtimeSessionService {
   }
 
   /**
+   * Subscribe an authenticated socket to a lobby room
+   */
+  handleSubscribeLobby(client, data) {
+    const lobbyId = data.lobbyId;
+    if (!lobbyId) return;
+
+    if (!client.player) {
+      return this.sendToSocket(client.ws, {
+        type: 'ERROR',
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required to subscribe to lobby.'
+      });
+    }
+
+    try {
+      const lobby = this.lobbyService.getLobby(lobbyId);
+      const isParticipant = lobby.participants.some(p => p.playerId === client.player.id);
+      if (!isParticipant) {
+        return this.sendToSocket(client.ws, {
+          type: 'ERROR',
+          code: 'FORBIDDEN',
+          message: 'You are not a participant in this lobby.'
+        });
+      }
+
+      this.subscribeSocketToRoom(client, lobbyId);
+
+      this.sendToSocket(client.ws, {
+        type: 'LOBBY_STATE_CHANGED',
+        lobbyId: lobby.id,
+        status: lobby.status,
+        playerCount: lobby.playerCount,
+        maxPlayers: lobby.maxPlayers,
+        isFull: lobby.isFull,
+        participants: lobby.participants,
+        boardState: lobby.boardState,
+        timestamp: new Date().toISOString()
+      });
+    } catch (e) {
+      this.sendToSocket(client.ws, {
+        type: 'ERROR',
+        code: 'SUBSCRIBE_FAILED',
+        message: e.message
+      });
+    }
+  }
+
+  /**
    * Leave lobby
    */
   handleLeaveLobby(client, data) {
@@ -513,7 +578,8 @@ class RealtimeSessionService {
    * Relay synchronized in-game move (e.g. Obsidian Chess turn)
    */
   handleGameMove(client, data) {
-    if (!client.player || !client.lobbyId) {
+    const lobbyId = data.lobbyId || client.lobbyId;
+    if (!client.player || !lobbyId) {
       return this.sendToSocket(client.ws, {
         type: 'GAME_ERROR',
         code: 'UNAUTHORIZED',
@@ -521,17 +587,172 @@ class RealtimeSessionService {
       });
     }
 
-    const lobbyId = client.lobbyId;
+    if (!client.lobbyId) {
+      this.subscribeSocketToRoom(client, lobbyId);
+    }
+
+    // Persist synchronized board state to SQLite
+    if (data.boardState || data.board) {
+      this.lobbyService.updateBoardState({
+        lobbyId,
+        boardState: data.boardState || data.board
+      });
+    }
+
     // Broadcast move to other player in the room
     this.broadcastToRoom(lobbyId, {
       type: 'GAME_STATE_UPDATE',
       lobbyId,
       senderPlayerId: client.player.id,
       move: data.move,
-      boardState: data.boardState || null,
+      boardState: data.boardState || data.board || null,
       nextTurnPlayerId: data.nextTurnPlayerId || null,
       timestamp: new Date().toISOString()
     }, client.socketId);
+  }
+
+  /**
+   * EP05-04 / AC-19.2: Reconnect to active match
+   */
+  handleReconnectMatch(client, data) {
+    if (!client.player) {
+      return this.sendToSocket(client.ws, {
+        type: 'ERROR',
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required to reconnect to a match.'
+      });
+    }
+
+    const lobbyId = data.lobbyId;
+    if (!lobbyId) {
+      return this.sendToSocket(client.ws, {
+        type: 'ERROR',
+        code: 'BAD_REQUEST',
+        message: 'lobbyId is required to reconnect.'
+      });
+    }
+
+    try {
+      const lobby = this.lobbyService.reconnectParticipant({
+        lobbyId,
+        playerId: client.player.id
+      });
+
+      // Clear pending forfeit timer if exists
+      const timerKey = `${lobbyId}:${client.player.id}`;
+      if (this.reconnectTimers.has(timerKey)) {
+        clearTimeout(this.reconnectTimers.get(timerKey));
+        this.reconnectTimers.delete(timerKey);
+      }
+
+      // Re-subscribe socket to room
+      this.subscribeSocketToRoom(client, lobbyId);
+
+      // AC-19.2: Broadcast PLAYER_RECONNECTED and MATCH_RESUMED to all room participants
+      this.broadcastToRoom(lobbyId, {
+        type: 'PLAYER_RECONNECTED',
+        lobbyId,
+        playerId: client.player.id,
+        displayName: client.player.displayName,
+        boardState: lobby.boardState,
+        participants: lobby.participants,
+        timestamp: new Date().toISOString()
+      });
+
+      this.broadcastToRoom(lobbyId, {
+        type: 'MATCH_RESUMED',
+        lobbyId,
+        reconnectedPlayerId: client.player.id,
+        reconnectedPlayerName: client.player.displayName,
+        boardState: lobby.boardState,
+        participants: lobby.participants,
+        message: `${client.player.displayName} has successfully reconnected. Match resumed.`,
+        timestamp: new Date().toISOString()
+      });
+
+      this.sendToSocket(client.ws, {
+        type: 'RECONNECT_SUCCESS',
+        lobby,
+        boardState: lobby.boardState,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      // AC-19.3: Return clear unavailable message if not resumable
+      this.sendToSocket(client.ws, {
+        type: 'RECONNECT_FAILED',
+        code: err.code || 'RECONNECT_ERROR',
+        message: err.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  /**
+   * EP06-03 / AC-22.1, AC-22.2: Enter public matchmaking queue
+   */
+  handleMatchmakingQueue(client, data) {
+    if (!client.player) {
+      return this.sendToSocket(client.ws, {
+        type: 'MATCHMAKING_ERROR',
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required to enter matchmaking queue.'
+      });
+    }
+
+    try {
+      const { getMatchmakingService } = require('./matchmakingService');
+      const mm = getMatchmakingService();
+      const result = mm.queuePlayer({
+        playerId: client.player.id,
+        gameIdOrSlug: data.gameId || data.gameSlug
+      });
+
+      this.sendToSocket(client.ws, {
+        type: result.status === 'matched' ? 'MATCHMAKING_MATCHED' : 'MATCHMAKING_QUEUED',
+        ...result,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      this.sendToSocket(client.ws, {
+        type: 'MATCHMAKING_ERROR',
+        code: err.code || 'MATCHMAKING_FAILED',
+        message: err.message
+      });
+    }
+  }
+
+  /**
+   * EP06-03 / AC-22.3: Cancel matchmaking queue
+   */
+  handleMatchmakingCancel(client, data) {
+    if (!client.player) {
+      return this.sendToSocket(client.ws, {
+        type: 'MATCHMAKING_ERROR',
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required to cancel matchmaking.'
+      });
+    }
+
+    try {
+      const { getMatchmakingService } = require('./matchmakingService');
+      const mm = getMatchmakingService();
+      const result = mm.cancelQueue({
+        queueTicketId: data.queueTicketId,
+        playerId: client.player.id
+      });
+
+      this.sendToSocket(client.ws, {
+        type: 'MATCHMAKING_CANCELLED',
+        ...result,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      this.sendToSocket(client.ws, {
+        type: 'MATCHMAKING_ERROR',
+        code: err.code || 'CANCEL_FAILED',
+        message: err.message
+      });
+    }
   }
 
   /**
@@ -542,12 +763,80 @@ class RealtimeSessionService {
     if (!client) return;
 
     if (client.lobbyId) {
-      this.unsubscribeSocketFromRoom(client, client.lobbyId);
-      // Notify remaining players in room
-      this.broadcastToRoom(client.lobbyId, {
+      const lobbyId = client.lobbyId;
+      const playerId = client.player ? client.player.id : null;
+      this.unsubscribeSocketFromRoom(client, lobbyId);
+
+      // Check if match was active (EP05-04 / AC-19.1)
+      if (playerId) {
+        try {
+          const lobby = this.lobbyService.getLobby(lobbyId);
+          if (lobby && lobby.status === 'active') {
+            const graceSeconds = 60;
+            const disconnectInfo = this.lobbyService.recordDisconnect({
+              lobbyId,
+              playerId,
+              graceSeconds
+            });
+
+            // Broadcast AC-19.1 disconnection status to the remaining opponent
+            this.broadcastToRoom(lobbyId, {
+              type: 'PLAYER_DISCONNECTED',
+              lobbyId,
+              playerId,
+              disconnectedPlayerId: playerId,
+              displayName: client.player ? client.player.displayName : 'Player',
+              reconnectGraceSeconds: graceSeconds,
+              reconnectDeadline: disconnectInfo.reconnectDeadline,
+              isResumable: true,
+              message: `${client.player ? client.player.displayName : 'Opponent'} temporarily disconnected. Waiting up to ${graceSeconds}s for reconnection.`,
+              timestamp: new Date().toISOString()
+            });
+
+            // Start 60-second forfeit timer
+            const timerKey = `${lobbyId}:${playerId}`;
+            if (this.reconnectTimers.has(timerKey)) {
+              clearTimeout(this.reconnectTimers.get(timerKey));
+            }
+
+            const timer = setTimeout(() => {
+              try {
+                this.reconnectTimers.delete(timerKey);
+                const currentLobby = this.lobbyService.getLobby(lobbyId);
+                if (currentLobby && currentLobby.status === 'active') {
+                  const remainingPlayer = currentLobby.participants.find(p => p.playerId !== playerId);
+                  this.lobbyService.forfeitMatch({
+                    lobbyId,
+                    forfeitedPlayerId: playerId,
+                    reason: 'RECONNECT_TIMEOUT'
+                  });
+
+                  // Broadcast AC-19.3 forfeit notification
+                  this.broadcastToRoom(lobbyId, {
+                    type: 'MATCH_FORFEITED',
+                    lobbyId,
+                    reason: 'RECONNECT_TIMEOUT',
+                    forfeitedPlayerId: playerId,
+                    winnerPlayerId: remainingPlayer ? remainingPlayer.playerId : null,
+                    message: `Match forfeited: Player did not reconnect within ${graceSeconds} seconds.`,
+                    timestamp: new Date().toISOString()
+                  });
+                }
+              } catch (e) {}
+            }, graceSeconds * 1000);
+
+            if (timer.unref) timer.unref();
+            this.reconnectTimers.set(timerKey, timer);
+            return;
+          }
+        } catch (e) {}
+      }
+
+      // If lobby was not active, simple peer disconnect
+      this.broadcastToRoom(lobbyId, {
         type: 'PEER_DISCONNECTED',
-        lobbyId: client.lobbyId,
-        disconnectedPlayerId: client.player ? client.player.id : null,
+        lobbyId,
+        disconnectedPlayerId: playerId,
         timestamp: new Date().toISOString()
       });
     }

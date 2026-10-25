@@ -261,6 +261,7 @@ class LobbyService {
   getLobby(lobbyId) {
     const lobby = this.db.prepare(
       `SELECT l.id, l.game_id, l.host_player_id, l.code, l.max_players, l.status,
+              l.is_matchmaking, l.board_state_json, l.winner_id,
               l.expires_at, l.started_at, l.ended_at, l.created_at,
               g.title as game_title, g.slug as game_slug, g.category_id
        FROM lobbies l
@@ -287,6 +288,7 @@ class LobbyService {
     // Retrieve participants
     const participants = this.db.prepare(
       `SELECT lp.id, lp.player_id, lp.role, lp.status, lp.joined_at,
+              lp.disconnected_at, lp.reconnect_deadline,
               p.display_name, p.email,
               COALESCE(pp.avatar, 'pilot-cyan') as avatar
        FROM lobby_participants lp
@@ -297,11 +299,24 @@ class LobbyService {
     ).all(lobbyId);
 
     const playerCount = participants.length;
+    const hasDisconnectedParticipant = participants.some(p => p.status === 'disconnected');
+    const isResumable = lobby.status === 'active' && hasDisconnectedParticipant;
+
+    let parsedBoardState = null;
+    if (lobby.board_state_json) {
+      try {
+        parsedBoardState = JSON.parse(lobby.board_state_json);
+      } catch (e) {
+        parsedBoardState = lobby.board_state_json;
+      }
+    }
 
     return {
       id: lobby.id,
       code: lobby.code,
-      status: lobby.status, // 'waiting', 'full', 'active', 'ended'
+      status: lobby.status, // 'waiting', 'full', 'active', 'ended', 'forfeited'
+      isMatchmaking: Boolean(lobby.is_matchmaking),
+      boardState: parsedBoardState,
       game: {
         id: lobby.game_id,
         slug: lobby.game_slug,
@@ -312,7 +327,7 @@ class LobbyService {
       maxPlayers: lobby.max_players,
       playerCount,
       isFull: playerCount >= lobby.max_players,
-      isResumable: false,
+      isResumable,
       participants: participants.map(p => ({
         id: p.id,
         playerId: p.player_id,
@@ -320,11 +335,14 @@ class LobbyService {
         avatar: p.avatar,
         role: p.role,
         status: p.status,
-        joinedAt: p.joined_at
+        joinedAt: p.joined_at,
+        disconnectedAt: p.disconnected_at,
+        reconnectDeadline: p.reconnect_deadline
       })),
       expiresAt: lobby.expires_at,
       startedAt: lobby.started_at,
       endedAt: lobby.ended_at,
+      winnerId: lobby.winner_id,
       createdAt: lobby.created_at
     };
   }
@@ -609,6 +627,133 @@ class LobbyService {
     const updated = this.getLobby(lobbyId);
     updated.sessionId = sessionId;
     return updated;
+  }
+
+  /**
+   * EP05-04 / AC-19.1: Record temporary player disconnect and initiate grace period
+   */
+  recordDisconnect({ lobbyId, playerId, graceSeconds = 60 }) {
+    const lobby = this.getLobby(lobbyId);
+    const participant = this.db.prepare(
+      "SELECT id, role, status FROM lobby_participants WHERE lobby_id = ? AND player_id = ?"
+    ).get(lobbyId, playerId);
+
+    if (!participant) {
+      return null;
+    }
+
+    const nowIso = new Date().toISOString();
+    const deadlineIso = new Date(Date.now() + graceSeconds * 1000).toISOString();
+
+    this.db.prepare(
+      `UPDATE lobby_participants 
+       SET status = 'disconnected', disconnected_at = ?, reconnect_deadline = ?
+       WHERE id = ?`
+    ).run(nowIso, deadlineIso, participant.id);
+
+    this.logAuditEvent({
+      actorId: playerId,
+      action: 'PLAYER_DISCONNECTED',
+      resource: `lobby:${lobbyId}`,
+      details: { graceSeconds, reconnectDeadline: deadlineIso }
+    });
+
+    return {
+      lobbyId,
+      playerId,
+      graceSeconds,
+      reconnectDeadline: deadlineIso,
+      status: 'disconnected'
+    };
+  }
+
+  /**
+   * EP05-04 / AC-19.2, AC-19.3: Reconnect participant to active match
+   */
+  reconnectParticipant({ lobbyId, playerId }) {
+    const lobby = this.getLobby(lobbyId);
+
+    const participant = lobby.participants.find(p => p.playerId === playerId);
+    if (!participant) {
+      const err = new Error('You are not a registered participant in this match.');
+      err.status = 403;
+      err.code = 'FORBIDDEN_ROOM_ACCESS';
+      throw err;
+    }
+
+    // AC-19.3: If session is no longer active, return clear unavailable message
+    if (lobby.status !== 'active') {
+      const err = new Error(`This multiplayer match is no longer resumable because the match has concluded (status: ${lobby.status}).`);
+      err.status = 410;
+      err.code = 'MATCH_FORFEITED';
+      throw err;
+    }
+
+    // AC-19.3: Check if reconnection grace period has expired
+    const now = Date.now();
+    const deadline = participant.reconnectDeadline ? new Date(participant.reconnectDeadline).getTime() : 0;
+    if (deadline > 0 && now > deadline) {
+      this.forfeitMatch({ lobbyId, forfeitedPlayerId: playerId, reason: 'RECONNECT_TIMEOUT' });
+      const err = new Error('This multiplayer match is no longer resumable because the reconnection grace period has expired.');
+      err.status = 410;
+      err.code = 'MATCH_FORFEITED';
+      throw err;
+    }
+
+    // AC-19.2: Reconnect participant and resume session
+    this.db.prepare(
+      `UPDATE lobby_participants 
+       SET status = 'connected', disconnected_at = NULL, reconnect_deadline = NULL
+       WHERE id = ?`
+    ).run(participant.id);
+
+    this.logAuditEvent({
+      actorId: playerId,
+      action: 'MATCH_RESUMED',
+      resource: `lobby:${lobbyId}`,
+      details: { role: participant.role }
+    });
+
+    return this.getLobby(lobbyId);
+  }
+
+  /**
+   * EP05-04 / AC-19.3: Forfeit match when player disconnect grace period expires
+   */
+  forfeitMatch({ lobbyId, forfeitedPlayerId, reason = 'RECONNECT_TIMEOUT' }) {
+    const lobby = this.getLobby(lobbyId);
+
+    // Identify opponent as winner
+    const opponent = lobby.participants.find(p => p.playerId !== forfeitedPlayerId);
+    const winnerId = opponent ? opponent.playerId : null;
+
+    this.dbManager.transaction(() => {
+      this.db.prepare(
+        "UPDATE lobbies SET status = 'ended', ended_at = CURRENT_TIMESTAMP, winner_id = ? WHERE id = ?"
+      ).run(winnerId, lobbyId);
+
+      this.db.prepare(
+        "UPDATE lobby_participants SET status = 'left' WHERE lobby_id = ? AND player_id = ?"
+      ).run(lobbyId, forfeitedPlayerId);
+    });
+
+    this.logAuditEvent({
+      actorId: forfeitedPlayerId || 'system',
+      action: 'MATCH_FORFEITED',
+      resource: `lobby:${lobbyId}`,
+      details: { reason, forfeitedPlayerId, winnerId }
+    });
+
+    return this.getLobby(lobbyId);
+  }
+
+  /**
+   * Update synchronized board state (e.g. for Obsidian Chess)
+   */
+  updateBoardState({ lobbyId, boardState }) {
+    if (!lobbyId) return;
+    const json = typeof boardState === 'string' ? boardState : JSON.stringify(boardState);
+    this.db.prepare("UPDATE lobbies SET board_state_json = ? WHERE id = ?").run(json, lobbyId);
   }
 }
 
