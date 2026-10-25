@@ -1,0 +1,24 @@
+{
+  "auditType": "Authentication Storage & Rate Limiter Persistence Verification",
+  "timestamp": "2026-10-25T12:33:10.588Z",
+  "findings": {
+    "rateLimiter": {
+      "classification": "HYBRID",
+      "inMemoryCache": "JavaScript Map (this.records) for sub-millisecond retrieval",
+      "persistentStore": "SQLite table auth_rate_limits with UPSERT ON CONFLICT(key)",
+      "survivesProcessRestart": true,
+      "preRestartAllowed": false,
+      "postRestartAllowed": false,
+      "productionConsiderations": "Local SQLite engine is single-node. Multi-instance horizontal scaling across containers in Phase 2/3 will require centralized Redis."
+    },
+    "sessionStorageAndRevocation": {
+      "classification": "SQLITE_DATABASE_PERSISTED",
+      "table": "auth_sessions",
+      "tokenHashingAtRest": "SHA-256",
+      "revocationFlag": "revoked = 1",
+      "survivesProcessRestart": true,
+      "productionConsiderations": "Requires PostgreSQL connection pool for multi-instance horizontal scaling."
+    }
+  },
+  "conclusion": "Empirical testing confirms rate limiting is HYBRID (in-memory Map cache backed by SQLite auth_rate_limits table). Lockouts survive process restarts. Session revocation is 100% database-persisted in auth_sessions."
+}

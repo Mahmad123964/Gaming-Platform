@@ -14,6 +14,10 @@ function createApp() {
 
   app.use(express.json());
 
+  // Mount SRE metrics tracking middleware (Sprint 07: EP12-01)
+  const { metricsMiddleware, operationsRouter } = require('./modules/operations');
+  app.use(metricsMiddleware);
+
   // Request logger middleware
   app.use((req, res, next) => {
     const start = Date.now();
@@ -101,6 +105,9 @@ function createApp() {
   const { progressRouter } = require('./modules/progress');
   app.use('/api/v1/progress', progressRouter);
 
+  // Mount SRE Operations & Monitoring routes (Sprint 07: EP12-01, EP12-02, EP13-02)
+  app.use('/api/v1/admin/operations', operationsRouter);
+
   // Direct game launch asset protection (EP03-04, AC-12.1)
   // Direct navigation without a valid session launch ticket is rejected
   app.get('/games/:slug/index.html', directLaunchGuard, (req, res) => {
@@ -116,11 +123,12 @@ function createApp() {
   app.get('/api/v1/status', (req, res) => {
     res.status(200).json({
       platform: 'Online Gaming Platform',
-      version: '0.6.0',
-      activeSprint: '06',
-      phase: '1',
+      version: '0.7.0',
+      activeSprint: '07',
+      phase: '2',
       environment: process.env.NODE_ENV || 'development',
       features: {
+        operationsMonitoring: 'active (Sprint 07: SRE Dashboard, Real-time Alerting, Deployment Rollback, Metric Sliding Windows)',
         playerProfilesAndAudit: 'active (Sprint 06: Player Profile Management, Avatars, Bio, DB-Engine Audit Immutability, Credential Redaction)',
         progressAndHistory: 'active (Sprint 05: Game Progress, Recent Session History, Milestone Achievements, Resumption)',
         gameLaunch: 'active (Sprint 04: Game Launching, Single-Player Sessions, Device Compatibility, First Playable Engine)',

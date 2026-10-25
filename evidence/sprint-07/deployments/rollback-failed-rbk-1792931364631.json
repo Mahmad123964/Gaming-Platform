@@ -1,0 +1,17 @@
+{
+  "rollbackId": "rbk-1792931364631",
+  "timestamp": "2026-10-25T12:29:24.631Z",
+  "environment": "staging",
+  "targetCommitSha": "66c55121c99e57d7d701eae8b954d281b7a24a3d",
+  "targetDeploymentId": "dep-1792922709726",
+  "simulatedFailure": true,
+  "runbook": "/docs/runbooks/Staging-Deployment-and-Rollback-Runbook.md",
+  "status": "FAILED",
+  "failureReason": "SIMULATED_PROBE_FAILURE: Subsystem health check aborted during recovery",
+  "escalationGuidance": {
+    "incidentSeverity": "SEV-1",
+    "contacts": "SRE On-Call Lead / Incident Commander",
+    "runbookRef": "/docs/runbooks/SRE-Alerting-and-Incident-Runbook.md#10-incident-management"
+  },
+  "durationMs": 16
+}

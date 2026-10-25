@@ -20,9 +20,12 @@ const app = createApp();
 const server = http.createServer(app);
 
 // WebSocket server setup for real-time multiplayer lobbies (EP-05/06)
+const { getMetricsService } = require('./modules/operations');
+const metricsService = getMetricsService();
 const wss = new WebSocketServer({ server, path: '/ws' });
 
 wss.on('connection', (ws, req) => {
+  metricsService.incrementWebSocketClientCount();
   if (process.env.NODE_ENV !== 'test') {
     console.log(`[WS] Client connected from ${req.socket.remoteAddress}`);
   }
@@ -46,6 +49,7 @@ wss.on('connection', (ws, req) => {
   });
 
   ws.on('close', () => {
+    metricsService.decrementWebSocketClientCount();
     if (process.env.NODE_ENV !== 'test') {
       console.log('[WS] Client disconnected');
     }

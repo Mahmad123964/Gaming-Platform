@@ -7,6 +7,7 @@ import { TerminalConsole } from './components/TerminalConsole';
 import { RoadmapGrid } from './components/RoadmapGrid';
 import { GameCatalog } from './components/catalog/GameCatalog';
 import { ContentAdminConsole } from './components/admin/ContentAdminConsole';
+import { OperationsDashboard } from './components/admin/OperationsDashboard';
 import { ProgressHubModal } from './components/progress/ProgressHubModal';
 import { ProfileModal } from './components/profile/ProfileModal';
 import { AuthModal, AuthMode, User } from './components/AuthModal';
@@ -71,6 +72,12 @@ export const App: React.FC = () => {
       time: new Date().toLocaleTimeString(),
       message: 'Sprint 06 Player Profiles & Administrative Audit online: Avatar emblems, bio & DB-level immutability active.',
       type: 'blue',
+    },
+    {
+      id: 'init-8',
+      time: new Date().toLocaleTimeString(),
+      message: 'Sprint 07 Monitoring, Alerting & Deployment Safety online: SRE dashboard, real-time alerts & rollback procedure active.',
+      type: 'green',
     },
   ]);
 
@@ -239,6 +246,11 @@ export const App: React.FC = () => {
           wsConnected={wsConnected}
         />
 
+        {/* Sprint 07: SRE Operations & Monitoring Dashboard (Accessible to Authorized Admins) */}
+        {currentUser?.role === 'admin' && (
+          <OperationsDashboard onLog={addLog} />
+        )}
+
         {/* Sprint 03: Content Administration Console (Accessible to Authorized Admins) */}
         {currentUser?.role === 'admin' && isAdminConsoleVisible && (
           <ContentAdminConsole onLog={addLog} />
@@ -258,8 +270,8 @@ export const App: React.FC = () => {
             <strong>NexusPlay Online Gaming Platform</strong> — Built with React 19, TypeScript & Google Antigravity
           </div>
           <div className={styles.footerRight}>
-            <span>Active Sprint: <strong>06 (Player Profiles & Administrative Audit)</strong></span>
-            <span>Architecture: <strong>ADR-0006 Verified</strong></span>
+            <span>Active Sprint: <strong>07 (Monitoring, Alerting & Deployment Safety)</strong></span>
+            <span>Architecture: <strong>ADR-0007 Verified</strong></span>
             <span>Target Capacity: <strong>10,000 CCU</strong></span>
           </div>
         </div>

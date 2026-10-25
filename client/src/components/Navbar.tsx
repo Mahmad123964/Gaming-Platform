@@ -50,7 +50,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <a href="#overview" className={`${styles.navLink} ${styles.navLinkActive}`}>Overview</a>
           <a href="#catalog" className={styles.navLink}>Games</a>
           {currentUser?.role === 'admin' && (
-            <a href="#adminConsole" className={styles.navLink} style={{ color: '#00f0ff' }}>
+            <a href="#sre-operations-dashboard" className={styles.navLink} style={{ color: '#00f0ff' }}>
+              Operations (SRE)
+            </a>
+          )}
+          {currentUser?.role === 'admin' && (
+            <a href="#adminConsole" className={styles.navLink} style={{ color: '#ffb800' }}>
               Admin Console
             </a>
           )}

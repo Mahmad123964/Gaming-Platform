@@ -14,3 +14,4 @@ Thumbs.db
 !.env.example
 scratch/
 evidence/**/chrome-profile/
+data/chrome-profile*/

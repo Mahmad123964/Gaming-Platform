@@ -1,0 +1,52 @@
+{
+  "testSuite": "Automated Staging Smoke Test (EP13-01)",
+  "timestamp": "2026-10-25T12:30:59.438Z",
+  "environment": "staging",
+  "target": "http://localhost:5050",
+  "allPassed": false,
+  "passedCount": 4,
+  "failedCount": 1,
+  "simulatedFailure": false,
+  "checks": [
+    {
+      "id": "SMOKE-01",
+      "name": "Liveness Probe (/health)",
+      "expected": "HTTP 200 with status=UP",
+      "actual": "HTTP 200 (status=UP)",
+      "durationMs": 293,
+      "passed": true
+    },
+    {
+      "id": "SMOKE-02",
+      "name": "Readiness & Database Probe (/api/health)",
+      "expected": "HTTP 200 with database=connected",
+      "actual": "HTTP 200 (db=connected)",
+      "durationMs": 8,
+      "passed": true
+    },
+    {
+      "id": "SMOKE-03",
+      "name": "Platform Metadata API (/api/v1/status)",
+      "expected": "HTTP 200 with valid activeSprint (00, 01, 02, 03, 04, 05, or 06)",
+      "actual": "HTTP 200 (sprint=07)",
+      "durationMs": 7,
+      "passed": false
+    },
+    {
+      "id": "SMOKE-04",
+      "name": "Staging Portal UI Shell (/)",
+      "expected": "HTTP 200 containing NexusPlay",
+      "actual": "HTTP 200 (content length: 889)",
+      "durationMs": 14,
+      "passed": true
+    },
+    {
+      "id": "SMOKE-05",
+      "name": "Realtime WebSocket Handshake (/ws)",
+      "expected": "WebSocket connect & PING/PONG",
+      "actual": "Connected in 42ms",
+      "durationMs": 42,
+      "passed": true
+    }
+  ]
+}

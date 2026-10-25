@@ -1,0 +1,16 @@
+{
+  "deploymentId": "dep-1792931597292",
+  "commitSha": "2daf448cee5169a834912b35f4d8bb6d8c86d24e",
+  "environment": "staging",
+  "status": "SUCCESS",
+  "smokeTestPassed": true,
+  "durationMs": 4636,
+  "timestamp": "2026-10-25T12:33:17.070Z",
+  "port": 5050,
+  "testSummary": {
+    "totalChecks": 5,
+    "passed": 5,
+    "failed": 0
+  },
+  "logFile": "staging-deploy-success-2026-10-25T12-33-21-713Z.log"
+}

@@ -1,0 +1,333 @@
+{
+  "sprint": "Sprint 07 — Monitoring, Alerting & Deployment Safety",
+  "timestamp": "2026-10-25T12:33:10.618Z",
+  "totalChecks": 54,
+  "passed": 54,
+  "failed": 0,
+  "results": [
+    {
+      "id": "AC-41.1-01",
+      "name": "Operations metrics endpoint returns HTTP 200 for admin",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-02",
+      "name": "Telemetry marked as available for nominal operations",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-03",
+      "name": "Uptime in seconds is measured and numeric",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-04",
+      "name": "Availability SLI is expressed as a bounded percentage [0, 100]",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-05",
+      "name": "5xx Error Rate is expressed as a bounded percentage [0, 100]",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-06",
+      "name": "Total request volume is tracked in window",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-07",
+      "name": "Latency metrics include average and p95 calculations",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-08",
+      "name": "System CPU utilization percentage is measured",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-09",
+      "name": "Process RSS memory in megabytes is measured",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-10",
+      "name": "Database engine status verified as healthy",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-11",
+      "name": "Database ping latency is numeric",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-12",
+      "name": "WebSocket active CCU connections are tracked",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.1-13",
+      "name": "Sensitive DB connection credentials are redacted",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.2-5m",
+      "name": "Window filter \"5m\" returns matching window metadata",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.2-15m",
+      "name": "Window filter \"15m\" returns matching window metadata",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.2-1h",
+      "name": "Window filter \"1h\" returns matching window metadata",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.2-24h",
+      "name": "Window filter \"24h\" returns matching window metadata",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.2-INV",
+      "name": "Unsupported time window parameter returns HTTP 400 Bad Request",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.3-01",
+      "name": "Metrics endpoint responds even during upstream telemetry collection outage",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.3-02",
+      "name": "Telemetry availability clearly marked as false",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.3-03",
+      "name": "Explicit TELEMETRY_UNAVAILABLE status returned",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.3-04",
+      "name": "Availability indicators are null rather than fabricated",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.3-05",
+      "name": "Latency indicators are null rather than fabricated",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-41.3-06",
+      "name": "Telemetry availability successfully restored",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.1-01",
+      "name": "Breached threshold triggers HTTP 201 Created alert event",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.1-02",
+      "name": "Alert matches breached ruleId",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.1-03",
+      "name": "Generated alert status is ACTIVE",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.1-04",
+      "name": "Error rate breach assigned CRITICAL severity",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.1-05",
+      "name": "Alert specifically routed to on-call team [SRE_CORE]",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.1-06",
+      "name": "Alert records observed breach value (8.5%)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.1-07",
+      "name": "Alert records authoritative threshold (5.0%)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.1-08",
+      "name": "Alert dispatched to staging notification outbox",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.1-09",
+      "name": "Notification routed to designated SRE recipient",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.2-01",
+      "name": "Metric value below threshold does not generate alert",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.2-02",
+      "name": "Active alert ID identified for acknowledgment and lifecycle management",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.2-03",
+      "name": "Operator can acknowledge active alert",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.3-01",
+      "name": "Recovery notification returns HTTP 200",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.3-02",
+      "name": "Alert status transitioned to RESOLVED",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.3-03",
+      "name": "Resolution timestamp is recorded",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-42.3-04",
+      "name": "Recovery notification recorded in staging outbox",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.1-01",
+      "name": "rollback-staging.js exists in scripts directory",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.1-02",
+      "name": "Deployment status endpoint returns HTTP 200",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.1-03",
+      "name": "Last-Known-Good staging release identified",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.1-04",
+      "name": "LKG release captures version identity",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.1-05",
+      "name": "LKG release captures Git commit SHA",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.2-01",
+      "name": "Rollback execution script restores and verifies target release health",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.2-02",
+      "name": "Rollback audit record persisted in immutable audit trail",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.3-01",
+      "name": "Failed rollback returns non-zero process exit code (1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.3-02",
+      "name": "Explicit operator escalation guidance printed",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-46.3-03",
+      "name": "Escalation instructions include emergency SRE pager contact",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-01",
+      "name": "Unauthenticated request to operations metrics returns HTTP 401",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-02",
+      "name": "Regular player request to operations metrics returns HTTP 403 Forbidden",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-03",
+      "name": "Regular player request to alerts list returns HTTP 403 Forbidden",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "PERSIST-01",
+      "name": "Rate-limiting hybrid storage and session revocation persistence verified",
+      "status": "PASSED",
+      "details": ""
+    }
+  ]
+}

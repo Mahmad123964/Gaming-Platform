@@ -1,0 +1,22 @@
+{
+  "rollbackId": "rbk-1792930911715",
+  "timestamp": "2026-10-25T12:21:51.715Z",
+  "environment": "staging",
+  "targetCommitSha": "66c55121c99e57d7d701eae8b954d281b7a24a3d",
+  "targetDeploymentId": "dep-1792922709726",
+  "simulatedFailure": false,
+  "runbook": "/docs/runbooks/Staging-Deployment-and-Rollback-Runbook.md",
+  "status": "SUCCESS",
+  "healthVerification": {
+    "status": "healthy",
+    "database": "connected",
+    "environment": "staging",
+    "uptimeSeconds": 50,
+    "memory": {
+      "rssMB": 50,
+      "heapUsedMB": 9
+    },
+    "timestamp": "2026-10-25T12:21:51.782Z"
+  },
+  "durationMs": 76
+}

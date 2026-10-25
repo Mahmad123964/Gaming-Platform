@@ -80,3 +80,77 @@ export interface AuditEvent {
   details: Record<string, any>;
   createdAt: string;
 }
+
+export type TimeWindow = '5m' | '15m' | '1h' | '24h';
+
+export interface OperationalAlert {
+  id: string;
+  ruleId: string;
+  name: string;
+  severity: 'CRITICAL' | 'WARNING' | 'INFO';
+  status: 'ACTIVE' | 'ACKNOWLEDGED' | 'RESOLVED';
+  observedValue: number | string;
+  unit?: string;
+  threshold: number;
+  window: string;
+  service: string;
+  environment: string;
+  onCallTeam: string;
+  runbookUrl: string;
+  startedAt: string;
+  lastObservedAt: string;
+  resolvedAt: string | null;
+  acknowledgedAt: string | null;
+  acknowledgedBy: string | null;
+}
+
+export interface OperationalMetrics {
+  telemetryAvailable: boolean;
+  status?: string;
+  message?: string;
+  window: TimeWindow;
+  windowDurationSeconds?: number;
+  timestamp: string;
+  uptimeSeconds?: number;
+  overallHealth?: 'HEALTHY' | 'DEGRADED' | 'CRITICAL';
+  availability?: {
+    sliPercent: number;
+    totalRequests: number;
+    requestsPerSecond: number;
+    successfulRequests: number;
+    serverErrors: number;
+    clientErrors: number;
+    errorRatePercent: number;
+  };
+  latency?: {
+    avgMs: number;
+    p50Ms: number;
+    p95Ms: number;
+    p99Ms: number;
+    minMs: number;
+    maxMs: number;
+  };
+  system?: {
+    cpuPercent: number;
+    memory: {
+      rssMB: number;
+      heapUsedMB: number;
+      heapTotalMB: number;
+    };
+    nodeVersion: string;
+    platform: string;
+    architecture: string;
+  };
+  dependencies?: {
+    database: {
+      engine: string;
+      status: string;
+      queryLatencyMs: number;
+    };
+    webSocket: {
+      status: string;
+      activeConnections: number;
+    };
+  };
+}
+

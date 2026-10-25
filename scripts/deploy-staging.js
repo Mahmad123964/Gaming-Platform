@@ -173,10 +173,31 @@ async function runPipeline() {
     const releaseArtifactPath = path.join(__dirname, '..', 'evidence', 'sprint-00', 'staging-release.json');
     fs.writeFileSync(releaseArtifactPath, JSON.stringify(releaseRecord, null, 2));
 
+    // Sprint 07: Save Last-Known-Good (LKG) record if deployment succeeded (EP13-02)
+    const sprint07DepDir = path.join(__dirname, '..', 'evidence', 'sprint-07', 'deployments');
+    if (!fs.existsSync(sprint07DepDir)) {
+      fs.mkdirSync(sprint07DepDir, { recursive: true });
+    }
+
+    if (allPassed) {
+      const lkgArtifactPath = path.join(sprint07DepDir, 'last-known-good.json');
+      fs.writeFileSync(lkgArtifactPath, JSON.stringify(releaseRecord, null, 2));
+      log(`Preserved Last-Known-Good (LKG) release record: ${lkgArtifactPath}`);
+    }
+
     if (!allPassed) {
-      log(`❌ [PIPELINE ABORTED] Smoke test failed. Staging release marked as FAILED (AC-45.2).`);
-      log(`Release artifact saved: ${releaseArtifactPath}`);
+      log(`❌ [PIPELINE ABORTED] Smoke test failed. Candidate release rejected (AC-45.2).`);
+      log(`Triggering automated release rollback procedure (EP13-02, AC-46.2)...`);
       serverProcess.kill();
+
+      try {
+        const { executeRollback } = require('./rollback-staging');
+        await executeRollback();
+        log(`Automated rollback completed to restore known-good staging state.`);
+      } catch (rbkErr) {
+        log(`Rollback execution encountered an error: ${rbkErr.message}`);
+      }
+
       process.exit(1);
     }
 
