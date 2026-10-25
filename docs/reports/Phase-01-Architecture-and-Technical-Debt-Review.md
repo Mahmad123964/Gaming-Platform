@@ -1,8 +1,8 @@
 # NexusPlay — Phase 1 Architecture & Technical Debt Review
 **Platform Phase:** Phase 1 — Foundation & Core MVP (Sprints 00–06)  
 **Baseline Version:** 1.0.0-MVP / Staging Release v0.6.0  
-**Baseline Git Commit:** `73ab362`  
-**Date of Audit:** October 25, 2026 (Reconciliation Update)  
+**Baseline Git Commit:** `99eb768`  
+**Date of Audit:** October 25, 2026 (Final Traceability Consistency Audit)  
 **Auditor Roles:** Principal Software Architect, Staff SRE, Application Security Lead  
 
 ---
@@ -52,7 +52,7 @@ The NexusPlay platform establishes a hardened, responsive web gaming architectur
 ## 2. Review of Architectural Decisions (ADR-0001 through ADR-0006)
 
 | ADR | Title | Technical Decision | Executable Verification | Technical Debt / Future Need |
-| :--- | :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | :--- | :--- | :--- |
 | **ADR-0001** | Technology Stack | Node.js, Express, SQLite DatabaseSync, React, WebSockets | **Validated** (284/284 tests pass) | SQLite single-writer constraint will necessitate PostgreSQL migration for Phase 2 multiplayer. |
 | **ADR-0002** | Frontend Architecture Evolution | React 19 + TypeScript + Vite bundled build | **Validated** (Clean build, 52 modules, 0 errors) | Add code splitting (`dynamic import()`) to partition vendor bundle below 500kB. |
 | **ADR-0003** | PWA & Offline Capability | Service Worker caching shells, offline status indicator | **Validated** (Shell cached, manifest active) | Full offline game state synchronization queue required in Phase 3. |
@@ -62,23 +62,28 @@ The NexusPlay platform establishes a hardened, responsive web gaming architectur
 
 ---
 
-## 3. Cryptographic Implementation Verification
+## 3. Cryptographic Implementation & Persistence Verification
 
 * **Password Hashing:**
   * **Algorithm:** Node.js native **salted `scrypt`** ([crypto.js](file:///c:/Users/haali/Desktop/Gaming%20Platform/server/src/modules/identity/crypto.js#L5-L19)): `crypto.scryptSync(password, salt, 64)`.
   * **Salt:** Cryptographically random 16-byte hex salt per user (`crypto.randomBytes(16)`).
-  * **Verification:** Constant-time comparison via `crypto.timingSafeEqual`.
+  * **Verification:** Constant-time comparison via `crypto.timingSafeEqual` to eliminate timing side-channel attacks.
   * *Correction:* Previous references claiming Argon2id or PBKDF2 are corrected to salted scrypt.
-* **Session Secrets & Tokens:**
-  * Cryptographically random 32-byte session tokens generated via `crypto.randomBytes(32)`.
-  * Stored in `auth_sessions` exclusively as **SHA-256 hashes** (`hashToken`), ensuring that raw database dumps cannot compromise active sessions.
+* **Authentication Session Tokens & Database Persistence:**
+  * Authentication session tokens are **cryptographically random 32-byte hex strings** (`crypto.randomBytes(32)`). They are **NOT JWTs**.
+  * Tokens are stored in the SQLite database table `auth_sessions` exclusively as **SHA-256 hashes** (`hashToken`), ensuring that database dumps cannot compromise active sessions.
+  * **Revocation Persistence:** Logout executes `UPDATE auth_sessions SET revoked = 1 WHERE token = ?`. Password reset executes `UPDATE auth_sessions SET revoked = 1 WHERE player_id = ?`. Revocations are durable and fully survive process restarts.
+  * **In-Memory Rate Limiting:** The only in-memory authentication component is the sliding rate-limiter counter map in [rateLimiter.js](file:///c:/Users/haali/Desktop/Gaming%20Platform/server/src/modules/identity/rateLimiter.js) (`this.attempts = new Map()`), which resets upon process restart.
 * **CSRF Token Binding:**
   * Double-submit CSRF defense using HMAC-SHA256 signatures derived from the session token: `crypto.createHmac('sha256', CSRF_SECRET).update(sessionToken).digest('hex')`.
   * Verified in constant-time with `crypto.timingSafeEqual` and strictly checked against trusted Origin/Referer headers on all mutating endpoints.
 * **Game Launch Tickets:**
   * Formatted as `ltkt-${base64url(payload)}.${hmacSignature}` using HMAC-SHA256.
   * Payload binds: `sessionId`, `gameId`, `gameSlug`, `playerId`, `issuedAt`, and `expiresAt` (15-minute window).
-  * **Transport & Lifecycle Clarification:** Launch tickets are verified against the cryptographic signature, the 15-minute expiration timestamp, and an active session database check (`game_sessions.status === 'active'`). They are **not single-use consumable nonces** on HTTP GET (allowing iframe refreshes while the session is active), but become permanently invalid once the session is ended, restarted, or expired.
+  * **Transport & Lifecycle Clarification:** Launch tickets are verified against the cryptographic signature, the 15-minute expiration timestamp, and an active session database check (`game_sessions.status === 'active'`). They are **not single-use consumable nonces on HTTP GET** (allowing player iframe reloads while the session is active), but become permanently invalid once the session is ended, restarted, or completed.
+* **Audit Trail Persistence & Engine Triggers:**
+  * Persisted in SQLite `audit_events` table with sensitive credentials scrubbed recursively prior to insertion via `sanitizeAuditDetails`.
+  * Immutability enforced by SQLite engine-level triggers `prevent_audit_events_update` and `prevent_audit_events_delete`, which abort any direct SQL UPDATE or DELETE statement with `RAISE(ABORT, ...)`.
 
 ---
 
@@ -96,8 +101,10 @@ To ensure scientific accuracy and prevent overstatement, testing outcomes across
 |    • S06: 30 Profile/Audit Checks                                                 |
 |                                                                                   |
 | 2. END-TO-END INTEGRATION SUITE (23 Verified Checks via verify-phase01-e2e.js)    |
-|    • 19 HTTP REST API Checks: Registration, login, profile, catalog, launch,       |
-|      checkpoints, resumption, completion, history, achievements, publishing.     |
+|    • 19 HTTP REST API Checks: Registration, login, profile update, catalog browse, |
+|      game detail, launch authorization, checkpoint save/resume, completion,       |
+|      history retrieval, achievements retrieval, admin console, game registration, |
+|      licensing approval, game publishing, public discovery, audit filtering.     |
 |    • 2 SQLite Database Assertions: Direct SQL checks for session ownership        |
 |      and audit log credential redaction.                                          |
 |    • 1 SQLite Engine Trigger Test: Direct physical UPDATE/DELETE aborted by       |

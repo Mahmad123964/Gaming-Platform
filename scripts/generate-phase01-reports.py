@@ -61,15 +61,15 @@ ctrl_table = doc.add_table(rows=12, cols=2)
 ctrl_data = [
     ('Project Name', 'NexusPlay Online Gaming Platform'),
     ('Platform Lifecycle Phase', 'Phase 1 — Foundation & Core MVP (Sprints 00–06)'),
-    ('Git Baseline Commit', '73ab362 (Branch: master)'),
-    ('Sprints Completed & Closed', 'Sprint 00, Sprint 01, Sprint 02, Sprint 03, Sprint 04, Sprint 05, Sprint 06 (7 Sprints Total)'),
+    ('Git Baseline Commit', '99eb768 (Branch: master)'),
+    ('Sprints Completed & Closed', 'Sprint 00 (Foundation), Sprint 01 (Identity & Security), Sprint 02 (Game Catalog & Discovery), Sprint 03 (Content Administration), Sprint 04 (Game Launching & Single-Player), Sprint 05 (Progress, History & Achievements), Sprint 06 (Player Profiles & Audit)'),
     ('Reconciled Unique Stories', '25 Unique User Stories Delivered (EP13-01, EP01-01..04, EP02-01..04, EP03-01..04, EP04-01, EP04-03, EP07-01..04, EP10-01..03, EP11-01..03)'),
     ('Requirements Reconciliation', '75 / 75 Unique Acceptance Criteria (100% IMPLEMENTED_AND_VERIFIED) — Exactly 3 ACs per Story'),
     ('Cumulative Regression Suite', '284 / 284 Automated Checks PASS (100% Success Rate across 7 Sprint Test Suites)'),
-    ('End-to-End Integration Suite', '23 / 23 Checks PASS (19 API Tests, 2 DB Checks, 1 DB Trigger Abort Test, 1 Session Revocation Test)'),
+    ('End-to-End Integration Suite', '23 / 23 Checks PASS (19 Live Express API Tests, 2 DB Checks, 1 DB Trigger Abort Test, 1 Session Revocation Test)'),
     ('Visual Browser Evidence', '13 Authentic Full-Color Screenshots (6 Phase 1 E2E Journeys + 7 Sprint 06 Scenarios via Chrome CDP)'),
     ('Interactive Canvas Gameplay', 'Previously Verified in Sprint 04 (verify-sprint04-browser.js: 10/10 checks PASS on active Canvas)'),
-    ('Cryptographic Security Baseline', 'Password Hashing: Salted scrypt (crypto.scryptSync) • Launch Tickets: HMAC-SHA256 (15-min, session-bound)'),
+    ('Cryptographic Security Baseline', 'Password Hashing: Salted scrypt (crypto.scryptSync) • Sessions: SHA-256 Hashed at rest in SQLite • Launch Tickets: HMAC-SHA256 (15-min, session-bound)'),
     ('Closure Recommendation', 'CERTIFIED FOR PHASE 1 CLOSURE — All Exit Conditions Satisfied (Awaiting Product Owner Sign-Off)')
 ]
 for row_idx, (k, v) in enumerate(ctrl_data):
@@ -94,21 +94,29 @@ p_exec.text = (
     'journeys covering both the complete Player Lifecycle and the Administrator Lifecycle were executed against the live staging server, '
     'passing 23/23 integration checks and generating 13 authentic browser screenshots via Chrome DevTools Protocol (CDP).\n\n'
     'Technical claims have been rigorously verified against source code: password hashing is certified as Node.js native salted scrypt; '
+    'authentication tokens are cryptographically random hex strings hashed with SHA-256 at rest in SQLite auth_sessions (not JWTs); '
+    'session revocation is 100% database-persisted in auth_sessions (revoked = 1) surviving process restarts; '
     'launch tickets are cryptographically signed via HMAC-SHA256 with 15-minute expirations and active session binding; '
     'score persistence applies accurate plausibility heuristics without false claims of authoritativeness; and administrative audit immutability '
     'is enforced at the SQLite engine level. With all exit criteria rigorously satisfied, Phase 1 is formally certified for closure.'
 )
 
-# 3. Scope Reconciliation & Non-Duplication Audit
-doc.add_heading('3. Scope Reconciliation & Non-Duplication Audit', level=2)
+# 3. Scope Reconciliation & Backlog Integrity Audit
+doc.add_heading('3. Scope Reconciliation & Backlog Integrity Audit', level=2)
 p_rec = doc.add_paragraph()
 p_rec.text = (
-    'A rigorous audit of the authoritative Product Backlog and implementation reports resolved two historical tracking discrepancies:\n\n'
-    '1. Story Count Reconciliation (25 vs 23 Stories): The authoritative backlog defines 54 total stories, each containing exactly 3 acceptance criteria. '
-    'Phase 1 encompasses 75 unique acceptance criteria. Mathematically, 75 criteria / 3 criteria per story = 25 unique user stories. '
-    'The previous report citation of 23 stories was an arithmetic omission where two stories were omitted from the summary count. '
+    'A rigorous audit of the authoritative Product Backlog (online_gaming_platform_moscow_backlog.docx) and Acceptance Criteria '
+    'specification (online_gaming_platform_all_stories_acceptance_criteria.docx) establishes the following facts:\n\n'
+    '1. Story Count Reconciliation (25 vs 23 Stories): The authoritative backlog defines 54 total stories across 15 epics, each containing '
+    'exactly 3 acceptance criteria. Phase 1 encompasses 75 unique acceptance criteria. Mathematically, 75 criteria / 3 criteria per story = 25 unique user stories. '
+    'The previous citation of 23 stories was an arithmetic omission where two delivered stories were omitted from summary tables. '
     'All 25 unique stories are uniquely implemented and verified.\n\n'
-    '2. Sprint 03 Acceptance Criteria Reconciliation (15 vs 18 Criteria): The Sprint 03 report claimed 18 criteria by prematurely associating '
+    '2. Audit of EP04-04 (Confirmed Non-Existent): In some early draft summaries and scratchpads, an erroneous reference to "EP04-04 (Player History & Session Tracking)" '
+    'appeared in an attempt to explain the 25-story arithmetic total. Authoritative backlog inspection confirms that EP04-04 DOES NOT EXIST. '
+    'Epic 04 (Single-player & Bots) consists exclusively of three stories: EP04-01 (Single-player launch), EP04-02 (Bot opponent, scheduled for Sprint 10), '
+    'and EP04-03 (Single-player restart). Player history and session tracking is actually EP07-03 (under Epic 07: Progress & History), implemented in Sprint 05. '
+    'No stories have been fabricated: all 25 stories are legitimate, approved backlog items.\n\n'
+    '3. Sprint 03 Acceptance Criteria Allocation (15 vs 18 Criteria): The Sprint 03 report claimed 18 criteria by prematurely associating '
     'AC-40.1..40.3 with EP11-02. In the authoritative backlog, AC-40.1..40.3 belong exclusively to EP11-03, which was formally completed in Sprint 06. '
     'Sprint 03 delivered 15 unique criteria (EP03-02: 3, EP10-01: 3, EP10-02: 3, EP10-03: 3, EP11-02: 3), and Sprint 06 delivered 6 unique criteria '
     '(EP01-04: 3, EP11-03: 3). Counting Sprint 03 at 15 criteria and Sprint 06 at 6 criteria guarantees that AC-40.1..40.3 are counted strictly once.'
@@ -120,13 +128,13 @@ for col_idx, h in enumerate(rec_headers):
     rec_table.rows[0].cells[col_idx].paragraphs[0].text = h
 
 rec_data = [
-    ('Sprint 00', 'EP13-01 (1 story)', '3 Criteria (AC-45.1..45.3)', '5/5 Smoke Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
-    ('Sprint 01', 'EP01-01, EP01-02, EP01-03, EP11-01 (4 stories)', '12 Criteria (AC-1.1..1.3, AC-2.1..2.3, AC-3.1..3.3, AC-38.1..38.3)', '49/49 Security Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
-    ('Sprint 02', 'EP02-01, EP02-02, EP02-03, EP02-04 (4 stories)', '12 Criteria (AC-5.1..5.3, AC-6.1..6.3, AC-7.1..7.3, AC-8.1..8.3)', '31/31 Catalog Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
-    ('Sprint 03', 'EP03-02, EP10-01, EP10-02, EP10-03, EP11-02 (5 stories)', '15 Criteria (AC-10.1..10.3, AC-35.1..35.3, AC-36.1..36.3, AC-37.1..37.3, AC-39.1..39.3)', '69/69 Admin Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
-    ('Sprint 04', 'EP03-01, EP03-03, EP03-04, EP04-01, EP04-03 (5 stories)', '15 Criteria (AC-9.1..9.3, AC-11.1..11.3, AC-12.1..12.3, AC-13.1..13.3, AC-15.1..15.3)', '40/40 Launch Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
-    ('Sprint 05', 'EP07-01, EP07-02, EP07-03, EP07-04 (4 stories)', '12 Criteria (AC-23.1..23.3, AC-24.1..24.3, AC-25.1..25.3, AC-26.1..26.3)', '60/60 Progress Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
-    ('Sprint 06', 'EP01-04, EP11-03 (2 stories)', '6 Criteria (AC-4.1..4.3, AC-40.1..40.3)', '30/30 Profile/Audit PASS', 'IMPLEMENTED_AND_VERIFIED')
+    ('Sprint 00 — Foundation', 'EP13-01 (1 story)', '3 Criteria (AC-45.1..45.3)', '5/5 Smoke Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
+    ('Sprint 01 — Identity & Security', 'EP01-01, EP01-02, EP01-03, EP11-01 (4 stories)', '12 Criteria (AC-1.1..1.3, AC-2.1..2.3, AC-3.1..3.3, AC-38.1..38.3)', '49/49 Security Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
+    ('Sprint 02 — Game Catalog & Discovery', 'EP02-01, EP02-02, EP02-03, EP02-04 (4 stories)', '12 Criteria (AC-5.1..5.3, AC-6.1..6.3, AC-7.1..7.3, AC-8.1..8.3)', '31/31 Catalog Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
+    ('Sprint 03 — Content Administration', 'EP03-02, EP10-01, EP10-02, EP10-03, EP11-02 (5 stories)', '15 Criteria (AC-10.1..10.3, AC-35.1..35.3, AC-36.1..36.3, AC-37.1..37.3, AC-39.1..39.3)', '69/69 Admin Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
+    ('Sprint 04 — Game Launching & Single-Player', 'EP03-01, EP03-03, EP03-04, EP04-01, EP04-03 (5 stories)', '15 Criteria (AC-9.1..9.3, AC-11.1..11.3, AC-12.1..12.3, AC-13.1..13.3, AC-15.1..15.3)', '40/40 Launch Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
+    ('Sprint 05 — Progress, History & Achievements', 'EP07-01, EP07-02, EP07-03, EP07-04 (4 stories)', '12 Criteria (AC-23.1..23.3, AC-24.1..24.3, AC-25.1..25.3, AC-26.1..26.3)', '60/60 Progress Checks PASS', 'IMPLEMENTED_AND_VERIFIED'),
+    ('Sprint 06 — Player Profiles & Audit', 'EP01-04, EP11-03 (2 stories)', '6 Criteria (AC-4.1..4.3, AC-40.1..40.3)', '30/30 Profile/Audit PASS', 'IMPLEMENTED_AND_VERIFIED')
 ]
 for row_idx, r_data in enumerate(rec_data):
     row = rec_table.rows[row_idx + 1]
@@ -143,14 +151,17 @@ p_sec.text = (
     'are hashed using Node.js native crypto.scryptSync with a 16-byte cryptographically random salt and 64-byte key length. '
     'Verification utilizes constant-time comparison (crypto.timingSafeEqual). Prior references to Argon2id or PBKDF2 were descriptive '
     'benchmarks and are hereby clarified to salted scrypt.\n\n'
-    '2. Launch Ticket Security & Lifecycle: Launch tickets use HMAC-SHA256 signatures binding player identity, game slug, session ID, '
-    'and a 15-minute expiration timestamp. Ticket verification enforces active session checks in SQLite. '
+    '2. Authentication Session Tokens & Persistence: Authentication tokens are cryptographically random 32-byte hex strings hashed '
+    'with SHA-256 at rest in the SQLite auth_sessions table. They are NOT JWTs. Token revocation is 100% database-persisted (revoked = 1) '
+    'and survives process restarts. The in-memory component is limited strictly to sliding-window brute-force rate-limiting counters (authRateLimiter).\n\n'
+    '3. Launch Ticket Security & Lifecycle: Launch tickets use HMAC-SHA256 signatures binding player identity, game slug, session ID, '
+    'and a 15-minute expiration timestamp. Ticket verification enforces active session checks in SQLite (game_sessions.status === "active"). '
     'Crucially, tickets are cryptographically signed and session-bound, but they are NOT single-use consumable nonces on HTTP GET—this '
     'allows browser iframe refreshes during an active session, but tickets become invalid as soon as the session ends or restarts.\n\n'
-    '3. Score Plausibility Classification (ADR-0005): Acknowledging that client-side canvas simulations cannot be authoritatively verified '
+    '4. Score Plausibility Classification (ADR-0005): Acknowledging that client-side canvas simulations cannot be authoritatively verified '
     'without server tick simulation, scores meeting duration velocity checks are accurately tagged PLAUSIBILITY_CHECK_PASSED; '
     'scores exceeding thresholds are tagged UNVERIFIED. Neither is falsely reported as AUTHORITATIVELY_VERIFIED.\n\n'
-    '4. Administrative Audit Immutability (ADR-0006): SQLite database engine triggers prevent_audit_events_update and '
+    '5. Administrative Audit Immutability (ADR-0006): SQLite database engine triggers prevent_audit_events_update and '
     'prevent_audit_events_delete physically abort all SQL mutations on audit_events with ABORT errors, while sanitizeAuditDetails '
     'recursively scrubs credentials prior to persistence.'
 )
@@ -230,8 +241,8 @@ p_gate.text = (
     '   - Multiplayer room architecture and WebSocket matchmaking (Phase 2 / Sprint 08)\n'
     '   - Production Stripe payment gateway and subscription billing (Phase 3 / Sprint 12)\n\n'
     '3. Distinction Between Development Risks and Production Blockers: Phase 1 staging development risks (client-side score heuristics, '
-    'single-writer SQLite lock, mock email outbox, simulated VIP subscription records) are fully documented in the Risk Register and '
-    'do NOT block Sprint 07 entry, as Sprint 07 establishes the SRE observability baseline to measure these systems.'
+    'single-writer SQLite lock, in-memory rate limiter counters, mock email outbox, simulated VIP subscription records) are fully documented '
+    'in the Risk Register and do NOT block Sprint 07 entry, as Sprint 07 establishes the SRE observability baseline to monitor these systems.'
 )
 
 gate_table = doc.add_table(rows=6, cols=4)
@@ -312,10 +323,12 @@ for row in t1.rows:
         row.cells[2].text = (
             'Phase 1 Final Certification & Reconciliation: Exhaustive reconciliation of Sprints 00 through 06. '
             'Delivered and verified all 25 unique user stories and exactly 75 distinct acceptance criteria (3 ACs per story). '
-            'Reconciled historical 23-story arithmetic discrepancy and Sprint 03 18-vs-15 AC allocation (AC-40.1..40.3 accounted once in Sprint 06). '
+            'Confirmed EP04-04 non-existence (Epic 04 has 3 stories; history is EP07-03). '
+            'Reconciled Sprint 03 18-vs-15 AC allocation (AC-40.1..40.3 accounted once in Sprint 06). '
             'Validated 284/284 automated tests across 7 sprint suites (100% pass rate). Verified 23 Phase 1 E2E integration checks '
             '(19 API, 2 DB, 1 DB Trigger, 1 Session Revocation) and 13 authentic Chrome CDP browser screenshots. '
-            'Certified cryptographic baseline: password hashing via salted scrypt (crypto.scryptSync) and session-bound HMAC launch tickets. '
+            'Certified cryptographic baseline: password hashing via salted scrypt (crypto.scryptSync), session tokens hashed with SHA-256 '
+            'at rest in SQLite auth_sessions (durable revocation surviving restarts), and session-bound HMAC launch tickets. '
             'Confirmed Sprint 07 approved scope as Operations & SRE (EP12-01, EP12-02, EP13-02), excluding premature DB or payment migrations.'
         )
         row.cells[3].text = 'docs/reports/Phase-01-Completion-Report.docx'
@@ -328,10 +341,12 @@ if not found_v20:
     new_row.cells[2].paragraphs[0].text = (
         'Phase 1 Final Certification & Reconciliation: Exhaustive reconciliation of Sprints 00 through 06. '
         'Delivered and verified all 25 unique user stories and exactly 75 distinct acceptance criteria (3 ACs per story). '
-        'Reconciled historical 23-story arithmetic discrepancy and Sprint 03 18-vs-15 AC allocation (AC-40.1..40.3 accounted once in Sprint 06). '
+        'Confirmed EP04-04 non-existence (Epic 04 has 3 stories; history is EP07-03). '
+        'Reconciled Sprint 03 18-vs-15 AC allocation (AC-40.1..40.3 accounted once in Sprint 06). '
         'Validated 284/284 automated tests across 7 sprint suites (100% pass rate). Verified 23 Phase 1 E2E integration checks '
         '(19 API, 2 DB, 1 DB Trigger, 1 Session Revocation) and 13 authentic Chrome CDP browser screenshots. '
-        'Certified cryptographic baseline: password hashing via salted scrypt (crypto.scryptSync) and session-bound HMAC launch tickets. '
+        'Certified cryptographic baseline: password hashing via salted scrypt (crypto.scryptSync), session tokens hashed with SHA-256 '
+        'at rest in SQLite auth_sessions (durable revocation surviving restarts), and session-bound HMAC launch tickets. '
         'Confirmed Sprint 07 approved scope as Operations & SRE (EP12-01, EP12-02, EP13-02), excluding premature DB or payment migrations.'
     )
     new_row.cells[3].paragraphs[0].text = 'docs/reports/Phase-01-Completion-Report.docx'
@@ -351,13 +366,14 @@ p_app_h = master_doc.add_heading('Appendix: Phase 1 Final Reconciliation & Scope
 p_app_desc = master_doc.add_paragraph(
     'Phase 1 scope reconciliation confirms exactly 25 unique user stories delivered across Sprints 00 through 06, '
     'each containing exactly 3 acceptance criteria, totaling 75 unique criteria with 100% verification. '
-    'The historical discrepancy of "23 reported stories" arose from an arithmetic omission in previous summaries, '
-    'while Sprint 03 previously claimed 18 criteria by prematurely associating AC-40.1..40.3 with EP11-02. '
+    'Inspection confirms that EP04-04 does not exist in the authoritative backlog (Epic 04 has 3 stories; session history is EP07-03). '
+    'Sprint 03 previously claimed 18 criteria by prematurely associating AC-40.1..40.3 with EP11-02. '
     'In the authoritative backlog, AC-40.1..40.3 belong to EP11-03, formally completed in Sprint 06. '
     'Accounting Sprint 03 at 15 criteria and Sprint 06 at 6 criteria guarantees zero double-counting. '
-    'Password hashing is certified as Node.js native salted scrypt. Launch tickets are cryptographically signed HMAC tokens '
-    'bound to active sessions, not single-use consumable nonces. Sprint 07 is confirmed as an SRE and operations sprint, '
-    'with all premature Phase 2/3 migrations strictly excluded.'
+    'Password hashing is certified as Node.js native salted scrypt. Authentication session storage and token revocation are 100% '
+    'persisted in the SQLite auth_sessions table (tokens hashed at rest with SHA-256; revoked = 1 surviving restarts), not in-memory. '
+    'Launch tickets are cryptographically signed HMAC tokens bound to active sessions, not single-use consumable nonces. '
+    'Sprint 07 is confirmed as an SRE and operations sprint, with all premature Phase 2/3 migrations strictly excluded.'
 )
 
 master_doc.save(master_path)
