@@ -453,29 +453,35 @@ class LobbyService {
       return this.getLobby(lobbyRow.id);
     }
 
-    // AC-16.3 & AC-17.3: Check capacity
-    const activeParticipants = this.db.prepare(
-      "SELECT COUNT(*) as count FROM lobby_participants WHERE lobby_id = ? AND status != 'left'"
-    ).get(lobbyRow.id);
-
-    const currentCount = activeParticipants ? activeParticipants.count : 0;
-
-    if (currentCount >= lobbyRow.max_players || lobbyRow.status === 'full' || lobbyRow.status === 'active') {
-      const err = new Error(`Lobby '${cleanCode}' is already at maximum capacity (${lobbyRow.max_players}/${lobbyRow.max_players} players). Additional players cannot join (AC-16.3, AC-17.3).`);
-      err.status = 409; // Conflict
-      err.code = 'LOBBY_FULL';
-      err.capacityDetails = {
-        maxPlayers: lobbyRow.max_players,
-        currentCount,
-        status: lobbyRow.status
-      };
-      throw err;
-    }
-
-    // Add guest participant
+    // Add guest participant atomically under BEGIN IMMEDIATE write lock
     const participantId = existing ? existing.id : ('part-' + crypto.randomUUID().slice(0, 8));
 
     this.dbManager.transaction(() => {
+      // 1. Re-query current lobby state under transaction lock
+      const currentLobby = this.db.prepare(
+        "SELECT id, max_players, status FROM lobbies WHERE id = ?"
+      ).get(lobbyRow.id);
+
+      // 2. Re-check active participants count under transaction lock
+      const activeParticipants = this.db.prepare(
+        "SELECT COUNT(*) as count FROM lobby_participants WHERE lobby_id = ? AND status != 'left'"
+      ).get(lobbyRow.id);
+
+      const currentCount = activeParticipants ? activeParticipants.count : 0;
+
+      // AC-16.3 & AC-17.3: Check capacity ceiling atomically
+      if (currentCount >= currentLobby.max_players || currentLobby.status === 'full' || currentLobby.status === 'active') {
+        const err = new Error(`Lobby '${cleanCode}' is already at maximum capacity (${currentLobby.max_players}/${currentLobby.max_players} players). Additional players cannot join (AC-16.3, AC-17.3).`);
+        err.status = 409; // Conflict
+        err.code = 'LOBBY_FULL';
+        err.capacityDetails = {
+          maxPlayers: currentLobby.max_players,
+          currentCount,
+          status: currentLobby.status
+        };
+        throw err;
+      }
+
       if (existing) {
         this.db.prepare(
           "UPDATE lobby_participants SET status = 'connected', joined_at = CURRENT_TIMESTAMP WHERE id = ?"
@@ -489,7 +495,7 @@ class LobbyService {
 
       // AC-18.2: When lobby reaches allowed capacity (2), update status to 'full'
       const updatedCount = currentCount + 1;
-      if (updatedCount >= lobbyRow.max_players) {
+      if (updatedCount >= currentLobby.max_players) {
         this.db.prepare("UPDATE lobbies SET status = 'full' WHERE id = ?").run(lobbyRow.id);
       }
     });

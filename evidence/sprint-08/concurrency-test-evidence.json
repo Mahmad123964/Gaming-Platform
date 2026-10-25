@@ -1,0 +1,109 @@
+{
+  "testName": "Simultaneous 2-Player Lobby Join Concurrency Test",
+  "timestamp": "2026-10-25T16:29:39.585Z",
+  "participantsSetup": {
+    "host": "usr-mvo1mhlr-c4485621",
+    "guestA": "usr-mvo1mho8-6cc573d8",
+    "guestB": "usr-mvo1mhqj-c1fe2463"
+  },
+  "lobbyDetails": {
+    "id": "lobby-7c469539",
+    "code": "EZEHP2",
+    "maxPlayers": 2,
+    "initialStatus": "waiting"
+  },
+  "concurrencyExecution": {
+    "dispatchTimestamp": "2026-10-25T16:29:40.004Z",
+    "completionTimestamp": "2026-10-25T16:29:40.023Z",
+    "totalElapsedMs": 19,
+    "guestA": {
+      "status": 200,
+      "durationMs": 16,
+      "body": {
+        "success": true,
+        "message": "Joined lobby for \"Obsidian Chess\".",
+        "lobby": {
+          "id": "lobby-7c469539",
+          "code": "EZEHP2",
+          "status": "full",
+          "game": {
+            "id": "game-003",
+            "slug": "obsidian-chess",
+            "title": "Obsidian Chess",
+            "categoryId": "cat-strategy"
+          },
+          "hostPlayerId": "usr-mvo1mhlr-c4485621",
+          "maxPlayers": 2,
+          "playerCount": 2,
+          "isFull": true,
+          "isResumable": false,
+          "participants": [
+            {
+              "id": "part-79d1d1e1",
+              "playerId": "usr-mvo1mhlr-c4485621",
+              "displayName": "conc_host_Player",
+              "avatar": "pilot-cyan",
+              "role": "host",
+              "status": "connected",
+              "joinedAt": "2026-10-25 16:29:39"
+            },
+            {
+              "id": "part-0420dfdf",
+              "playerId": "usr-mvo1mho8-6cc573d8",
+              "displayName": "conc_guestA_Player",
+              "avatar": "pilot-cyan",
+              "role": "guest",
+              "status": "connected",
+              "joinedAt": "2026-10-25 16:29:40"
+            }
+          ],
+          "expiresAt": "2026-10-25T16:59:39.880Z",
+          "startedAt": null,
+          "endedAt": null,
+          "createdAt": "2026-10-25 16:29:39"
+        }
+      }
+    },
+    "guestB": {
+      "status": 409,
+      "durationMs": 18,
+      "body": {
+        "error": "LOBBY_FULL",
+        "message": "Lobby 'EZEHP2' is already at maximum capacity (2/2 players). Additional players cannot join (AC-16.3, AC-17.3).",
+        "capacityDetails": {
+          "maxPlayers": 2,
+          "currentCount": 2,
+          "status": "full"
+        },
+        "retryAfter": null,
+        "timestamp": "2026-10-25T16:29:40.021Z"
+      }
+    }
+  },
+  "databaseAssertions": {
+    "lobbyId": "lobby-7c469539",
+    "persistedStatus": "full",
+    "persistedParticipantsCount": 2,
+    "participants": [
+      {
+        "playerId": "usr-mvo1mhlr-c4485621",
+        "role": "host",
+        "status": "connected"
+      },
+      {
+        "playerId": "usr-mvo1mho8-6cc573d8",
+        "role": "guest",
+        "status": "connected"
+      }
+    ],
+    "participantCountMatches": true,
+    "statusMatches": true,
+    "noGhostRows": true
+  },
+  "websocketAssertions": {
+    "hostSawFull": true,
+    "hostSawMember": true,
+    "rejectedGuestIsolated": true
+  },
+  "outcome": "PASSED (100% CONCURRENCY SAFETY VERIFIED)"
+}

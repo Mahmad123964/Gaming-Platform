@@ -105,10 +105,11 @@ class ContentAdminService {
       const eventId = 'audit-' + crypto.randomUUID();
       const sanitized = this.sanitizeAuditDetails(typeof details === 'string' ? JSON.parse(details) : details);
       const detailsJson = JSON.stringify(sanitized);
+      const nowIso = new Date().toISOString();
       this.db.run(
         `INSERT INTO audit_events (id, actor_id, action, resource, details_json, created_at)
-         VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-        [eventId, actorId || 'anonymous', action, resource, detailsJson]
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [eventId, actorId || 'anonymous', action, resource, detailsJson, nowIso]
       );
       return eventId;
     } catch (err) {
@@ -168,7 +169,7 @@ class ContentAdminService {
     const totalRow = this.db.get(countSql, params);
     const totalCount = totalRow ? totalRow.total : 0;
 
-    sql += ' ORDER BY a.created_at DESC LIMIT ? OFFSET ?';
+    sql += ' ORDER BY a.created_at DESC, a.rowid DESC LIMIT ? OFFSET ?';
     params.push(validLimit, validOffset);
 
     const rows = this.db.query(sql, params);

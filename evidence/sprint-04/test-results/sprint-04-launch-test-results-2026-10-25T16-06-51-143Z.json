@@ -1,0 +1,275 @@
+{
+  "sprint": "Sprint 04",
+  "title": "Game Launching & Single-Player Foundation",
+  "epicScope": [
+    "EP03-01",
+    "EP03-03",
+    "EP03-04",
+    "EP04-01",
+    "EP04-03"
+  ],
+  "acceptanceCriteria": [
+    "AC-9.1",
+    "AC-9.2",
+    "AC-9.3",
+    "AC-11.1",
+    "AC-11.2",
+    "AC-11.3",
+    "AC-12.1",
+    "AC-12.2",
+    "AC-12.3",
+    "AC-13.1",
+    "AC-13.2",
+    "AC-13.3",
+    "AC-15.1",
+    "AC-15.2",
+    "AC-15.3"
+  ],
+  "timestamp": "2026-10-25T16:06:51.143Z",
+  "totalTests": 40,
+  "passedTests": 40,
+  "failedTests": 0,
+  "successRate": "100%",
+  "testResults": [
+    {
+      "id": "SETUP-01",
+      "name": "Test user fixtures initialized (Admin, Free Player, VIP Player)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-AUTH-01",
+      "name": "Authorized free game launch returns HTTP 200 OK (AC-9.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-AUTH-02",
+      "name": "Launch response issues cryptographically signed launchTicket (AC-9.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-AUTH-03",
+      "name": "Launch initiates single_player session in active state (AC-13.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-AUTH-04",
+      "name": "Launch destination incorporates session and ticket parameters (AC-9.1, AC-12.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-AUTH-05",
+      "name": "Authenticated launch binds session directly to player identity (AC-9.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-UNPUB-01",
+      "name": "Unpublished draft game launch is denied with HTTP 403 Forbidden (AC-12.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-UNPUB-02",
+      "name": "Rejection code explicitly specifies GAME_UNPUBLISHED (AC-12.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-UNPUB-03",
+      "name": "Newly published game launches successfully (AC-12.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-UNPUB-04",
+      "name": "Unpublished game immediately rejects subsequent launch attempts (AC-12.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-LIC-01",
+      "name": "Game with revoked licensing clearance strictly denied launch (AC-9.1, AC-12.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-LIC-02",
+      "name": "Game lacking explicit approved licensing record is strictly blocked with HTTP 422 (AC-9.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-MISS-01",
+      "name": "Non-existent game launch returns HTTP 404 Not Found (AC-9.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-MISS-02",
+      "name": "Error code specifies GAME_NOT_FOUND with actionable message (AC-9.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-MISS-03",
+      "name": "Whitespace game identifier rejected with HTTP 400 Bad Request (AC-9.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-VIP-01",
+      "name": "Unauthenticated player launching premium title denied with HTTP 403 (AC-9.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-VIP-02",
+      "name": "Error specifies AUTHENTICATION_REQUIRED for premium game (AC-9.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-VIP-03",
+      "name": "Non-VIP player launching premium title denied with HTTP 403 (AC-9.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-VIP-04",
+      "name": "Error specifies VIP_SUBSCRIPTION_REQUIRED with upgrade details (AC-9.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-VIP-05",
+      "name": "VIP player with active subscription launches premium title successfully (AC-9.1, AC-9.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-CMP-01",
+      "name": "Legacy IE browser launch rejected with HTTP 400 (AC-11.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-CMP-02",
+      "name": "Rejection diagnostic identifies unsupported browser engine (AC-11.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-CMP-03",
+      "name": "Missing HTML5 Canvas capability rejected with diagnostic message (AC-11.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-CMP-04",
+      "name": "Modern supported browser launches without unsupported-device warning (AC-11.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-CMP-05",
+      "name": "Inconclusive compatibility detection presents standard fallback outcome (AC-11.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-LIF-01",
+      "name": "Single-player solo session begins in active state (AC-13.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-LIF-02",
+      "name": "Game not supporting solo mode rejects single-player request (AC-13.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-LIF-03",
+      "name": "Error specifies SOLO_MODE_NOT_SUPPORTED with player capacity explanation (AC-13.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-LIF-04",
+      "name": "Ending session updates status to \"ended\" (AC-13.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-LIF-05",
+      "name": "Ended session is not presented as active when returning to game page (AC-13.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-RST-01",
+      "name": "Precondition: Session recorded in-progress score of 850",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-RST-02",
+      "name": "Restarting active session returns HTTP 200 OK (AC-15.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-RST-03",
+      "name": "Restarted session returns to starting active state (AC-15.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-RST-04",
+      "name": "Restarted session score is zeroed (0) without carrying over old score (AC-15.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-RST-05",
+      "name": "Restarted session resets wave to 1 and lives to 3 (AC-15.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-RST-06",
+      "name": "Restarting non-existent session fails with HTTP 404 (AC-15.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SESS-RST-07",
+      "name": "Restarting terminated session is rejected with HTTP 400 (AC-15.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-BYP-01",
+      "name": "Direct access without launch ticket denied with HTTP 403 (AC-12.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-BYP-02",
+      "name": "Direct access with forged ticket signature denied with HTTP 403 (AC-12.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LAUNCH-BYP-03",
+      "name": "Direct access with valid cryptographically signed launch ticket succeeds (AC-12.1)",
+      "status": "PASSED",
+      "details": ""
+    }
+  ]
+}

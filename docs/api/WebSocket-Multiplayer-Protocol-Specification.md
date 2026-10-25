@@ -71,15 +71,16 @@ Clients initiate a connection to `/ws` through one of two authorized mechanisms:
    Connection: Upgrade
    Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
    Sec-WebSocket-Version: 13
-   Cookie: nexus_session=s%3A7a9b...
+   Cookie: nexusplay_session=s%3A7a9b...
    ```
+   *(Note: The server also accepts legacy alias `nexus_session` for compatibility).*
 
 2. **Single-Use Connection Ticket (Headless & Cross-Origin Vector):**
    Clients obtain a short-lived ticket via authenticated REST endpoint:
    ```http
    POST /api/v1/lobbies/ws-ticket HTTP/1.1
    Host: localhost:5050
-   Cookie: nexus_session=s%3A... (or Authorization: Bearer <session_token>)
+   Cookie: nexusplay_session=s%3A... (or Authorization: Bearer <session_token>)
    ```
    Server response:
    ```json

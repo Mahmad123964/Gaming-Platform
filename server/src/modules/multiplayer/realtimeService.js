@@ -119,7 +119,7 @@ class RealtimeSessionService {
 
     // 1. Primary Vector: Ambient HttpOnly session cookie
     const cookies = this.parseCookies(req.headers?.cookie);
-    const sessionToken = cookies['nexusplay_session'] || cookies['auth_session'] || null;
+    const sessionToken = cookies['nexusplay_session'] || cookies['nexus_session'] || cookies['auth_session'] || null;
     let player = this.authenticateToken(sessionToken);
 
     // 2. Secondary Vector: Short-lived, audience-scoped single-use connection ticket

@@ -97,7 +97,11 @@ WebSocket upgrade requests undergo strict pre-handshake validation in `verifyCli
 
 ### 3.2 Dual Authentication Vectors
 Once origin and query sanity checks pass, identity verification proceeds through one of two authorized mechanisms:
-1. **HttpOnly Session Cookie (Primary Vector):** Standard browser clients provide the signed `nexus_session` HttpOnly cookie in the HTTP Upgrade handshake headers. The session token is validated against the SQLite `auth_sessions` table (`revoked = 0` and `expires_at > CURRENT_TIMESTAMP`).
+1. **HttpOnly Session Cookie (Primary Vector):** Standard browser clients provide the ambient session cookie.
+   - **Canonical Cookie Name:** `nexusplay_session` (with `nexus_session` and `auth_session` supported as backward-compatible aliases).
+   - **Cookie Attributes:** `HttpOnly; SameSite=Lax; Path=/; Max-Age=86400`. The `Secure` attribute is dynamically enforced whenever requests arrive via HTTPS or trusted reverse proxy (`isSecureRequest`).
+   - **Token Cryptography:** The session cookie contains an **opaque 256-bit cryptographically random bearer secret** (`crypto.randomBytes(32).toString('hex')`). It is **never stored plaintext**; it is hashed at rest with **SHA-256** in the SQLite `auth_sessions` table (`s.token = hashToken(cleanToken)`).
+   - **Validation & Revocation:** Validated against SQLite `auth_sessions` joined with `players`. Sockets are rejected if `revoked = 1`, `expires_at <= CURRENT_TIMESTAMP`, or player `status != 'active'`.
 2. **Short-Lived Connection Ticket (Secondary Vector):** Cross-origin, headless, or automated testing clients obtain a single-use ticket via authenticated REST endpoint `POST /api/v1/lobbies/ws-ticket`. 
    - **Ticket Properties:** Prefixed with `wst_`, 60-second Time-To-Live (TTL), audience-scoped strictly to `nexusplay:websocket`, and bound to the authenticated player.
    - **Single-Use Consumption:** Sockets pass the ticket via `/ws?ticket=wst_...` or via initial frame `{ type: "AUTH_TICKET", ticket: "wst_..." }`. The ticket is atomically consumed and purged upon first use. Tickets cannot be reused and cannot grant general REST API or account access.
@@ -136,15 +140,19 @@ Not all catalog games support multiplayer sessions. Single-player titles (such a
 - If `max_players < 2`, the request is rejected with HTTP `422 Unprocessable Entity` and machine code `GAME_NOT_ELIGIBLE_FOR_MULTIPLAYER`.
 - Eligible multiplayer games (e.g., *Obsidian Chess*, `max_players = 2`) proceed through creation.
 
-### 4.3 Capacity and Room Isolation (AC-16.3, AC-17.3)
+### 4.3 Capacity, Room Isolation & Concurrent Join Safety (AC-16.3, AC-17.3)
 - **Player Limit:** Two-player lobbies strictly enforce a capacity ceiling of 2 participants (`current_players <= max_players`).
-- **Atomic Slot Reservation:** Player insertion into `lobby_participants` executes within an atomic transaction:
+- **Atomic Concurrency Protection (`BEGIN IMMEDIATE`):** To eliminate race conditions where simultaneous join requests could oversubscribe a lobby, participant reservation executes inside an atomic SQLite write transaction (`this.dbManager.transaction`):
   ```sql
-  SELECT current_players, max_players, status FROM lobbies WHERE id = ?;
-  -- If current_players >= max_players or status != 'waiting', reject with HTTP 409
-  UPDATE lobbies SET current_players = current_players + 1 WHERE id = ?;
-  INSERT INTO lobby_participants (lobby_id, player_id, role) VALUES (?, ?, 'guest');
+  BEGIN IMMEDIATE;
+  -- Re-query lobby status and active participant count under transaction lock
+  SELECT max_players, status FROM lobbies WHERE id = ?;
+  SELECT COUNT(*) as count FROM lobby_participants WHERE lobby_id = ? AND status != 'left';
+  -- If count >= max_players or status != 'waiting', abort transaction and reject with HTTP 409 LOBBY_FULL
+  -- Otherwise, insert guest participant and transition status to 'full'
+  COMMIT;
   ```
+- **Simultaneous-Join Verification:** Concurrency testing (`scripts/verify-concurrent-join.js`) verifies that when two authenticated players submit join requests in the same event-loop tick (within 25ms), exactly one player is admitted (HTTP 200) and the other is cleanly rejected (HTTP 409 `LOBBY_FULL`), maintaining strictly 2 rows in `lobby_participants` with zero ghost rows.
 - **Cross-Room Isolation:** WebSocket message broadcasting is strictly partitioned by `lobbyId`. A client can only receive frames for rooms to which they are explicitly subscribed upon verified membership. Sockets cannot spoof messages into other rooms.
 
 ### 4.4 Abuse Prevention & Invalid Code Rate Limiting
@@ -203,6 +211,16 @@ The lobby lifecycle is governed by an authoritative server-side finite state mac
 2. **`full` (AC-18.2):** Triggered automatically when the second player joins via the valid 6-character code. Both slots are filled. Real-time broadcast `LOBBY_STATE_CHANGED` notifies both players. The host interface displays the enabled "Start Match" button.
 3. **`active` (AC-18.3):** Triggered when the host invokes `POST /api/v1/lobbies/:id/start`. The server validates that caller `playerId == host_player_id` and `status == 'full'`, generates a `sessionId`, transitions the database record to `active`, and broadcasts `MATCH_STARTED` to the room.
 4. **`ended`:** Terminal state when the match concludes or is surrendered.
+
+### 5.1 Obsidian Chess Gameplay Authority Classification
+To provide unambiguous technical transparency, the gameplay execution of *Obsidian Chess* in Sprint 08 is classified as:
+**Synchronized Multiplayer Demonstration Board with Client-Enforced Turn Order & Server-Brokered Room Relay.**
+
+- **Server-Authoritative Match Lifecycle:** The lobby lifecycle, participant slot allocation, match initiation eligibility (host-only, requiring `status = 'full'`), and session creation are 100% server-authoritative.
+- **Piece Assignment:** The host is permanently assigned White (`'w'`), and the guest is assigned Black (`'b'`). Sockets can only move pieces matching their assigned color.
+- **Turn Order Enforcement:** The client interface strictly enforces turn alternation (`turn === myColor`). Attempting to move when it is not the player's turn is rejected locally ("Not your turn! Waiting for opponent"). Each move flips the turn between White and Black.
+- **Server Network Relay:** Submitting a move sends a `{ type: "GAME_MOVE", move, nextTurn }` frame upstream. `RealTimeService` verifies that the sender is authenticated and an authorized member of that active room, then broadcasts `GAME_STATE_UPDATE` to the opponent with zero cross-room leakage.
+- **Rules Engine Scope:** Complex FIDE chess rules (e.g. legal move calculation, check/checkmate detection, en passant, castling, pawn promotion) are **NOT computed by a server-side chess engine**. The board provides a synchronized, turn-gated demonstration matrix allowing two connected players to execute moves and verify real-time state synchronization. A full server-side chess engine is formally deferred to future game-specific releases.
 
 ---
 

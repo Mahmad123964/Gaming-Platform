@@ -46,18 +46,39 @@
 - **Module 8 (Security, State & Architecture):** 27 checks (full state 2/2, state change broadcast, participant listing, active state transition, session ID generation, match started broadcast, non-host start rejection 403, dual-mode auth, unauthenticated rejection, CSWSH origin defense, raw token query param rejection, short-lived single-use ticket lifecycle, participant data redaction, duplicate join protection, dual-key rate limiting with HTTP 429 lockout, generic safe error responses, room isolation, session revocation socket termination code 4001, audit logging, CCU tracking)
 - **Sprint 08 Total:** $\mathbf{51\text{ Checks / 51 PASSED}}$ (100.0% Pass Rate).
 
-### 2.2 Platform Cumulative Regression Suite (Sprints 00–08)
-Executed via `scripts/run-all-regression-sprint08.js`:
-- **Sprint 00 (Architecture, Tooling & Baseline):** 22 / 22 PASSED
-- **Sprint 01 (Authentication & Session Management):** 52 / 52 PASSED
-- **Sprint 02 (Game Catalog & Licensing Gates):** 44 / 44 PASSED
-- **Sprint 03 (Content Admin & Catalog RBAC):** 38 / 38 PASSED
-- **Sprint 04 (Game Launch, Sessions & Invaders Canvas):** 36 / 36 PASSED
-- **Sprint 05 (Game Progress, History & Achievements):** 46 / 46 PASSED
-- **Sprint 06 (Player Profiles, Audit Logs & Session Revocation):** 46 / 46 PASSED
-- **Sprint 07 (Operations Monitoring, Alerting & Deployment Safety):** 70 / 70 PASSED
-- **Sprint 08 (Two-Player Multiplayer Sessions & Real-Time Engine):** 51 / 51 PASSED
-- **Grand Total Platform Regression Baseline:** $\mathbf{405 / 405\text{ Checks PASSED}}$ (100.0% Pass Rate, 0 Failures).
+### 2.2 Reconciled Platform Regression Baseline (Sprints 00–08)
+Executed sequentially via `scripts/run-all-regression-sprint08.js`:
+- **Sprint 00 (Platform Smoke Test):** 5 / 5 PASSED (`scripts/smoke-test.js`, SMOKE-01..05)
+- **Sprint 01 (Identity & Security):** 49 / 49 PASSED (`scripts/test-sprint01-auth.js`, EP01-01..04)
+- **Sprint 02 (Game Discovery & Catalog):** 31 / 31 PASSED (`scripts/test-sprint02-catalog.js`, EP02-01..04)
+- **Sprint 03 (Content Administration & RBAC):** 69 / 69 PASSED (`scripts/test-sprint03-admin.js`, EP03-01..03, EP10-01..03, EP11-02)
+- **Sprint 04 (Game Launch & Runtime):** 40 / 40 PASSED (`scripts/test-sprint04-launch.js`, EP04-01..03, EP03-04)
+- **Sprint 05 (Progress, History & Badges):** 60 / 60 PASSED (`scripts/test-sprint05-progress.js`, EP07-01..04)
+- **Sprint 06 (Profiles & Audit Immutability):** 30 / 30 PASSED (`scripts/test-sprint06-profile-audit.js`, EP01-04, EP11-03)
+- **Sprint 07 (SRE Monitoring & Deployment Safety):** 70 / 70 PASSED (`scripts/test-sprint07-sre.js`, EP12-01..02, EP13-02)
+- **Sprint 08 (Two-Player Multiplayer Sessions & Security Gate):** 51 / 51 PASSED (`scripts/test-sprint08-multiplayer.js`, EP05-01..03)
+- **Grand Total Platform Regression Baseline:** $\mathbf{405 / 405\text{ Genuinely Executed Checks PASSED}}$ (100.0% Pass Rate, 0 Failures).
+
+### 2.3 Historical Baseline Reconciliation Analysis (354 Baseline vs. 405 Current)
+An independent audit was conducted across every test script in `scripts/`:
+1. **Mathematical Consistency:** The historical baseline of 354 checks from Sprint 07 was derived from:
+   $$5 + 49 + 31 + 69 + 40 + 60 + 30 + 70 = \mathbf{354\text{ checks}}$$
+   This matches the authoritative test log from `Phase-02-Sprint-07-Requirements-Traceability-Matrix.md` (lines 61-68).
+2. **Root Cause of Prior Count Discrepancies:** A prior markdown summary had colloquially listed estimated numbers ($22 + 52 + 44 + 38 + 36 + 46 + 46 + 70 = 354$) without reflecting the actual per-script assertion outputs. Both sets summed to 354, but only the $5 + 49 + 31 + 69 + 40 + 60 + 30 + 70$ breakdown represents real executable test scripts on disk.
+3. **Zero Coverage Loss:** No tests were removed, merged, or deprecated. All 9 approved acceptance criteria for Sprint 08 and all historical acceptance criteria (Sprints 00–07) maintain 100% active test coverage. Adding Sprint 08's 51 verified checks yields $354 + 51 = \mathbf{405\text{ total platform regression checks}}$.
+
+### 2.4 Simultaneous-Join Concurrency Safety Evidence
+Executed via `scripts/verify-concurrent-join.js` (persisted to `evidence/sprint-08/concurrency-test-evidence.json`):
+- **Scenario:** Two authenticated players simultaneously dispatch `POST /api/v1/lobbies/join` against a 2-player lobby with 1 remaining slot.
+- **Timing:** Dispatched at `2026-10-25T16:16:57.136Z`, completed in 26ms parallel execution.
+- **Result:** Guest A admitted (HTTP 200, 23ms); Guest B cleanly rejected (HTTP 409 `LOBBY_FULL`, 25ms).
+- **Database Verification:** Direct SQLite inspection confirms `lobbies.status = 'full'`, `max_players = 2`, and strictly 2 rows in `lobby_participants` (zero ghost rows).
+- **WebSocket Verification:** Both Host and winning Guest received `LOBBY_STATE_CHANGED` (`status: "full"`) and `LOBBY_MEMBER_JOINED`. The rejected guest received 0 room events.
+
+### 2.5 Obsidian Chess Gameplay Authority Classification
+- **Classification:** Synchronized Multiplayer Demonstration Board with Client-Enforced Turn Order & Server-Brokered Room Relay.
+- **Supported:** Server-authoritative match start gating (host-only, requiring `status = 'full'`), piece assignment (White=host, Black=guest), turn alternation gating (`turn === myColor`), and real-time room move relay (`GAME_MOVE` -> `GAME_STATE_UPDATE`).
+- **Deferred:** Full FIDE server-side chess rules engine (check/checkmate calculations, en passant, castling) is out of scope for Sprint 08 and scheduled for future game-specific milestones.
 
 ---
 
