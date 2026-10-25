@@ -1,8 +1,8 @@
 {
   "sprint": "Sprint 07 — Monitoring, Alerting & Deployment Safety",
-  "timestamp": "2026-10-25T12:33:10.618Z",
-  "totalChecks": 54,
-  "passed": 54,
+  "timestamp": "2026-10-25T13:24:19.562Z",
+  "totalChecks": 70,
+  "passed": 70,
   "failed": 0,
   "results": [
     {
@@ -326,6 +326,102 @@
     {
       "id": "PERSIST-01",
       "name": "Rate-limiting hybrid storage and session revocation persistence verified",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ACC-01",
+      "name": "CPU measurement explicitly scoped to process-level rather than host",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ACC-02",
+      "name": "Memory measurement specifies MB unit across RSS, heap, and external metrics",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ACC-03",
+      "name": "10,000-sample circular buffer caps capacity and accurately tracks FIFO evictions (5 evicted for 10,005 samples)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ACC-04",
+      "name": "24-hour window detects truncation when available continuous sample span is shorter than requested 24h",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ACC-05",
+      "name": "Latency percentiles strictly adhere to mathematical nearest-rank formula ceil(P/100*N)-1",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ACC-06",
+      "name": "Client errors (4xx) are tracked separately and do not breach the 5xx availability SLI",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ACC-07",
+      "name": "Empty measurement window produces explicit isEmptyWindow: true and nominal non-fabricated values",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-SIM-01",
+      "name": "Production execution unconditionally blocks simulation endpoints (HTTP 404)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-SIM-02",
+      "name": "Simulation endpoint rejects cookie-authenticated request missing valid CSRF token (HTTP 403 EBADCSRFTOKEN)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-SIM-03",
+      "name": "Security-relevant CSRF rejection recorded in SQLite audit ledger",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-SIM-04",
+      "name": "Simulated alerts carry explicit isSimulated: true attribute and [SIMULATED] prefix",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-SIM-05",
+      "name": "Incident notification outbox rejects non-admin access (HTTP 403 Forbidden)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-SIM-06",
+      "name": "Incident notification outbox read access recorded in audit ledger",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ALT-REL-01",
+      "name": "Alerting thresholds strictly grounded in approved SRE specification (5.0% trigger, 2.0% recovery)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ALT-REL-02",
+      "name": "Alert deduplication prevents duplicate active incidents for identical rule breach",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ALT-REL-03",
+      "name": "Recovery notification references original incident (originalAlertId, originalIncidentStartedAt, duration)",
       "status": "PASSED",
       "details": ""
     }

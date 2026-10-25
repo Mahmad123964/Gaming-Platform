@@ -102,6 +102,7 @@ export interface OperationalAlert {
   resolvedAt: string | null;
   acknowledgedAt: string | null;
   acknowledgedBy: string | null;
+  isSimulated?: boolean;
 }
 
 export interface OperationalMetrics {
@@ -112,7 +113,23 @@ export interface OperationalMetrics {
   windowDurationSeconds?: number;
   timestamp: string;
   uptimeSeconds?: number;
+  processStartedAt?: string;
   overallHealth?: 'HEALTHY' | 'DEGRADED' | 'CRITICAL';
+  windowMetadata?: {
+    window: TimeWindow;
+    windowDurationSeconds: number;
+    windowStart: string;
+    windowEnd: string;
+    isWindowTruncated: boolean;
+    windowCoveragePercent: number;
+    effectiveWindowDurationSeconds: number;
+    bufferCapacity: number;
+    bufferUsage: number;
+    bufferEvictionDetected: boolean;
+    evictedSamplesCount: number;
+    oldestSampleTimestamp: string | null;
+    isEmptyWindow: boolean;
+  };
   availability?: {
     sliPercent: number;
     totalRequests: number;
@@ -121,21 +138,33 @@ export interface OperationalMetrics {
     serverErrors: number;
     clientErrors: number;
     errorRatePercent: number;
+    serverErrorRatePercent?: number;
+    clientErrorRatePercent?: number;
+    denominator?: string;
+    calculationFormula?: string;
   };
   latency?: {
+    methodology?: string;
     avgMs: number;
     p50Ms: number;
+    p90Ms?: number;
     p95Ms: number;
     p99Ms: number;
     minMs: number;
     maxMs: number;
   };
   system?: {
+    cpuScope?: string;
+    cpuDescription?: string;
+    processCpuPercent?: number;
     cpuPercent: number;
+    cpuCores?: number;
     memory: {
+      unit?: string;
       rssMB: number;
       heapUsedMB: number;
       heapTotalMB: number;
+      externalMB?: number;
     };
     nodeVersion: string;
     platform: string;

@@ -130,11 +130,18 @@ class AlertingService {
   }
 
   _dispatchNotification(alert, eventType) {
+    const isRecovery = eventType === 'ALERT_RESOLVED';
+    const incidentDurationSeconds = (isRecovery && alert.startedAt && alert.resolvedAt)
+      ? Math.max(0, Math.round((new Date(alert.resolvedAt).getTime() - new Date(alert.startedAt).getTime()) / 1000))
+      : 0;
+
     const notification = {
       id: `NOTIF-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       alertId: alert.id,
+      originalAlertId: alert.id,
+      originalIncidentStartedAt: alert.startedAt,
       ruleId: alert.ruleId,
-      type: eventType === 'ALERT_FIRED' ? 'ALERT_TRIGGERED' : 'ALERT_RESOLVED',
+      type: isRecovery ? 'ALERT_RESOLVED' : 'ALERT_TRIGGERED',
       eventType,
       severity: alert.severity,
       title: `[${alert.severity}] ${alert.name} (${eventType})`,
@@ -143,7 +150,10 @@ class AlertingService {
       environment: alert.environment,
       observedValue: `${alert.observedValue}${alert.unit ? ' ' + alert.unit : ''}`,
       threshold: alert.threshold,
+      isSimulated: alert.isSimulated === true,
       timestamp: new Date().toISOString(),
+      resolvedAt: isRecovery ? (alert.resolvedAt || new Date().toISOString()) : null,
+      incidentDurationSeconds: isRecovery ? incidentDurationSeconds : null,
       delivered: true,
       transport: 'STAGING_OUTBOX'
     };
@@ -167,7 +177,11 @@ class AlertingService {
             severity: alert.severity,
             observedValue: alert.observedValue,
             threshold: alert.threshold,
-            onCallTeam: alert.onCallTeam
+            onCallTeam: alert.onCallTeam,
+            isSimulated: alert.isSimulated === true,
+            originalAlertId: alert.id,
+            originalIncidentStartedAt: alert.startedAt,
+            incidentDurationSeconds: isRecovery ? incidentDurationSeconds : null
           }),
           new Date().toISOString()
         ]
@@ -236,7 +250,7 @@ class AlertingService {
     return this.outbox;
   }
 
-  // Controlled test trigger for QA simulation and testing negative paths
+  // Controlled test trigger for QA simulation and testing negative paths (Task 3)
   testTriggerAlert({ ruleId = 'rule-high-error-rate', customValue, observedValue }) {
     const rule = this.rules.find(r => r.id === ruleId) || this.rules[0];
     const val = customValue !== undefined ? customValue : (observedValue !== undefined ? observedValue : 12.5);
@@ -255,6 +269,7 @@ class AlertingService {
       environment: 'staging',
       onCallTeam: rule.onCallTeam,
       runbookUrl: rule.runbookUrl,
+      isSimulated: true, // Explicit simulation flag to avoid SLI contamination
       startedAt: new Date().toISOString(),
       lastObservedAt: new Date().toISOString(),
       resolvedAt: null,

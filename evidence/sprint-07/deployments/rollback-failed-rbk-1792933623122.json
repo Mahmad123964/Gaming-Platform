@@ -1,0 +1,28 @@
+{
+  "rollbackId": "rbk-1792933623122",
+  "timestamp": "2026-10-25T13:07:03.122Z",
+  "environment": "staging",
+  "targetCommitSha": "5e122fbea243b2e370c834727bee32b7f40ca5e5",
+  "targetVersion": "v0.7.0",
+  "targetDeploymentId": "dep-lkg-verified",
+  "restoredArtifactHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44",
+  "expectedArtifactHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44",
+  "artifactHashVerified": true,
+  "physicalFilesRestored": true,
+  "dataIntegrityVerified": true,
+  "dbStats": {
+    "playerCount": 89,
+    "gameCount": 58,
+    "auditCount": 355
+  },
+  "simulatedFailure": true,
+  "runbook": "/docs/runbooks/Staging-Deployment-and-Rollback-Runbook.md",
+  "durationMs": 28,
+  "status": "FAILED",
+  "failureReason": "SIMULATED_PROBE_FAILURE: Subsystem health check aborted during recovery",
+  "escalationGuidance": {
+    "incidentSeverity": "SEV-1",
+    "contacts": "SRE On-Call Lead / Incident Commander",
+    "runbookRef": "/docs/runbooks/SRE-Alerting-and-Incident-Runbook.md#10-incident-management"
+  }
+}

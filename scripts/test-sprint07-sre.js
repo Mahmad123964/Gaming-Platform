@@ -375,6 +375,235 @@ async function run() {
   assert(persistenceVerified, 'PERSIST-01', 'Rate-limiting hybrid storage and session revocation persistence verified');
 
   // =========================================================================
+  // MODULE 12: Metric Accuracy, Latency & Buffer Overflow Verification (Task 2)
+  // =========================================================================
+  console.log('\n--- Module 12: Metric Accuracy & Boundary Verification (Task 2) ---');
+
+  // ACC-01: Process-level CPU scope
+  assert(metricsData.system?.cpuScope === 'process', 'ACC-01', 'CPU measurement explicitly scoped to process-level rather than host');
+
+  // ACC-02: Memory units explicit
+  assert(metricsData.system?.memory?.unit === 'MB' && typeof metricsData.system?.memory?.rssMB === 'number', 'ACC-02', 'Memory measurement specifies MB unit across RSS, heap, and external metrics');
+
+  // ACC-03: Buffer overflow and FIFO eviction limit (10,000 samples)
+  const { MetricsService } = require('../server/src/modules/operations/metricsService');
+  const bufferTestService = new MetricsService();
+  const testNow = Date.now();
+  for (let i = 0; i < 10005; i++) {
+    bufferTestService.recordRequest({
+      method: 'GET',
+      path: '/api/ping',
+      statusCode: 200,
+      durationMs: 10 + (i % 50),
+      timestamp: testNow - (10005 - i) * 10
+    });
+  }
+  assert(
+    bufferTestService.requestBuffer.length === 10000 && bufferTestService.evictionCount === 5,
+    'ACC-03',
+    '10,000-sample circular buffer caps capacity and accurately tracks FIFO evictions (5 evicted for 10,005 samples)'
+  );
+
+  // ACC-04: 24h window truncation detection
+  const metrics24h = bufferTestService.getMetrics('24h');
+  assert(
+    metrics24h.windowMetadata?.isWindowTruncated === true && metrics24h.windowMetadata?.windowCoveragePercent < 100,
+    'ACC-04',
+    '24-hour window detects truncation when available continuous sample span is shorter than requested 24h'
+  );
+
+  // ACC-05: Nearest-rank latency percentile mathematical correctness
+  const percentileService = new MetricsService();
+  const sortedDurations = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]; // N = 10
+  for (const d of sortedDurations) {
+    percentileService.recordRequest({
+      method: 'GET',
+      path: '/api/bench',
+      statusCode: 200,
+      durationMs: d,
+      timestamp: testNow
+    });
+  }
+  const pctMetrics = percentileService.getMetrics('5m');
+  // Mathematical nearest-rank formula: ceil(p/100 * N) - 1
+  // p50: ceil(0.5 * 10) - 1 = 4 -> index 4 = 50ms
+  // p90: ceil(0.9 * 10) - 1 = 8 -> index 8 = 90ms
+  // p95: ceil(0.95 * 10) - 1 = 9 -> index 9 = 100ms
+  const nearestRankCorrect = pctMetrics.latency.p50Ms === 50 &&
+                             pctMetrics.latency.p90Ms === 90 &&
+                             pctMetrics.latency.p95Ms === 100;
+  assert(nearestRankCorrect, 'ACC-05', 'Latency percentiles strictly adhere to mathematical nearest-rank formula ceil(P/100*N)-1');
+
+  // ACC-06: 4xx client errors separated from 5xx server errors
+  const errorSepService = new MetricsService();
+  for (let i = 0; i < 8; i++) {
+    errorSepService.recordRequest({ method: 'GET', path: '/ok', statusCode: 200, durationMs: 15, timestamp: testNow });
+  }
+  for (let i = 0; i < 2; i++) {
+    errorSepService.recordRequest({ method: 'GET', path: '/client-err', statusCode: 404, durationMs: 15, timestamp: testNow });
+  }
+  const errorSepMetrics = errorSepService.getMetrics('5m');
+  assert(
+    errorSepMetrics.availability.serverErrors === 0 &&
+    errorSepMetrics.availability.clientErrors === 2 &&
+    errorSepMetrics.availability.errorRatePercent === 0.0 &&
+    errorSepMetrics.availability.sliPercent === 100.0,
+    'ACC-06',
+    'Client errors (4xx) are tracked separately and do not breach the 5xx availability SLI'
+  );
+
+  // ACC-07: Empty window handling produces appropriate nominal state
+  const emptyService = new MetricsService();
+  const emptyMetrics = emptyService.getMetrics('5m');
+  assert(
+    emptyMetrics.windowMetadata?.isEmptyWindow === true &&
+    emptyMetrics.availability?.sliPercent === 100.0 &&
+    emptyMetrics.availability?.errorRatePercent === 0.0 &&
+    emptyMetrics.latency?.avgMs === 0,
+    'ACC-07',
+    'Empty measurement window produces explicit isEmptyWindow: true and nominal non-fabricated values'
+  );
+
+  // =========================================================================
+  // MODULE 13: Incident Simulation Security Lockdown (Task 3)
+  // =========================================================================
+  console.log('\n--- Module 13: Incident Simulation Security Lockdown (Task 3) ---');
+
+  // SEC-SIM-01: Production execution blocks simulation endpoints (returns HTTP 404)
+  const { blockInProduction } = require('../server/src/modules/operations/routes');
+  let blockedStatusCode = null;
+  const mockProdReq = { originalUrl: '/api/v1/admin/operations/alerts/test-trigger', method: 'POST', ip: '127.0.0.1' };
+  const mockProdRes = {
+    status(c) { blockedStatusCode = c; return this; },
+    json() { return this; }
+  };
+  const prevEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'production';
+  blockInProduction(mockProdReq, mockProdRes, () => {});
+  process.env.NODE_ENV = prevEnv;
+  assert(blockedStatusCode === 404, 'SEC-SIM-01', 'Production execution unconditionally blocks simulation endpoints (HTTP 404)');
+
+  // SEC-SIM-02: State-changing simulation endpoint with cookie authentication requires CSRF header
+  const csrfRejectionRes = await fetch(`${BASE_URL}/api/v1/admin/operations/alerts/test-trigger`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${adminToken}`,
+      'Cookie': `token=${adminToken}`
+      // Note: X-CSRF-Token header omitted intentionally to test protection
+    },
+    body: JSON.stringify({ ruleId: 'rule-high-error-rate', customValue: 7.5 })
+  });
+  const csrfRejectionData = await csrfRejectionRes.json();
+  assert(
+    csrfRejectionRes.status === 403 && csrfRejectionData.code === 'EBADCSRFTOKEN',
+    'SEC-SIM-02',
+    'Simulation endpoint rejects cookie-authenticated request missing valid CSRF token (HTTP 403 EBADCSRFTOKEN)'
+  );
+
+  // SEC-SIM-03: Rejected CSRF simulation attempt recorded in audit ledger
+  const auditCsrfRejection = db.get("SELECT * FROM audit_events WHERE action = 'SIMULATION_CSRF_REJECTED' ORDER BY created_at DESC LIMIT 1");
+  assert(!!auditCsrfRejection, 'SEC-SIM-03', 'Security-relevant CSRF rejection recorded in SQLite audit ledger');
+
+  // SEC-SIM-04: Test-triggered alerts carry explicit isSimulated: true flag
+  const simTriggerRes = await fetch(`${BASE_URL}/api/v1/admin/operations/alerts/test-trigger`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${adminToken}`,
+      'Cookie': adminCookie,
+      'X-CSRF-Token': adminCsrf
+    },
+    body: JSON.stringify({ ruleId: 'rule-high-error-rate', observedValue: 9.0 })
+  });
+  const simTriggerData = await simTriggerRes.json();
+  assert(
+    simTriggerRes.status === 201 && simTriggerData.alert?.isSimulated === true && simTriggerData.alert?.name.startsWith('[SIMULATED]'),
+    'SEC-SIM-04',
+    'Simulated alerts carry explicit isSimulated: true attribute and [SIMULATED] prefix'
+  );
+
+  // SEC-SIM-05: Outbox endpoint rejects unauthorized non-admin access
+  const playerOutboxRes = await fetch(`${BASE_URL}/api/v1/admin/operations/alerts/outbox`, {
+    headers: { 'Authorization': `Bearer ${playerToken}`, 'Cookie': playerCookie }
+  });
+  assert(playerOutboxRes.status === 403, 'SEC-SIM-05', 'Incident notification outbox rejects non-admin access (HTTP 403 Forbidden)');
+
+  // SEC-SIM-06: Outbox read access recorded in audit ledger
+  const auditOutbox = db.get("SELECT * FROM audit_events WHERE action = 'OUTBOX_ACCESSED' ORDER BY created_at DESC LIMIT 1");
+  assert(!!auditOutbox, 'SEC-SIM-06', 'Incident notification outbox read access recorded in audit ledger');
+
+  // =========================================================================
+  // MODULE 14: Alerting Reliability & Recovery Reference (Task 4)
+  // =========================================================================
+  console.log('\n--- Module 14: Alerting Reliability & Recovery Reference (Task 4) ---');
+
+  // ALT-REL-01: Thresholds grounded in SRE specification (5.0% error rate trigger, 2.0% recovery)
+  const errorRule = alertingService.rules.find(r => r.id === 'rule-high-error-rate');
+  assert(
+    errorRule?.threshold === 5.0 && errorRule?.recoveryThreshold === 2.0,
+    'ALT-REL-01',
+    'Alerting thresholds strictly grounded in approved SRE specification (5.0% trigger, 2.0% recovery)'
+  );
+
+  // ALT-REL-02: Alert deduplication prevents duplicate active incidents
+  const dedupService = new (require('../server/src/modules/operations/alertingService').AlertingService)();
+  dedupService.triggerAlert('rule-high-error-rate', 8.5);
+  const countAfterFirst = dedupService.getActiveAlerts().filter(a => a.ruleId === 'rule-high-error-rate').length;
+  dedupService.triggerAlert('rule-high-error-rate', 11.2);
+  const countAfterSecond = dedupService.getActiveAlerts().filter(a => a.ruleId === 'rule-high-error-rate').length;
+  assert(
+    countAfterFirst === 1 && countAfterSecond === 1,
+    'ALT-REL-02',
+    'Alert deduplication prevents duplicate active incidents for identical rule breach'
+  );
+
+  // ALT-REL-03: Recovery notification references original incident
+  // Trigger alert via API
+  const trigRes = await fetch(`${BASE_URL}/api/v1/admin/operations/alerts/test-trigger`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${adminToken}`,
+      'Cookie': adminCookie,
+      'X-CSRF-Token': adminCsrf
+    },
+    body: JSON.stringify({ ruleId: 'rule-high-error-rate', observedValue: 9.8 })
+  });
+  const trigAlert = (await trigRes.json()).alert;
+
+  // Resolve alert via API
+  const simResolveRes = await fetch(`${BASE_URL}/api/v1/admin/operations/alerts/test-resolve`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${adminToken}`,
+      'Cookie': adminCookie,
+      'X-CSRF-Token': adminCsrf
+    },
+    body: JSON.stringify({ alertId: trigAlert.id })
+  });
+  const simResolveData = await simResolveRes.json();
+
+  // Fetch outbox from server
+  const serverOutboxRes = await fetch(`${BASE_URL}/api/v1/admin/operations/alerts/outbox`, {
+    headers: { 'Authorization': `Bearer ${adminToken}`, 'Cookie': adminCookie }
+  });
+  const serverOutboxData = await serverOutboxRes.json();
+  const recoveryNotif = serverOutboxData.outbox?.find(
+    n => n.type === 'ALERT_RESOLVED' && (n.alertId === trigAlert.id || n.originalAlertId === trigAlert.id)
+  );
+
+  assert(
+    simResolveRes.status === 200 &&
+    !!recoveryNotif &&
+    (recoveryNotif.originalAlertId === trigAlert.id || recoveryNotif.alertId === trigAlert.id) &&
+    typeof recoveryNotif.originalIncidentStartedAt === 'string',
+    'ALT-REL-03',
+    'Recovery notification references original incident (originalAlertId, originalIncidentStartedAt, duration)'
+  );
+
+  // =========================================================================
   // TEST SUMMARY & EVIDENCE PERSISTENCE
   // =========================================================================
   console.log('\n======================================================================');

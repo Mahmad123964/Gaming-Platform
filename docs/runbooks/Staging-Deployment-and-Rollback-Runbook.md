@@ -4,56 +4,73 @@
 **Target Environment:** Staging (`NODE_ENV=staging`, Port 5050)  
 **Execution Automation:** `scripts/deploy-staging.js`, `scripts/rollback-staging.js`  
 **Compliance Standard:** EP13-01 (Deployment Automation), EP13-02 (Release Rollback Procedure)  
+**Document Version:** 2.0 (Sprint 07 Final SRE Certification Baseline)  
 
 ---
 
 ## 1. Overview & Rollback Philosophy
 
-A rollback is defined as the verified, non-destructive restoration of a known-good staging release following a candidate deployment failure or post-deployment incident.
+A rollback is defined as the verified, non-destructive physical restoration of a known-good staging release following a candidate deployment failure or post-deployment incident.
 
 > **CRITICAL SRE DIRECTIVE:**  
-> A rollback is **NOT** successful merely because a script prints "Rollback Complete."  
-> It must prove that a known-good release is genuinely restored, responding, and passing operational health checks.
+> A rollback is **NOT** successful merely because a script updates deployment metadata or prints "Rollback Complete."  
+> It must prove that physical executable artifacts are genuinely restored, that the active server process serves the restored release, that the artifact SHA-256 hash and Git commit match the known-good baseline, and that the restored platform passes automated health and smoke tests without application data loss.
 
 ---
 
-## 2. Release Identification & Last-Known-Good (LKG) Metadata
+## 2. Release Artifact Packaging & Last-Known-Good Baseline
 
-Every release candidate and Last-Known-Good release is authoritatively tracked with:
-1. **Release Version:** Semantic version identifier (e.g., `v0.7.0`, `v0.6.0`).
-2. **Git Commit SHA:** Exact Git commit hash of the candidate.
-3. **Deployment Timestamp:** ISO 8601 creation timestamp.
-4. **Smoke Suite Evidence:** Full audit proof of 5/5 passing smoke checks.
-5. **Persistence Location:** SQLite table `deployments` and `evidence/sprint-07/deployments/last-known-good.json`.
+Every candidate deployment (`scripts/deploy-staging.js`) and Last-Known-Good (LKG) release packages and preserves physical executable files:
+
+1. **Physical Artifact Preservation:**
+   - Candidate build output (`client/dist/`) is copied into an immutable artifact repository: `evidence/sprint-07/deployments/artifacts/<deploymentId>/dist/`.
+   - Artifacts include compiled JavaScript bundles, CSS assets, SVGs, and `index.html`.
+2. **Cryptographic Integrity & Manifest:**
+   - A SHA-256 hash is computed for the entry artifact (`index.html`).
+   - A complete `release-manifest.json` is generated listing every file, byte size, and SHA-256 hash.
+3. **Last-Known-Good Baseline:**
+   - Upon successful health and smoke test verification (5/5 passed), the deployment is marked `status = 'SUCCESS'`, and `evidence/sprint-07/deployments/last-known-good.json` is updated with the version, commit, deployment ID, and artifact hash.
 
 ---
 
-## 3. Automated Rollback Workflow
+## 3. Physical Rollback Engine & Verification Workflow
 
 ```
 [STAGING DEPLOYMENT FAILURE DETECTED]
                 │
                 ▼
-   [Identify LKG Release in DB] ──(Fallback)──► [evidence/.../last-known-good.json]
+   [Identify LKG Release in DB / last-known-good.json]
                 │
                 ▼
-   [Restore Prior Target Version]
+   [Physical File Restoration]
+   • Purge existing client/dist/ directory
+   • Copy preserved LKG files from artifacts/<lkgId>/dist/ to client/dist/
+   • Recompute SHA-256 hash of restored index.html
+   • Assert restored SHA-256 EXACTLY matches LKG SHA-256
                 │
                 ▼
-   [Health Probing: 15 Attempts] ──► http://localhost:5050/api/health
+   [Active Server Verification]
+   • Probe http://localhost:5050/api/health (Database connected)
+   • Probe http://localhost:5050/health (Platform status)
+   • Probe http://localhost:5050/ (Active HTTP response verification)
+   • Verify GET /api/v1/admin/operations/deployment/status confirms isRollback: true
                 │
-         ┌──────┴──────┐
-         ▼             ▼
-   [HEALTHY: 200]   [UNHEALTHY: Timeout/500]
-         │             │
-         │             ▼
-         │       [HALT PROMOTION & EXIT 1]
-         │       [Print Emergency Escalation Instructions]
-         │       [Log DEPLOYMENT_ROLLBACK_FAILED in Audit]
-         │       [Trigger Sev-1 Emergency Broadcast]
-         ▼
-   [RECORD DEPLOYMENT_ROLLBACK_COMPLETED]
-   [Save JSON Evidence to evidence/sprint-07/deployments/]
+                ▼
+   [Execute Full Smoke Suite (5/5 checks)]
+                │
+          ┌──────┴──────┐
+          ▼             ▼
+   [HEALTHY: 200]   [UNHEALTHY: Timeout/500/Hash Mismatch]
+          │             │
+          │             ▼
+          │       [HALT PROMOTION & EXIT 1]
+          │       [Print Emergency Escalation Instructions]
+          │       [Log DEPLOYMENT_ROLLBACK_FAILED in Audit]
+          │       [Trigger Sev-1 Emergency Broadcast]
+          ▼
+   [Data Integrity Check: Assert players, games, audit tables intact]
+   [RECORD DEPLOYMENT_ROLLBACK_COMPLETED in SQLite audit_events]
+   [Save Machine-Readable Evidence: rollback-execution-evidence.json]
    [Declare Staging Restored & Clean Exit 0]
 ```
 
@@ -62,24 +79,39 @@ Every release candidate and Last-Known-Good release is authoritatively tracked w
 ## 4. Operational Execution Procedures
 
 ### 4.1 Standard Automated Rollback Execution
-To initiate a verified rollback to the Last-Known-Good staging baseline:
+To initiate an automated, physical rollback to the Last-Known-Good staging baseline:
 ```bash
 node scripts/rollback-staging.js
 ```
 To specify a designated target release version:
 ```bash
-node scripts/rollback-staging.js --target=v0.6.0
+node scripts/rollback-staging.js --target=v0.7.0
 ```
 
-### 4.2 Negative Fault Testing (AC-46.3 Verification)
-To safely test the failure detection, non-zero exit code (1), and escalation path without destroying staging infrastructure:
+### 4.2 Controlled Failure Verification Test (Task 1 SRE Certification)
+To execute the complete 10-point controlled failure test (deploy distinguishable candidate release, inject failure, execute rollback, prove physical restoration, hash match, active server serving restored release, smoke tests pass, zero data loss, non-zero exit on failure):
+```bash
+node scripts/verify-controlled-rollback.js
+```
+Evidence is captured in:
+`evidence/sprint-07/deployments/controlled-rollback-verification.json`
+
+### 4.3 Negative Fault Testing (AC-46.3 Verification)
+To safely test the failure detection, non-zero exit code (1), and escalation path:
 ```bash
 node scripts/rollback-staging.js --simulate-rollback-failure
 ```
 
 ---
 
-## 5. Failure Escalation Guidance (AC-46.3)
+## 5. Non-Destructive Data Preservation Guarantee
+
+- **Zero Database Destruction:** The rollback engine modifies only deployment release pointers and physical frontend artifacts (`client/dist/`).
+- **No Table Drops or Migrations Rolled Back Blindly:** Relational player data (`players`), game catalog (`games`), player progress (`player_game_progress`), and immutable audit trails (`audit_events`) remain completely untouched and intact during rollback execution.
+
+---
+
+## 6. Failure Escalation Guidance (AC-46.3)
 
 If a rollback attempt fails post-recovery health probing:
 1. **Immediate Pipeline Halt:** The deployment pipeline freezes promotion immediately.

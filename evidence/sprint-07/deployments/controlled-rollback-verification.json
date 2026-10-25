@@ -1,0 +1,67 @@
+{
+  "testName": "Task 1: Controlled Staging Deployment Rollback Verification",
+  "timestamp": "2026-10-25T13:06:59.996Z",
+  "criteria": {
+    "1_genuine_lkg_preserved": {
+      "passed": true,
+      "artifactDir": "C:\\Users\\haali\\Desktop\\Gaming Platform\\evidence\\sprint-07\\deployments\\artifacts\\dep-lkg-verified\\dist",
+      "commitSha": "5e122fbea243b2e370c834727bee32b7f40ca5e5",
+      "artifactHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44"
+    },
+    "2_candidate_staged": {
+      "passed": true,
+      "candidateMarker": "<!-- CANDIDATE-RELEASE-V0.7.1-BUILD-FAILURE-INJECTION-1792933620204 -->",
+      "candidateHash": "14a1b6d26f2319d23d3e41393ffe450d4c14b4972105be64ebb97a8b8c25786e",
+      "distinguishableFromLkg": true
+    },
+    "3_release_failure_triggered": {
+      "passed": true,
+      "pipelineExitCode": 1,
+      "rejectionDetected": true
+    },
+    "4_rollback_restores_artifact": {
+      "passed": true,
+      "restoredArtifactHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44",
+      "expectedLkgHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44",
+      "hashesMatch": true
+    },
+    "5_active_server_serves_restored": {
+      "passed": true,
+      "statusCode": 200,
+      "servesRestoredRelease": true
+    },
+    "6_release_identity_matches_lkg": {
+      "passed": true,
+      "commitSha": "5e122fbea243b2e370c834727bee32b7f40ca5e5",
+      "artifactHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44",
+      "version": "v0.7.0",
+      "isRollback": true
+    },
+    "7_restored_passes_health_and_smoke": {
+      "passed": true,
+      "healthStatus": "healthy",
+      "databaseStatus": "connected",
+      "smokeTestsPassed": true,
+      "smokeCheckCount": 5
+    },
+    "8_application_data_intact": {
+      "passed": true,
+      "playerCount": 89,
+      "gameCount": 58,
+      "auditCount": 355,
+      "zeroDataLoss": true
+    },
+    "9_failure_returns_nonzero_code": {
+      "passed": true,
+      "exitCode": 1,
+      "escalationGuidanceIncluded": true
+    },
+    "10_machine_readable_evidence": {
+      "passed": "rbk-1792933623122",
+      "evidencePath": "C:\\Users\\haali\\Desktop\\Gaming Platform\\evidence\\sprint-07\\deployments\\rollback-execution-evidence.json",
+      "recordedRollbackId": "rbk-1792933623122",
+      "recordedStatus": "FAILED"
+    }
+  },
+  "overallResult": "PASSED"
+}

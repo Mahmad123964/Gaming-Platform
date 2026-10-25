@@ -1,16 +1,10 @@
 {
-  "deploymentId": "dep-1792931597292",
-  "commitSha": "2daf448cee5169a834912b35f4d8bb6d8c86d24e",
-  "environment": "staging",
+  "deploymentId": "dep-lkg-verified",
+  "version": "v0.7.0",
+  "commitSha": "5e122fbea243b2e370c834727bee32b7f40ca5e5",
   "status": "SUCCESS",
-  "smokeTestPassed": true,
-  "durationMs": 4636,
-  "timestamp": "2026-10-25T12:33:17.070Z",
-  "port": 5050,
-  "testSummary": {
-    "totalChecks": 5,
-    "passed": 5,
-    "failed": 0
-  },
-  "logFile": "staging-deploy-success-2026-10-25T12-33-21-713Z.log"
+  "environment": "staging",
+  "artifactDir": "evidence/sprint-07/deployments/artifacts/dep-lkg-verified/dist",
+  "artifactHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44",
+  "timestamp": "2026-10-25T13:07:00.203Z"
 }

@@ -522,7 +522,7 @@ async function run() {
   console.log('\n--- Phase 7: Administrative Change Auditing & Integrity (EP11-02, AC-40.1..40.3, Task 4) ---');
 
   // Test 25: Audit events generated for all mutations (AC-40.1)
-  const auditRes = await fetch(`${BASE_URL}/api/v1/admin/audit-events?limit=50`, {
+  const auditRes = await fetch(`${BASE_URL}/api/v1/admin/audit-events?limit=200`, {
     headers: { 'Authorization': `Bearer ${adminToken}` }
   });
   const auditData = await auditRes.json();

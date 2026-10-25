@@ -271,6 +271,16 @@ export const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onLog 
             </span>
           )}
         </div>
+        {metrics?.windowMetadata?.isWindowTruncated && (
+          <span
+            className={`${styles.healthPill} ${styles.healthDegraded}`}
+            id="badge-window-truncated"
+            style={{ backgroundColor: '#f59e0b', color: '#000', fontWeight: 'bold' }}
+            title="Continuous telemetry history is shorter than requested window duration"
+          >
+            TRUNCATED ({metrics.windowMetadata.windowCoveragePercent}% COVERAGE)
+          </span>
+        )}
         <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
           Window: <strong style={{ color: '#00f0ff' }}>{selectedWindow}</strong>
         </div>
@@ -332,7 +342,7 @@ export const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onLog 
           <div className={styles.cardSub}>
             {isTelemetryUnavailable
               ? 'Telemetry offline'
-              : `${metrics?.availability?.serverErrors ?? 0} server errors in ${selectedWindow}`}
+              : `5xx: ${metrics?.availability?.serverErrors ?? 0} | 4xx (Client): ${metrics?.availability?.clientErrors ?? 0}`}
           </div>
         </div>
 
@@ -380,7 +390,7 @@ export const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onLog 
         <div className={styles.metricCard} id="card-cpu">
           <div className={styles.cardHeader}>
             <span>Process CPU</span>
-            <span>Limit: 85%</span>
+            <span>Scope: Process</span>
           </div>
           <div
             className={styles.cardValue}
@@ -393,10 +403,10 @@ export const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onLog 
                 : '#f1f5f9'
             }}
           >
-            {isTelemetryUnavailable ? '--' : `${metrics?.system?.cpuPercent ?? 0}%`}
+            {isTelemetryUnavailable ? '--' : `${metrics?.system?.processCpuPercent ?? metrics?.system?.cpuPercent ?? 0}%`}
           </div>
           <div className={styles.cardSub}>
-            {isTelemetryUnavailable ? 'Telemetry offline' : `Runtime: Node ${metrics?.system?.nodeVersion ?? ''}`}
+            {isTelemetryUnavailable ? 'Telemetry offline' : `Cores: ${metrics?.system?.cpuCores || 1} | Node ${metrics?.system?.nodeVersion ?? ''}`}
           </div>
         </div>
 
@@ -404,7 +414,7 @@ export const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onLog 
         <div className={styles.metricCard} id="card-memory">
           <div className={styles.cardHeader}>
             <span>Resident Memory (RSS)</span>
-            <span>Heap Used</span>
+            <span>Unit: MB</span>
           </div>
           <div className={styles.cardValue} id="val-memory-rss">
             {isTelemetryUnavailable ? '--' : `${metrics?.system?.memory?.rssMB ?? 0} MB`}
@@ -535,8 +545,24 @@ export const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onLog 
                     <span className={styles.badgeStatus} id={`badge-status-${al.id}`}>
                       {al.status}
                     </span>
+                    {(al.isSimulated || al.name.includes('[SIMULATED]')) && (
+                      <span
+                        style={{
+                          backgroundColor: '#6366f1',
+                          color: '#fff',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          letterSpacing: '0.05em'
+                        }}
+                        id={`badge-sim-${al.id}`}
+                      >
+                        [SIMULATED]
+                      </span>
+                    )}
                     <strong style={{ color: '#fff' }} id={`alert-name-${al.id}`}>
-                      {al.name}
+                      {al.name.replace(/^\[SIMULATED\]\s*/, '')}
                     </strong>
                   </div>
 
@@ -598,16 +624,26 @@ export const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onLog 
         <div>
           <strong style={{ color: '#00f0ff', display: 'block', marginBottom: '4px' }}>
             EP13-02 Deployment Safety & Rollback Verification
+            {deploymentStatus?.currentRelease?.isRollback && (
+              <span style={{ color: '#f59e0b', fontWeight: 700, marginLeft: '8px' }} id="badge-rollback-restored">
+                [RESTORED VIA ROLLBACK]
+              </span>
+            )}
           </strong>
           <div className={styles.deploymentDetails}>
             <div>
-              Active Staging Release: <span className={styles.codeSnippet}>v0.7.0 (Sprint 07)</span>
+              Active Staging Release: <span className={styles.codeSnippet}>{deploymentStatus?.currentRelease?.version || 'v0.7.0 (Sprint 07)'}</span>
             </div>
             <div>
-              Last-Known-Good Release: <span className={styles.codeSnippet}>{deploymentStatus?.lastKnownGood?.version || 'v0.6.0 (Sprint 06 Baseline)'}</span>
+              Commit: <span className={styles.codeSnippet}>{deploymentStatus?.currentRelease?.gitCommit || '5e122fb'}</span>
             </div>
+            {deploymentStatus?.currentRelease?.artifactHash && (
+              <div>
+                Artifact SHA-256: <span className={styles.codeSnippet} id="val-artifact-hash">{deploymentStatus.currentRelease.artifactHash.slice(0, 16)}...</span>
+              </div>
+            )}
             <div>
-              Commit: <span className={styles.codeSnippet}>{deploymentStatus?.lastKnownGood?.gitCommit || '2daf448'}</span>
+              Last-Known-Good Release: <span className={styles.codeSnippet}>{deploymentStatus?.lastKnownGood?.version || 'v0.7.0'}</span>
             </div>
             <div>
               Rollback Policy: <span style={{ color: '#10b981' }}>AUTOMATED_ON_FAILURE</span>
@@ -631,3 +667,4 @@ export const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onLog 
     </section>
   );
 };
+

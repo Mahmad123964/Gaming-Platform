@@ -173,15 +173,97 @@ async function runPipeline() {
     const releaseArtifactPath = path.join(__dirname, '..', 'evidence', 'sprint-00', 'staging-release.json');
     fs.writeFileSync(releaseArtifactPath, JSON.stringify(releaseRecord, null, 2));
 
-    // Sprint 07: Save Last-Known-Good (LKG) record if deployment succeeded (EP13-02)
+    // Helper functions for physical artifact preservation and SHA-256 verification
+    function computeFileSha256(filePath) {
+      const crypto = require('node:crypto');
+      const data = fs.readFileSync(filePath);
+      return crypto.createHash('sha256').update(data).digest('hex');
+    }
+
+    function generateArtifactManifest(sourceDir) {
+      const crypto = require('node:crypto');
+      const manifest = [];
+      function walk(dir, base) {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name);
+          const relPath = path.join(base, entry.name).replace(/\\/g, '/');
+          if (entry.isDirectory()) {
+            walk(fullPath, relPath);
+          } else {
+            const sha256 = computeFileSha256(fullPath);
+            const stat = fs.statSync(fullPath);
+            manifest.push({ relativePath: relPath, sizeBytes: stat.size, sha256 });
+          }
+        }
+      }
+      walk(sourceDir, '');
+      manifest.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+      const rootSha256 = crypto.createHash('sha256').update(JSON.stringify(manifest)).digest('hex');
+      return { manifest, rootSha256 };
+    }
+
+    function packageArtifactSnapshot(sourceDir, targetDir) {
+      if (fs.existsSync(targetDir)) {
+        fs.rmSync(targetDir, { recursive: true, force: true });
+      }
+      fs.mkdirSync(targetDir, { recursive: true });
+      function copyRecursive(src, dst) {
+        const entries = fs.readdirSync(src, { withFileTypes: true });
+        for (const entry of entries) {
+          const srcPath = path.join(src, entry.name);
+          const dstPath = path.join(dst, entry.name);
+          if (entry.isDirectory()) {
+            fs.mkdirSync(dstPath, { recursive: true });
+            copyRecursive(srcPath, dstPath);
+          } else {
+            fs.copyFileSync(srcPath, dstPath);
+          }
+        }
+      }
+      copyRecursive(sourceDir, targetDir);
+    }
+
+    // Sprint 07: Save Last-Known-Good (LKG) record and package physical artifact if deployment succeeded (EP13-02)
     const sprint07DepDir = path.join(__dirname, '..', 'evidence', 'sprint-07', 'deployments');
-    if (!fs.existsSync(sprint07DepDir)) {
-      fs.mkdirSync(sprint07DepDir, { recursive: true });
+    const artifactsBaseDir = path.join(sprint07DepDir, 'artifacts');
+    if (!fs.existsSync(artifactsBaseDir)) {
+      fs.mkdirSync(artifactsBaseDir, { recursive: true });
     }
 
     if (allPassed) {
+      const clientDistDir = path.join(__dirname, '..', 'client', 'dist');
+      let artifactInfo = null;
+
+      if (fs.existsSync(clientDistDir)) {
+        const snapshotDir = path.join(artifactsBaseDir, deploymentId, 'dist');
+        packageArtifactSnapshot(clientDistDir, snapshotDir);
+        const { manifest, rootSha256 } = generateArtifactManifest(clientDistDir);
+        const indexPath = path.join(clientDistDir, 'index.html');
+        const indexSha256 = fs.existsSync(indexPath) ? computeFileSha256(indexPath) : null;
+
+        artifactInfo = {
+          artifactDir: path.relative(path.join(__dirname, '..'), snapshotDir).replace(/\\/g, '/'),
+          artifactHash: indexSha256,
+          manifestHash: rootSha256,
+          filesCount: manifest.length,
+          manifest
+        };
+
+        const manifestPath = path.join(artifactsBaseDir, deploymentId, 'release-manifest.json');
+        fs.writeFileSync(manifestPath, JSON.stringify(artifactInfo, null, 2));
+        log(`Physically packaged release artifact snapshot (${manifest.length} files) to: ${snapshotDir}`);
+        log(`Artifact SHA-256 (index.html): ${indexSha256}`);
+      }
+
+      const lkgRecord = {
+        ...releaseRecord,
+        version: 'v0.7.0',
+        ...artifactInfo
+      };
+
       const lkgArtifactPath = path.join(sprint07DepDir, 'last-known-good.json');
-      fs.writeFileSync(lkgArtifactPath, JSON.stringify(releaseRecord, null, 2));
+      fs.writeFileSync(lkgArtifactPath, JSON.stringify(lkgRecord, null, 2));
       log(`Preserved Last-Known-Good (LKG) release record: ${lkgArtifactPath}`);
     }
 

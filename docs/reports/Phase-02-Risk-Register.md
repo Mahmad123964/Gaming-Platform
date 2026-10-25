@@ -1,8 +1,8 @@
 # NexusPlay — Phase 2 Risk Register & Operational Architecture Report
 
-**Document Version:** 2.0  
+**Document Version:** 2.1  
 **Phase:** Phase 2 — Operations & Reliability  
-**Sprint:** Sprint 07  
+**Sprint:** Sprint 07 Final Certification Baseline  
 **Audit Date:** 2026-10-25  
 
 ---
@@ -38,6 +38,9 @@ During Sprint 07 Step 6, an empirical reboot-persistence audit (`scripts/verify-
 | **RSK-01** | Database | SQLite write lock contention under sudden concurrent authentication / progress spikes. | HIGH | DatabaseSync uses serialized transactions in WAL mode. Database ping latency tracked in MetricsService. | MEDIUM | `dependencies.database.queryLatencyMs` (> 25ms triggers alert) |
 | **RSK-02** | Security | Distributed credential stuffing rotating IP addresses to evade IP rate limiting. | HIGH | Dual-key rate limiting enforces independent per-email lockouts across rotating IPs (verified in test `AUTH-RAT-05`). | LOW | Error rate % & 429 response volume |
 | **RSK-03** | Operations | Alert storm during cascading network or database failure overloading on-call operators. | HIGH | Deduplication logic and 5-minute cooldown suppress duplicate alert dispatches while incident remains ACTIVE. | LOW | Operations Dashboard alerts count & staging outbox |
-| **RSK-04** | Deployment | Candidate deployment introducing regression with unverified rollback. | HIGH | `scripts/rollback-staging.js` validates candidate health before declaring success; halts on failure with emergency runbook. | LOW | `AC-46.1`..`AC-46.3` automated tests & audit records |
+| **RSK-04** | Deployment | Candidate deployment introducing regression with unverified or metadata-only rollback. | HIGH | `scripts/rollback-staging.js` restores physical files (`client/dist`), verifies SHA-256 hash match, confirms active server serves restored release, passes smoke tests, and preserves application data. | LOW | `AC-46.1`..`AC-46.3` + `controlled-rollback-verification.json` |
 | **RSK-05** | Reliability | Upstream telemetry collection outage presenting stale or fabricated metrics to operators. | MEDIUM | `telemetryAvailable` flag explicitly indicates missing telemetry and renders `--` placeholders without mock numbers. | LOW | `missing-telemetry-banner` (AC-41.3) |
 | **RSK-06** | Concurrency | Single Node.js process event loop blocking under compute-heavy canvas / physics calculations. | MEDIUM | Client-side 2D Canvas offloads game rendering to client browser; backend handles lightweight JSON session events. | LOW | `system.cpuPercent` (> 85% triggers warning) |
+| **RSK-07** | Telemetry | 10,000-sample circular buffer eviction under high request bursts truncating rolling windows. | MEDIUM | Circular buffer tracks `evictionCount` and computes `isWindowTruncated` and `windowCoveragePercent` in `windowMetadata`, visibly displayed on dashboard. | LOW | `windowMetadata.isWindowTruncated` & dashboard badge |
+| **RSK-08** | Operations | Staging alert state in-memory reset upon unexpected Node.js process restart. | MEDIUM | All alert state transitions (`ALERT_TRIGGERED`, `ALERT_ACKNOWLEDGED`, `ALERT_RESOLVED`) are synchronously written to SQLite `audit_events`. Re-evaluating metric breaches immediately re-triggers active alert on restart. | LOW | SQLite `audit_events` ledger & process restart alerts |
+| **RSK-09** | Architecture | Single-host physical file restoration not distributed across multi-node cluster. | MEDIUM | Approved for Sprint 07 single-host staging. Multi-node container image / CDN bucket rollback will be specified prior to production deployment. | MEDIUM | Pre-release staging deployment gate |
