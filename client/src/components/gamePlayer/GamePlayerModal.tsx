@@ -6,6 +6,7 @@ interface GamePlayerModalProps {
   gameIdOrSlug: string;
   resume?: boolean;
   onClose: () => void;
+  onOpenPlans?: () => void;
   onLog?: (message: string, type?: 'green' | 'blue' | 'yellow' | 'rose' | 'dim' | 'cyan') => void;
 }
 
@@ -42,6 +43,7 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
   gameIdOrSlug,
   resume = false,
   onClose,
+  onOpenPlans,
   onLog
 }) => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -382,9 +384,68 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
               </svg>
               <div>
                 <strong>Launch Authorization Failed:</strong> {error.message}
-                {error.code === 'VIP_SUBSCRIPTION_REQUIRED' && (
-                  <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#E2E8F0' }}>
-                    This title is reserved for Obsidian VIP subscribers. Upgrade your entitlement via the billing portal to access.
+                {(error.code === 'ENTITLEMENT_REQUIRED' || error.code === 'VIP_SUBSCRIPTION_REQUIRED') && (
+                  <div style={{ marginTop: '10px' }}>
+                    <div style={{ marginBottom: '8px', fontSize: '0.85rem', color: '#E2E8F0' }}>
+                      This premium title requires an active Nexus Pro or Nexus Ultimate membership tier (AC-28.2, AC-30.1).
+                    </div>
+                    {onOpenPlans && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          onOpenPlans();
+                        }}
+                        id="btn-player-modal-upgrade"
+                        style={{
+                          background: 'linear-gradient(135deg, #00F0FF 0%, #3B82F6 100%)',
+                          color: '#0B0F19',
+                          fontWeight: 700,
+                          fontSize: '0.85rem',
+                          padding: '8px 16px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        ★ View Plans & Upgrade (AC-30.2)
+                      </button>
+                    )}
+                  </div>
+                )}
+                {error.code === 'ENTITLEMENT_EXPIRED' && (
+                  <div style={{ marginTop: '10px' }}>
+                    <div style={{ marginBottom: '8px', fontSize: '0.85rem', color: '#E2E8F0' }}>
+                      Your membership subscription has expired. Please renew your plan to restore instant launch clearance (AC-28.3).
+                    </div>
+                    {onOpenPlans && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          onOpenPlans();
+                        }}
+                        id="btn-player-modal-renew"
+                        style={{
+                          background: 'linear-gradient(135deg, #FFB800 0%, #FF0055 100%)',
+                          color: '#FFFFFF',
+                          fontWeight: 700,
+                          fontSize: '0.85rem',
+                          padding: '8px 16px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        ↺ Renew Membership (AC-30.2)
+                      </button>
+                    )}
                   </div>
                 )}
                 {error.code === 'CANVAS_UNSUPPORTED' && (

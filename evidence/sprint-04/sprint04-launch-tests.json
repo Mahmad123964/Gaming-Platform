@@ -25,7 +25,7 @@
     "AC-15.2",
     "AC-15.3"
   ],
-  "timestamp": "2026-10-25T18:18:53.364Z",
+  "timestamp": "2026-10-25T18:56:42.526Z",
   "totalTests": 40,
   "passedTests": 40,
   "failedTests": 0,
@@ -141,7 +141,7 @@
     },
     {
       "id": "LAUNCH-VIP-04",
-      "name": "Error specifies VIP_SUBSCRIPTION_REQUIRED with upgrade details (AC-9.2)",
+      "name": "Error specifies VIP_SUBSCRIPTION_REQUIRED or ENTITLEMENT_REQUIRED with upgrade details (AC-9.2)",
       "status": "PASSED",
       "details": ""
     },

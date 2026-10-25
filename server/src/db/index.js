@@ -98,6 +98,64 @@ class DatabaseManager {
         UNIQUE(lobby_id, player_id)
       );`);
     } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE subscription_plans ADD COLUMN is_popular INTEGER NOT NULL DEFAULT 0;');
+    } catch (e) {}
+    try {
+      const plans = [
+        {
+          id: 'plan-free',
+          name: 'Free Explorer',
+          price_cents: 0,
+          currency: 'USD',
+          interval: 'monthly',
+          features_json: JSON.stringify([
+            'Access to all Free Catalog Games',
+            'Standard Online Multiplayer',
+            'Community Text Chat & Avatars',
+            'Single Device Progress Save'
+          ]),
+          is_popular: 0
+        },
+        {
+          id: 'plan-pro-monthly',
+          name: 'Nexus Pro',
+          price_cents: 999,
+          currency: 'USD',
+          interval: 'monthly',
+          features_json: JSON.stringify([
+            'All Premium Catalog Titles (Solar Siege, Quantum Break)',
+            'Priority Real-time Matchmaking',
+            'Cloud Save Sync Across Devices',
+            'Exclusive Obsidian Pro Badges',
+            '24/7 Priority Discord & Ticket Support'
+          ]),
+          is_popular: 1
+        },
+        {
+          id: 'plan-ultimate-monthly',
+          name: 'Nexus Ultimate',
+          price_cents: 1999,
+          currency: 'USD',
+          interval: 'monthly',
+          features_json: JSON.stringify([
+            'Everything included in Nexus Pro',
+            'Competitive Tournament Access & Prize Ladders',
+            'Zero-Latency AI Bot Opponents & Scrims',
+            'Exclusive VIP Discord Role & Emotes',
+            'Developer SDK & Early Access Game Previews'
+          ]),
+          is_popular: 0
+        }
+      ];
+      const stmt = this.db.prepare(
+        `INSERT OR REPLACE INTO subscription_plans (id, name, price_cents, currency, interval, features_json, is_popular)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
+      );
+      for (const p of plans) {
+        stmt.run(p.id, p.name, p.price_cents, p.currency, p.interval, p.features_json, p.is_popular);
+      }
+    } catch (e) {}
   }
 
   transaction(fn) {

@@ -27,7 +27,7 @@
     "AC-40.2",
     "AC-40.3"
   ],
-  "timestamp": "2026-10-25T18:18:51.823Z",
+  "timestamp": "2026-10-25T18:56:41.889Z",
   "totalTests": 69,
   "passedTests": 69,
   "failedTests": 0,
@@ -364,7 +364,7 @@
       "details": ""
     },
     {
-      "name": "AUDIT-INT: Historical audit ledger mutation rejected with HTTP 405 Method Not Allowed (DELETE /api/v1/admin/audit-events/audit-3cdae104-a28e-4d32-b9f4-4c10beca9de9)",
+      "name": "AUDIT-INT: Historical audit ledger mutation rejected with HTTP 405 Method Not Allowed (DELETE /api/v1/admin/audit-events/audit-247b4127-66ac-4ac1-a470-dc8588d0cb96)",
       "status": "PASSED",
       "details": ""
     },

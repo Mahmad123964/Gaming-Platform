@@ -113,6 +113,10 @@ function createApp() {
   app.use('/api/v1/lobbies', lobbyRouter);
   app.use('/api/v1/matchmaking', matchmakingRouter);
 
+  // Mount Subscriptions & Entitlements routes (Sprint 11: EP08-01, EP08-02, EP08-03, EP08-04)
+  const { subscriptionRouter } = require('./modules/subscriptions');
+  app.use('/api/v1/subscriptions', subscriptionRouter);
+
   // Direct game launch asset protection (EP03-04, AC-12.1)
   // Direct navigation without a valid session launch ticket is rejected
   app.get('/games/:slug/index.html', directLaunchGuard, (req, res) => {
@@ -128,12 +132,14 @@ function createApp() {
   app.get('/api/v1/status', (req, res) => {
     res.status(200).json({
       platform: 'Online Gaming Platform',
-      version: '0.8.0',
-      activeSprint: '08',
-      phase: '3',
+      version: '0.11.0',
+      activeSprint: '11',
+      phase: '4',
       environment: process.env.NODE_ENV || 'development',
       features: {
-        multiplayer: 'active (Sprint 08: Two-Player Lobbies, Invitation Join, Real-Time Status State Machine, Capacity Enforcement)',
+        subscriptions: 'active (Sprint 11: Plan Comparison Matrix, Entitlement Gating, Membership Status, Upgrade CTA)',
+        groupLobbiesAndBots: 'active (Sprint 10: Computer Opponent Bot Matchmaking, 3-Player & 4-Player Lobbies)',
+        multiplayer: 'active (Sprint 08 & 09: Two-Player Lobbies, Invitation Join, Matchmaking, Disconnect Recovery)',
         operationsMonitoring: 'active (Sprint 07: SRE Dashboard, Real-time Alerting, Deployment Rollback, Metric Sliding Windows)',
         playerProfilesAndAudit: 'active (Sprint 06: Player Profile Management, Avatars, Bio, DB-Engine Audit Immutability, Credential Redaction)',
         progressAndHistory: 'active (Sprint 05: Game Progress, Recent Session History, Milestone Achievements, Resumption)',
@@ -141,7 +147,6 @@ function createApp() {
         contentAdministration: 'active (Sprint 03: Game Registration, Metadata Editing, Publication Workflow, Licensing Clearance, Audit Trail)',
         gameCatalog: 'active (Sprint 02: Browse, Search, Category Filter, Game Details)',
         authentication: 'active (Sprint 01: Registration, Login, Recovery, Rate Limiting)',
-        payments: 'pending (Sprint 12)',
         stagingPipeline: 'active (Sprint 00)'
       },
       timestamp: new Date().toISOString()

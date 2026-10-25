@@ -11,6 +11,8 @@ import { OperationsDashboard } from './components/admin/OperationsDashboard';
 import { ProgressHubModal } from './components/progress/ProgressHubModal';
 import { ProfileModal } from './components/profile/ProfileModal';
 import { MultiplayerLobbyModal } from './components/multiplayer/MultiplayerLobbyModal';
+import { SubscriptionPlansModal } from './components/subscriptions/SubscriptionPlansModal';
+import { UpgradePromptModal } from './components/subscriptions/UpgradePromptModal';
 import { AuthModal, AuthMode, User } from './components/AuthModal';
 import { HealthData, TerminalEntry } from './types/telemetry';
 import { getCsrfToken } from './utils/csrf';
@@ -32,6 +34,28 @@ export const App: React.FC = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
   const [isMultiplayerOpen, setIsMultiplayerOpen] = useState<boolean>(false);
   const [multiplayerGameSlug, setMultiplayerGameSlug] = useState<string | null>(null);
+
+  // Sprint 11: Premium Access & Entitlements State (EP08-01, EP08-03, EP08-04)
+  const [isPlansModalOpen, setIsPlansModalOpen] = useState<boolean>(false);
+  const [isUpgradePromptOpen, setIsUpgradePromptOpen] = useState<boolean>(false);
+  const [upgradePromptData, setUpgradePromptData] = useState<{
+    gameTitle: string;
+    requiredPlan: string;
+    reason: 'unsubscribed' | 'expired';
+    expiredAt?: string;
+  }>({
+    gameTitle: 'Solar Siege',
+    requiredPlan: 'Nexus Pro',
+    reason: 'unsubscribed'
+  });
+  const [membershipStatus, setMembershipStatus] = useState<{
+    tier: string;
+    planId: string;
+    status: string;
+    isActive: boolean;
+    currentPeriodEnd: string | null;
+    renewalDate: string | null;
+  } | null>(null);
 
   const [logs, setLogs] = useState<TerminalEntry[]>([
     {
@@ -142,7 +166,26 @@ export const App: React.FC = () => {
       });
   }, [addLog]);
 
-  // WebSocket Connection
+  // Fetch membership status for authenticated player (EP08-03, AC-29.1, AC-29.2)
+  const fetchMembership = useCallback(async () => {
+    if (!currentUser) {
+      setMembershipStatus(null);
+      return;
+    }
+    try {
+      const res = await fetch('/api/v1/subscriptions/me', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setMembershipStatus(data.subscription || null);
+      }
+    } catch (e) {
+      setMembershipStatus(null);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchMembership();
+  }, [fetchMembership]);
   useEffect(() => {
     let ws: WebSocket | null = null;
     let reconnectTimeout: any = null;
@@ -246,6 +289,8 @@ export const App: React.FC = () => {
           setMultiplayerGameSlug(null);
           setIsMultiplayerOpen(true);
         }}
+        onOpenPlans={() => setIsPlansModalOpen(true)}
+        membershipStatus={membershipStatus}
       />
 
       <main className={styles.mainContent} id="mainContent">
@@ -276,6 +321,16 @@ export const App: React.FC = () => {
             setMultiplayerGameSlug(slug);
             setIsMultiplayerOpen(true);
           }}
+          onOpenPlans={() => setIsPlansModalOpen(true)}
+          onOpenUpgradePrompt={(gameTitle, requiredPlan, reason, expiredAt) => {
+            setUpgradePromptData({
+              gameTitle,
+              requiredPlan: requiredPlan || 'Nexus Pro',
+              reason: reason || 'unsubscribed',
+              expiredAt
+            });
+            setIsUpgradePromptOpen(true);
+          }}
         />
 
         <TerminalConsole logs={logs} />
@@ -289,7 +344,7 @@ export const App: React.FC = () => {
             <strong>NexusPlay Online Gaming Platform</strong> — Built with React 19, TypeScript & Google Antigravity
           </div>
           <div className={styles.footerRight}>
-            <span>Active Sprint: <strong>08 (Two-Player Multiplayer Sessions)</strong></span>
+            <span>Active Sprint: <strong>11 (Premium Access & Entitlements)</strong></span>
             <span>Architecture: <strong>ADR-0007 Verified</strong></span>
             <span>Target Capacity: <strong>10,000 CCU</strong></span>
           </div>
@@ -341,6 +396,27 @@ export const App: React.FC = () => {
         onOpenLogin={() => handleOpenAuth('login')}
         preselectedGameSlug={multiplayerGameSlug}
         onLog={addLog}
+      />
+
+      {/* Sprint 11 Subscription Plans Comparison Modal (EP08-01, EP08-03, AC-27.1..27.3, AC-29.1..29.3) */}
+      <SubscriptionPlansModal
+        isOpen={isPlansModalOpen}
+        onClose={() => setIsPlansModalOpen(false)}
+        currentUser={currentUser}
+        onOpenLogin={() => handleOpenAuth('login')}
+        onLog={addLog}
+        onSubscriptionUpdated={() => fetchMembership()}
+      />
+
+      {/* Sprint 11 Upgrade Prompt Modal on Launch Denial (EP08-04, AC-30.1..30.3) */}
+      <UpgradePromptModal
+        isOpen={isUpgradePromptOpen}
+        onClose={() => setIsUpgradePromptOpen(false)}
+        onOpenPlans={() => setIsPlansModalOpen(true)}
+        gameTitle={upgradePromptData.gameTitle}
+        requiredPlan={upgradePromptData.requiredPlan}
+        reason={upgradePromptData.reason}
+        expiredAt={upgradePromptData.expiredAt}
       />
     </div>
   );

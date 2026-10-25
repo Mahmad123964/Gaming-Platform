@@ -91,39 +91,67 @@ class GameLaunchService {
       throw err;
     }
 
-    // 5. Access Tier & Entitlement Enforcement (EP03-01, AC-9.2)
-    // If premium, verify authenticated user has active VIP subscription entitlement
+    // 5. Access Tier & Entitlement Enforcement (EP03-01, EP08-02, AC-9.2, AC-28.1, AC-28.2, AC-28.3, AC-30.1)
     if (game.is_premium === 1) {
       if (!user) {
         const err = new Error(
-          `Obsidian VIP Subscription Required: "${game.title}" is a premium title. Please sign in with an active VIP subscription to launch (AC-9.2).`
+          `Premium Membership Required: "${game.title}" requires an active Nexus Pro or Nexus Ultimate membership. Upgrade your account to launch (AC-28.2, AC-30.1).`
         );
         err.status = 403;
         err.code = 'AUTHENTICATION_REQUIRED';
+        err.details = {
+          requiredPlan: 'Nexus Pro',
+          gameTitle: game.title,
+          currentTier: 'Unauthenticated Guest',
+          upgradeUrl: '/plans'
+        };
         throw err;
       }
 
-      // Check active subscription in database
-      const sub = this.db.get(
-        "SELECT id, status, current_period_end FROM subscriptions WHERE player_id = ? AND status = 'active' AND current_period_end > CURRENT_TIMESTAMP",
-        [user.id]
-      );
-
-      // Also allow admin role for administrative QA testing
-      const isVip = !!sub || user.role === 'admin';
-
-      if (!isVip) {
-        const err = new Error(
-          `Obsidian VIP Subscription Required: "${game.title}" requires an active Obsidian VIP membership. Please upgrade your account to launch (AC-9.2).`
+      // Allow admin role bypass for administrative SRE testing
+      if (user.role !== 'admin') {
+        const sub = this.db.get(
+          `SELECT s.id, s.plan_id, s.status, s.current_period_end, p.name as plan_name
+           FROM subscriptions s
+           LEFT JOIN subscription_plans p ON s.plan_id = p.id
+           WHERE s.player_id = ?
+           ORDER BY s.created_at DESC LIMIT 1`,
+          [user.id]
         );
-        err.status = 403;
-        err.code = 'VIP_SUBSCRIPTION_REQUIRED';
-        err.details = {
-          tier: 'Obsidian VIP',
-          gameTitle: game.title,
-          upgradeUrl: '/subscriptions/vip'
-        };
-        throw err;
+
+        if (!sub || sub.plan_id === 'plan-free') {
+          const err = new Error(
+            `Premium Membership Required: "${game.title}" requires an active Nexus Pro or Nexus Ultimate membership. Upgrade your account to launch (AC-28.2, AC-30.1).`
+          );
+          err.status = 403;
+          err.code = 'ENTITLEMENT_REQUIRED';
+          err.details = {
+            requiredPlan: 'Nexus Pro',
+            gameTitle: game.title,
+            currentTier: 'Free Explorer',
+            upgradeUrl: '/plans'
+          };
+          throw err;
+        }
+
+        const now = new Date();
+        const expiry = new Date(sub.current_period_end);
+
+        if (expiry.getTime() < now.getTime() || sub.status === 'expired' || sub.status === 'cancelled') {
+          const formattedDate = expiry.toISOString().split('T')[0];
+          const err = new Error(
+            `Premium Membership Expired: Your subscription expired on ${formattedDate}. Please renew your membership to launch "${game.title}" (AC-28.3).`
+          );
+          err.status = 403;
+          err.code = 'ENTITLEMENT_EXPIRED';
+          err.details = {
+            requiredPlan: sub.plan_name || 'Nexus Pro',
+            gameTitle: game.title,
+            expiredAt: expiry.toISOString(),
+            upgradeUrl: '/plans'
+          };
+          throw err;
+        }
       }
     }
 

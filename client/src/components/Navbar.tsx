@@ -16,6 +16,8 @@ interface NavbarProps {
   onOpenCareerHub?: () => void;
   onOpenProfile?: () => void;
   onOpenMultiplayer?: () => void;
+  onOpenPlans?: () => void;
+  membershipStatus?: { tier: string; status: string; isActive: boolean; renewalDate: string | null } | null;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -32,6 +34,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCareerHub,
   onOpenProfile,
   onOpenMultiplayer,
+  onOpenPlans,
+  membershipStatus,
 }) => {
   return (
     <header className={styles.navbar} id="mainNavbar">
@@ -63,6 +67,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
           <a href="#telemetry" className={styles.navLink}>SRE Telemetry</a>
           <a href="#roadmap" className={styles.navLink}>Roadmap</a>
+          <a
+            href="#plans"
+            className={styles.navLink}
+            onClick={(e) => {
+              if (onOpenPlans) {
+                e.preventDefault();
+                onOpenPlans();
+              }
+            }}
+            id="nav-link-plans"
+            style={{ color: '#C084FC' }}
+          >
+            Plans
+          </a>
         </nav>
 
         <div className={styles.actions}>
@@ -153,6 +171,36 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
+          {/* SPRINT 11 MEMBERSHIP PLANS SHORTCUT (EP08-01, AC-27.3) */}
+          {onOpenPlans && (
+            <button
+              type="button"
+              className={styles.btnCareerHub || styles.btnAdminConsole}
+              onClick={onOpenPlans}
+              id="nav-btn-plans"
+              title="View NexusPlay Membership Tiers & Compare Plans (EP08-01, AC-27.3)"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(192, 132, 252, 0.12)',
+                border: '1px solid rgba(192, 132, 252, 0.4)',
+                color: '#C084FC',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <span>Plans</span>
+            </button>
+          )}
+
           {/* SPRINT 03 ADMIN CONSOLE SHORTCUT */}
           {currentUser?.role === 'admin' && onToggleAdminConsole && (
             <button
@@ -195,6 +243,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
                 {currentUser.role === 'admin' && (
                   <span className={styles.adminBadge} id="userRoleBadge">ADMIN</span>
+                )}
+                {/* SPRINT 11 MEMBERSHIP BADGE (EP08-03) */}
+                {membershipStatus && (
+                  <span
+                    className={styles.adminBadge}
+                    id="navMembershipBadge"
+                    onClick={onOpenPlans}
+                    style={{
+                      cursor: onOpenPlans ? 'pointer' : 'default',
+                      background: membershipStatus.isActive ? 'rgba(0, 240, 255, 0.2)' : 'rgba(148, 163, 184, 0.2)',
+                      color: membershipStatus.isActive ? '#00F0FF' : '#94A3B8',
+                      borderColor: membershipStatus.isActive ? 'rgba(0, 240, 255, 0.4)' : 'rgba(148, 163, 184, 0.3)'
+                    }}
+                    title={membershipStatus.isActive ? `Active ${membershipStatus.tier}` : 'Free Tier (Click to upgrade)'}
+                  >
+                    {membershipStatus.isActive ? (membershipStatus.tier.includes('Ultimate') ? 'ULTIMATE' : 'PRO') : 'FREE'}
+                  </span>
                 )}
                 {onOpenProfile && (
                   <button

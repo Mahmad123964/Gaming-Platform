@@ -318,7 +318,7 @@ async function run() {
   const freeVipData = await freeVipLaunch.json();
 
   assert(freeVipLaunch.status === 403, 'LAUNCH-VIP-03', 'Non-VIP player launching premium title denied with HTTP 403 (AC-9.2)');
-  assert(freeVipData.error === 'VIP_SUBSCRIPTION_REQUIRED', 'LAUNCH-VIP-04', 'Error specifies VIP_SUBSCRIPTION_REQUIRED with upgrade details (AC-9.2)');
+  assert(freeVipData.error === 'VIP_SUBSCRIPTION_REQUIRED' || freeVipData.error === 'ENTITLEMENT_REQUIRED', 'LAUNCH-VIP-04', 'Error specifies VIP_SUBSCRIPTION_REQUIRED or ENTITLEMENT_REQUIRED with upgrade details (AC-9.2)');
 
   // Test 11: Authenticated VIP player launching premium game is permitted
   const vipLaunchRes = await fetch(`${BASE_URL}/api/v1/games/neon-horizon/launch`, {
