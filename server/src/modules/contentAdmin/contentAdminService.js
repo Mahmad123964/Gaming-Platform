@@ -72,10 +72,39 @@ class ContentAdminService {
    * Log an administrative mutation or rejected attempt into audit_events
    * Traceability: EP11-02, AC-40.1, AC-40.2
    */
+  /**
+   * Redact sensitive credentials, secrets, tokens, and keys from audit details
+   * Traceability: EP11-03, AUDIT-RED-01
+   */
+  sanitizeAuditDetails(obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map(item => this.sanitizeAuditDetails(item));
+
+    const sensitiveKeys = ['password', 'passwordhash', 'hash', 'token', 'csrftoken', 'secret', 'cookie', 'key', 'auth', 'authorization'];
+    const sanitized = {};
+
+    for (const [k, v] of Object.entries(obj)) {
+      const lowerKey = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (sensitiveKeys.some(s => lowerKey.includes(s))) {
+        sanitized[k] = '[REDACTED]';
+      } else if (typeof v === 'object' && v !== null) {
+        sanitized[k] = this.sanitizeAuditDetails(v);
+      } else {
+        sanitized[k] = v;
+      }
+    }
+    return sanitized;
+  }
+
+  /**
+   * Log an administrative mutation or rejected attempt into audit_events
+   * Traceability: EP11-02, EP11-03, AC-40.1, AC-40.2
+   */
   logAuditEvent({ actorId, action, resource, details = {} }) {
     try {
       const eventId = 'audit-' + crypto.randomUUID();
-      const detailsJson = typeof details === 'string' ? details : JSON.stringify(details);
+      const sanitized = this.sanitizeAuditDetails(typeof details === 'string' ? JSON.parse(details) : details);
+      const detailsJson = JSON.stringify(sanitized);
       this.db.run(
         `INSERT INTO audit_events (id, actor_id, action, resource, details_json, created_at)
          VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
@@ -88,12 +117,18 @@ class ContentAdminService {
     }
   }
 
+  recordAuditEvent(params) {
+    return this.logAuditEvent(params);
+  }
+
   /**
-   * Get audit events with optional limit and filters
-   * Traceability: EP11-02, AC-40.3
+   * Get audit events with limit, offset, and multi-criteria filters
+   * Traceability: EP11-02, EP11-03, AC-40.3
    */
-  getAuditEvents({ limit = 50, action = null, resource = null } = {}) {
+  getAuditEvents({ limit = 50, offset = 0, action = null, resource = null, actorId = null, startDate = null, endDate = null } = {}) {
     const validLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
+    const validOffset = Math.max(parseInt(offset, 10) || 0, 0);
+
     let sql = `
       SELECT a.id, a.actor_id, a.action, a.resource, a.details_json, a.created_at,
              p.display_name as actor_name, p.email as actor_email, p.role as actor_role
@@ -107,20 +142,37 @@ class ContentAdminService {
       conditions.push('a.action = ?');
       params.push(action);
     }
+    if (actorId) {
+      conditions.push('a.actor_id = ?');
+      params.push(actorId);
+    }
     if (resource) {
       conditions.push('a.resource LIKE ?');
       params.push(`%${resource}%`);
+    }
+    if (startDate) {
+      conditions.push('a.created_at >= ?');
+      params.push(startDate);
+    }
+    if (endDate) {
+      conditions.push('a.created_at <= ?');
+      params.push(endDate);
     }
 
     if (conditions.length > 0) {
       sql += ' WHERE ' + conditions.join(' AND ');
     }
 
-    sql += ' ORDER BY a.created_at DESC LIMIT ?';
-    params.push(validLimit);
+    // Count total matching
+    const countSql = `SELECT COUNT(*) as total FROM audit_events a ${conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''}`;
+    const totalRow = this.db.get(countSql, params);
+    const totalCount = totalRow ? totalRow.total : 0;
+
+    sql += ' ORDER BY a.created_at DESC LIMIT ? OFFSET ?';
+    params.push(validLimit, validOffset);
 
     const rows = this.db.query(sql, params);
-    return rows.map(r => {
+    const events = rows.map(r => {
       let parsedDetails = {};
       try {
         parsedDetails = r.details_json ? JSON.parse(r.details_json) : {};
@@ -130,7 +182,7 @@ class ContentAdminService {
       return {
         id: r.id,
         actorId: r.actor_id,
-        actorName: r.actor_name || (r.actor_id === 'system' ? 'System Process' : 'Unknown / Anonymous'),
+        actorName: r.actor_name || (r.actor_id === 'system' ? 'System Process' : (r.actor_id === 'anonymous' ? 'Anonymous Requester' : 'Unknown / Anonymous')),
         actorEmail: r.actor_email || null,
         actorRole: r.actor_role || null,
         action: r.action,
@@ -139,6 +191,14 @@ class ContentAdminService {
         createdAt: r.created_at
       };
     });
+
+    return {
+      events,
+      count: events.length,
+      totalCount,
+      limit: validLimit,
+      offset: validOffset
+    };
   }
 
   /**

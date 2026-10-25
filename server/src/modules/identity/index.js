@@ -4,11 +4,15 @@ const { RateLimiter, authRateLimiter } = require('./rateLimiter');
 const { hashPassword, verifyPassword, generateToken, hashToken, constantTimeDummyWork, generateId } = require('./crypto');
 const { validateEmail, validatePassword, validateDisplayName } = require('./validation');
 const { emailService, EmailService } = require('./emailService');
+const { ProfileService, getProfileService } = require('./profileService');
 const authRouter = require('./routes');
+const profileRouter = require('./profileRoutes');
 
 module.exports = {
   AuthService,
   getAuthService,
+  ProfileService,
+  getProfileService,
   requireAuth,
   optionalAuth,
   parseCookies,
@@ -25,5 +29,6 @@ module.exports = {
   validateDisplayName,
   emailService,
   EmailService,
-  authRouter
+  authRouter,
+  profileRouter
 };

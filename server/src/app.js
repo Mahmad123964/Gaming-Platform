@@ -79,8 +79,11 @@ function createApp() {
   });
 
   // Mount Identity & Authentication routes (Sprint 01: EP01-01, EP01-02, EP01-03, EP11-01)
-  const { authRouter } = require('./modules/identity');
+  const { authRouter, profileRouter } = require('./modules/identity');
   app.use('/api/v1/auth', authRouter);
+
+  // Mount Player Profile routes (Sprint 06: EP01-04)
+  app.use('/api/v1/profile', profileRouter);
 
   // Mount Game Catalog & Discovery routes (Sprint 02: EP02-01, EP02-02, EP02-03, EP02-04)
   const { catalogRouter } = require('./modules/catalog');
@@ -114,10 +117,11 @@ function createApp() {
     res.status(200).json({
       platform: 'Online Gaming Platform',
       version: '0.6.0',
-      activeSprint: '05',
+      activeSprint: '06',
       phase: '1',
       environment: process.env.NODE_ENV || 'development',
       features: {
+        playerProfilesAndAudit: 'active (Sprint 06: Player Profile Management, Avatars, Bio, DB-Engine Audit Immutability, Credential Redaction)',
         progressAndHistory: 'active (Sprint 05: Game Progress, Recent Session History, Milestone Achievements, Resumption)',
         gameLaunch: 'active (Sprint 04: Game Launching, Single-Player Sessions, Device Compatibility, First Playable Engine)',
         contentAdministration: 'active (Sprint 03: Game Registration, Metadata Editing, Publication Workflow, Licensing Clearance, Audit Trail)',

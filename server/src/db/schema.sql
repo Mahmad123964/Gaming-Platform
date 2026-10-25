@@ -25,6 +25,17 @@ CREATE TABLE IF NOT EXISTS players (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS player_profiles (
+    id TEXT PRIMARY KEY,
+    player_id TEXT UNIQUE NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+    display_name TEXT NOT NULL,
+    avatar TEXT NOT NULL DEFAULT 'pilot-cyan',
+    bio TEXT NOT NULL DEFAULT '',
+    preferences_json TEXT NOT NULL DEFAULT '{"theme":"obsidian","soundEnabled":true,"notificationsEnabled":true,"privacyMode":"public"}',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS auth_sessions (
     id TEXT PRIMARY KEY,
     player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
@@ -153,6 +164,19 @@ CREATE TABLE IF NOT EXISTS audit_events (
     details_json TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Database-Level Immutability Enforcement (EP11-03, Task 3)
+CREATE TRIGGER IF NOT EXISTS prevent_audit_events_update
+BEFORE UPDATE ON audit_events
+BEGIN
+    SELECT RAISE(FAIL, 'Audit ledger is strictly immutable: UPDATE is prohibited at the database engine level.');
+END;
+
+CREATE TRIGGER IF NOT EXISTS prevent_audit_events_delete
+BEFORE DELETE ON audit_events
+BEGIN
+    SELECT RAISE(FAIL, 'Audit ledger is strictly immutable: DELETE is prohibited at the database engine level.');
+END;
 
 CREATE TABLE IF NOT EXISTS game_history (
     id TEXT PRIMARY KEY,

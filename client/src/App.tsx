@@ -8,6 +8,7 @@ import { RoadmapGrid } from './components/RoadmapGrid';
 import { GameCatalog } from './components/catalog/GameCatalog';
 import { ContentAdminConsole } from './components/admin/ContentAdminConsole';
 import { ProgressHubModal } from './components/progress/ProgressHubModal';
+import { ProfileModal } from './components/profile/ProfileModal';
 import { AuthModal, AuthMode, User } from './components/AuthModal';
 import { HealthData, TerminalEntry } from './types/telemetry';
 import { getCsrfToken } from './utils/csrf';
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
   const [authModalMode, setAuthModalMode] = useState<AuthMode>('login');
   const [isAdminConsoleVisible, setIsAdminConsoleVisible] = useState<boolean>(true);
   const [isCareerHubOpen, setIsCareerHubOpen] = useState<boolean>(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
 
   const [logs, setLogs] = useState<TerminalEntry[]>([
     {
@@ -63,6 +65,12 @@ export const App: React.FC = () => {
       time: new Date().toLocaleTimeString(),
       message: 'Sprint 05 Game Progress, History & Achievements online: 10-session history, wave checkpoints & medals active.',
       type: 'green',
+    },
+    {
+      id: 'init-7',
+      time: new Date().toLocaleTimeString(),
+      message: 'Sprint 06 Player Profiles & Administrative Audit online: Avatar emblems, bio & DB-level immutability active.',
+      type: 'blue',
     },
   ]);
 
@@ -217,6 +225,7 @@ export const App: React.FC = () => {
         isAdminConsoleVisible={isAdminConsoleVisible}
         onToggleAdminConsole={() => setIsAdminConsoleVisible(v => !v)}
         onOpenCareerHub={() => setIsCareerHubOpen(true)}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
       />
 
       <main className={styles.mainContent} id="mainContent">
@@ -249,8 +258,8 @@ export const App: React.FC = () => {
             <strong>NexusPlay Online Gaming Platform</strong> — Built with React 19, TypeScript & Google Antigravity
           </div>
           <div className={styles.footerRight}>
-            <span>Active Sprint: <strong>05 (Game Progress, History & Achievements)</strong></span>
-            <span>Architecture: <strong>ADR-0005 Verified</strong></span>
+            <span>Active Sprint: <strong>06 (Player Profiles & Administrative Audit)</strong></span>
+            <span>Architecture: <strong>ADR-0006 Verified</strong></span>
             <span>Target Capacity: <strong>10,000 CCU</strong></span>
           </div>
         </div>
@@ -274,6 +283,18 @@ export const App: React.FC = () => {
           const catalogEl = document.getElementById('game-catalog');
           if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
           addLog(`Resuming mission checkpoint for "${slug}". Launching via Discovery Engine.`, 'green');
+        }}
+        onLog={addLog}
+      />
+
+      {/* Sprint 06 Player Profile Modal (EP01-04) */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        currentUser={currentUser}
+        onProfileUpdated={(updated) => {
+          setCurrentUser((prev) => (prev ? { ...prev, displayName: updated.displayName } : null));
+          addLog(`Player identity updated to: "${updated.displayName}"`, 'green');
         }}
         onLog={addLog}
       />

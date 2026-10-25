@@ -202,14 +202,21 @@ adminRouter.all(['/audit-events', '/audit-events/:id', '/audit-events/*'], (req,
 adminRouter.get('/audit-events', (req, res) => {
   try {
     const adminService = getContentAdminService();
-    const events = adminService.getAuditEvents({
+    const result = adminService.getAuditEvents({
       limit: req.query.limit,
+      offset: req.query.offset,
       action: req.query.action,
-      resource: req.query.resource
+      resource: req.query.resource,
+      actorId: req.query.actorId,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate
     });
     res.status(200).json({
-      events,
-      count: events.length,
+      events: result.events,
+      count: result.count,
+      totalCount: result.totalCount,
+      limit: result.limit,
+      offset: result.offset,
       timestamp: new Date().toISOString()
     });
   } catch (err) {

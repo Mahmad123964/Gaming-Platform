@@ -14,6 +14,7 @@ interface NavbarProps {
   isAdminConsoleVisible?: boolean;
   onToggleAdminConsole?: () => void;
   onOpenCareerHub?: () => void;
+  onOpenProfile?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -28,6 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   isAdminConsoleVisible = false,
   onToggleAdminConsole,
   onOpenCareerHub,
+  onOpenProfile,
 }) => {
   return (
     <header className={styles.navbar} id="mainNavbar">
@@ -134,12 +136,40 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className={styles.authGroup}>
             {currentUser ? (
               <div className={styles.userBadge} id="userSessionBadge">
-                <div className={styles.userAvatar}>
+                <div
+                  className={styles.userAvatar}
+                  style={{ cursor: onOpenProfile ? 'pointer' : 'default' }}
+                  onClick={onOpenProfile}
+                  title="View / Edit Profile"
+                >
                   {currentUser.displayName.charAt(0).toUpperCase()}
                 </div>
-                <span className={styles.userName}>{currentUser.displayName}</span>
+                <span
+                  className={styles.userName}
+                  style={{ cursor: onOpenProfile ? 'pointer' : 'default' }}
+                  onClick={onOpenProfile}
+                  id="navUserName"
+                  title="Click to edit profile"
+                >
+                  {currentUser.displayName}
+                </span>
                 {currentUser.role === 'admin' && (
                   <span className={styles.adminBadge} id="userRoleBadge">ADMIN</span>
+                )}
+                {onOpenProfile && (
+                  <button
+                    type="button"
+                    className={styles.btnProfile}
+                    onClick={onOpenProfile}
+                    id="btnNavProfile"
+                    title="Edit Profile Settings (EP01-04)"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>Profile</span>
+                  </button>
                 )}
                 <button
                   type="button"

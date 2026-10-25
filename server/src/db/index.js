@@ -46,6 +46,9 @@ class DatabaseManager {
     try {
       this.db.exec("UPDATE game_history SET verification_status = 'PLAUSIBILITY_CHECK_PASSED' WHERE verification_status = 'verified';");
     } catch (e) {}
+    try {
+      this.db.exec("INSERT OR IGNORE INTO player_profiles (id, player_id, display_name) SELECT 'prof-' || id, id, display_name FROM players;");
+    } catch (e) {}
   }
 
   transaction(fn) {
