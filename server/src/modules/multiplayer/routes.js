@@ -39,7 +39,7 @@ router.post('/ws-ticket', requireAuth, (req, res) => {
 router.post('/', requireAuth, (req, res) => {
   try {
     const player = req.player || req.user;
-    const { gameId, gameSlug, gameIdOrSlug } = req.body;
+    const { gameId, gameSlug, gameIdOrSlug, maxPlayers } = req.body;
 
     const gameTarget = gameId || gameSlug || gameIdOrSlug;
     if (!gameTarget) {
@@ -51,7 +51,8 @@ router.post('/', requireAuth, (req, res) => {
 
     const lobby = lobbyService.createLobby({
       gameIdOrSlug: gameTarget,
-      hostPlayerId: player.id
+      hostPlayerId: player.id,
+      maxPlayers: maxPlayers ? parseInt(maxPlayers, 10) : 2
     });
 
     realtimeService.subscribePlayerToRoom(player.id, lobby.id);
@@ -67,6 +68,106 @@ router.post('/', requireAuth, (req, res) => {
       error: err.code || 'LobbyCreationError',
       message: err.message,
       eligibilityDetails: err.eligibilityDetails || null,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/v1/lobbies/bot
+ * EP04-02 / AC-14.1: Start match against computer opponent (AI Bot) in supported game
+ */
+router.post('/bot', requireAuth, (req, res) => {
+  try {
+    const player = req.player || req.user;
+    const { gameSlug = 'obsidian-chess', difficulty = 'medium' } = req.body || {};
+    const { getBotService } = require('./botService');
+    const botService = getBotService();
+    const match = botService.createBotMatch({
+      playerId: player.id,
+      gameSlug,
+      difficulty
+    });
+
+    realtimeService.subscribePlayerToRoom(player.id, match.id);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Bot match started successfully.',
+      match,
+      lobby: match,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({
+      error: err.code || 'BotMatchError',
+      message: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/v1/lobbies/:id/bot-move
+ * EP04-02 / AC-14.2: Trigger bot response move with natural thinking latency
+ */
+router.post('/:id/bot-move', requireAuth, async (req, res) => {
+  try {
+    const player = req.player || req.user;
+    const { move, difficulty, delayMs } = req.body || {};
+    const { getBotService } = require('./botService');
+    const botService = getBotService();
+    const result = await botService.processBotTurn({
+      lobbyId: req.params.id,
+      playerMove: move,
+      humanPlayerId: player.id,
+      difficulty,
+      delayMs
+    });
+
+    return res.status(200).json({
+      success: true,
+      ...result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({
+      error: err.code || 'BotTurnError',
+      message: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/v1/lobbies/:id/bot-end
+ * EP04-02 / AC-14.3: End bot match and record outcome
+ */
+router.post('/:id/bot-end', requireAuth, (req, res) => {
+  try {
+    const player = req.player || req.user;
+    const { outcome = 'victory', score = 100 } = req.body || {};
+    const { getBotService } = require('./botService');
+    const botService = getBotService();
+    const result = botService.endBotMatch({
+      lobbyId: req.params.id,
+      humanPlayerId: player.id,
+      outcome,
+      score
+    });
+
+    return res.status(200).json({
+      success: true,
+      ...result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({
+      error: err.code || 'BotEndError',
+      message: err.message,
       timestamp: new Date().toISOString()
     });
   }

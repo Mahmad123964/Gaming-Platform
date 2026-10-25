@@ -116,6 +116,8 @@ CREATE TABLE IF NOT EXISTS lobbies (
     max_players INTEGER NOT NULL DEFAULT 2,
     status TEXT NOT NULL DEFAULT 'waiting', -- 'waiting', 'full', 'active', 'ended', 'forfeited'
     is_matchmaking INTEGER NOT NULL DEFAULT 0,
+    is_bot INTEGER NOT NULL DEFAULT 0,
+    bot_difficulty TEXT,
     board_state_json TEXT,
     winner_id TEXT REFERENCES players(id),
     expires_at DATETIME,

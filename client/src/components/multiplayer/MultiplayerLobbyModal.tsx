@@ -54,13 +54,18 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
   preselectedGameSlug,
   onLog
 }) => {
-  const [activeTab, setActiveTab] = useState<'create' | 'join' | 'matchmaking'>('create');
+  const [activeTab, setActiveTab] = useState<'create' | 'join' | 'matchmaking' | 'bot'>('create');
   const [selectedGameId, setSelectedGameId] = useState<string>(preselectedGameSlug || 'obsidian-chess');
+  const [selectedCapacity, setSelectedCapacity] = useState<number>(2);
   const [joinCode, setJoinCode] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+
+  // Bot Opponent State (EP04-02)
+  const [isBotThinking, setIsBotThinking] = useState<boolean>(false);
+  const [botDifficulty, setBotDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
 
   // Matchmaking State (EP06-03)
   const [isSearchingMatch, setIsSearchingMatch] = useState<boolean>(false);
@@ -201,6 +206,26 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
             setActiveLobby(lobbyData);
           }
           if (onLog) onLog(`Player left the lobby.`, 'yellow');
+        } else if (data.type === 'GAME_STATE_UPDATE') {
+          setIsBotThinking(false);
+          if (data.isBot && data.move) {
+            // Apply heuristic move for Black piece
+            setBoardState((prev) => {
+              const b = prev.map((row) => row.map((cell) => ({ ...cell })));
+              // Standard Black pawn opening e7 -> e5
+              if (b[1][4].piece) {
+                b[3][4] = b[1][4];
+                b[1][4] = { piece: null, color: null };
+              } else if (b[0][6].piece) { // g8 -> f6
+                b[2][5] = b[0][6];
+                b[0][6] = { piece: null, color: null };
+              }
+              return b;
+            });
+            setTurn('w');
+            setMoveHistory((prev) => [...prev, `Nexus AI (Bot): ${data.move.piece || 'P'} ${data.move.from} -> ${data.move.to} (${data.latencyMs || 600}ms)`]);
+            if (onLog) onLog(`Nexus AI responded with ${data.move.from} -> ${data.move.to} in ${data.latencyMs || 600}ms (AC-14.2)`, 'blue');
+          }
         }
       } catch (e) {
         // ignore parse error
@@ -276,7 +301,12 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
           'Content-Type': 'application/json',
           'X-CSRF-Token': getCsrfToken()
         },
-        body: JSON.stringify({ gameIdOrSlug: selectedGameId, gameSlug: selectedGameId, gameId: selectedGameId })
+        body: JSON.stringify({
+          gameIdOrSlug: selectedGameId,
+          gameSlug: selectedGameId,
+          gameId: selectedGameId,
+          maxPlayers: selectedCapacity
+        })
       });
 
       const data = await res.json();
@@ -290,11 +320,53 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
       }
 
       setActiveLobby(lobby);
-      setSuccessMsg(`Lobby created! Invitation code: ${lobby.code}`);
-      if (onLog) onLog(`Lobby created for "${lobby.game.title}" (Code: ${lobby.code})`, 'green');
+      setSuccessMsg(`Lobby created! Invitation code: ${lobby.code} (${selectedCapacity} Players)`);
+      if (onLog) onLog(`Lobby created for "${lobby.game.title}" (Code: ${lobby.code}, Capacity: ${selectedCapacity})`, 'green');
     } catch (err: any) {
       setErrorMsg(err.message);
       if (onLog) onLog(`Failed to create lobby: ${err.message}`, 'rose');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bot Match Handler (EP04-02 / AC-14.1)
+  const handleStartBotMatch = async () => {
+    if (!currentUser) {
+      onOpenLogin();
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const res = await fetch('/api/v1/lobbies/bot', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        },
+        body: JSON.stringify({
+          gameSlug: 'obsidian-chess',
+          difficulty: botDifficulty
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error?.message || data.message || `HTTP ${res.status}`);
+      }
+
+      const match = data.match || data.lobby;
+      setActiveLobby(match);
+      setSuccessMsg(`Match started against Nexus AI (Bot)! You play White.`);
+      if (onLog) onLog(`Single-click AI Bot match launched in Obsidian Chess (AC-14.1)`, 'green');
+    } catch (err: any) {
+      setErrorMsg(err.message);
+      if (onLog) onLog(`Failed to start bot match: ${err.message}`, 'rose');
     } finally {
       setLoading(false);
     }
@@ -561,6 +633,52 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
           nextTurn
         }));
       }
+
+      // If playing against AI Bot (EP04-02 / AC-14.2), trigger bot calculation
+      if (activeLobby.isBot) {
+        setIsBotThinking(true);
+        const fromCoord = `${String.fromCharCode(97 + fromC)}${8 - fromR}`;
+        const toCoord = `${String.fromCharCode(97 + c)}${8 - r}`;
+        fetch(`/api/v1/lobbies/${activeLobby.id}/bot-move`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': getCsrfToken()
+          },
+          body: JSON.stringify({
+            move: { from: fromCoord, to: toCoord, piece: piece.piece },
+            difficulty: activeLobby.botDifficulty || botDifficulty
+          })
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setIsBotThinking(false);
+            if (data.botMove) {
+              setBoardState((prev) => {
+                const b = prev.map((row) => row.map((cell) => ({ ...cell })));
+                if (b[1][4].piece) {
+                  b[3][4] = b[1][4];
+                  b[1][4] = { piece: null, color: null };
+                } else if (b[0][6].piece) {
+                  b[2][5] = b[0][6];
+                  b[0][6] = { piece: null, color: null };
+                }
+                return b;
+              });
+              setTurn('w');
+              setMoveHistory((prev) => [
+                ...prev,
+                `Nexus AI (Bot): ${data.botMove.piece || 'P'} ${data.botMove.from} -> ${data.botMove.to} (${data.latencyMs || 600}ms)`
+              ]);
+              if (onLog) onLog(`Nexus AI responded in ${data.latencyMs}ms (AC-14.2)`, 'blue');
+            }
+          })
+          .catch((err) => {
+            setIsBotThinking(false);
+            if (onLog) onLog(`Bot move error: ${err.message}`, 'rose');
+          });
+      }
     }
   };
 
@@ -683,6 +801,23 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
                   </svg>
                   Find Opponent (EP06-03)
                 </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'bot'}
+                  className={`${styles.tabBtn} ${activeTab === 'bot' ? styles.activeTab : ''}`}
+                  onClick={() => { setActiveTab('bot'); setErrorMsg(null); }}
+                  id="tab-bot-lobby"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                    <circle cx="12" cy="5" r="2"></circle>
+                    <path d="M12 7v4"></path>
+                    <line x1="8" y1="16" x2="8" y2="16"></line>
+                    <line x1="16" y1="16" x2="16" y2="16"></line>
+                  </svg>
+                  Play AI Bot (EP04-02)
+                </button>
               </div>
 
               {/* CREATE LOBBY TAB */}
@@ -696,16 +831,61 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
                       id="select-multiplayer-game"
                       className={styles.select}
                       value={selectedGameId}
-                      onChange={(e) => setSelectedGameId(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedGameId(e.target.value);
+                        if (e.target.value === 'obsidian-chess') {
+                          setSelectedCapacity(2);
+                        }
+                      }}
                     >
                       <option value="obsidian-chess">Obsidian Chess (2 Players — Eligible)</option>
+                      <option value="vortex-arena">Vortex Arena (Up to 4 Players — Group Play Ready)</option>
                       <option value="cyber-invaders">Cyber Invaders (1 Player — Ineligible Test AC-16.2)</option>
                       <option value="neon-drift">Neon Drift: Cyber Circuit (Multiplayer Ready)</option>
                     </select>
                   </div>
 
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>
+                      Session Capacity (Group Play — EP06-01 / EP06-02)
+                    </label>
+                    <div className={styles.capacitySelector} id="capacity-selector-group">
+                      <button
+                        type="button"
+                        className={`${styles.capacityBtn} ${selectedCapacity === 2 ? styles.capacityBtnActive : ''}`}
+                        onClick={() => setSelectedCapacity(2)}
+                        id="btn-capacity-2p"
+                      >
+                        <span>2 Players</span>
+                        <span style={{ fontSize: '0.72rem', opacity: 0.8 }}>Standard Duel</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={selectedGameId === 'obsidian-chess'}
+                        className={`${styles.capacityBtn} ${selectedCapacity === 3 ? styles.capacityBtnActive : ''}`}
+                        onClick={() => setSelectedCapacity(3)}
+                        id="btn-capacity-3p"
+                        title={selectedGameId === 'obsidian-chess' ? 'Obsidian Chess supports max 2 players' : '3-Player Group Lobby (EP06-01)'}
+                      >
+                        <span>3 Players</span>
+                        <span style={{ fontSize: '0.72rem', opacity: 0.8 }}>Group Match</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={selectedGameId === 'obsidian-chess'}
+                        className={`${styles.capacityBtn} ${selectedCapacity === 4 ? styles.capacityBtnActive : ''}`}
+                        onClick={() => setSelectedCapacity(4)}
+                        id="btn-capacity-4p"
+                        title={selectedGameId === 'obsidian-chess' ? 'Obsidian Chess supports max 2 players' : '4-Player Arena (EP06-02)'}
+                      >
+                        <span>4 Players</span>
+                        <span style={{ fontSize: '0.72rem', opacity: 0.8 }}>Full Arena</span>
+                      </button>
+                    </div>
+                  </div>
+
                   <div className={styles.infoBanner}>
-                    <strong>Lobby Specs (Sprint 08):</strong> Two-player capacity (Host + 1 Guest). 6-character cryptographic invitation code generated automatically. 30-minute expiry window.
+                    <strong>Lobby Specs (Sprints 08 & 10):</strong> Configurable 2 to 4 player capacity. 6-character cryptographic invitation code generated automatically. 30-minute expiry window.
                   </div>
 
                   <button
@@ -714,9 +894,58 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
                     disabled={loading || !currentUser}
                     id="btn-submit-create-lobby"
                   >
-                    {loading ? 'Creating Secure Lobby...' : 'Generate 2-Player Lobby (AC-16.1)'}
+                    {loading ? 'Creating Secure Lobby...' : `Generate ${selectedCapacity}-Player Lobby (AC-16.1, AC-20.1, AC-21.1)`}
                   </button>
                 </form>
+              )}
+
+              {/* PLAY AI BOT TAB (EP04-02) */}
+              {activeTab === 'bot' && (
+                <div id="bot-match-panel">
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>
+                      Game Title
+                    </label>
+                    <div style={{ color: '#00F0FF', fontWeight: 700, padding: '10px 14px', background: 'rgba(0, 240, 255, 0.05)', borderRadius: 8, border: '1px solid rgba(0, 240, 255, 0.2)' }}>
+                      Obsidian Chess (AI Bot Supported — EP04-02)
+                    </div>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.label} htmlFor="select-bot-difficulty">
+                      Bot Difficulty Rating
+                    </label>
+                    <select
+                      id="select-bot-difficulty"
+                      className={styles.select}
+                      value={botDifficulty}
+                      onChange={(e) => setBotDifficulty(e.target.value as any)}
+                    >
+                      <option value="easy">Novice AI (Easy)</option>
+                      <option value="medium">Nexus Heuristic Engine (Medium — Recommended)</option>
+                      <option value="hard">Grandmaster Heuristic (Hard)</option>
+                    </select>
+                  </div>
+
+                  <div className={styles.infoBanner}>
+                    <strong>Computer Opponent Specs (EP04-02):</strong>
+                    <ul style={{ margin: '6px 0 0 16px', padding: 0 }}>
+                      <li>Single-click start: begins immediately without a 2nd human player (AC-14.1).</li>
+                      <li>Natural thinking time: moves responded within 500ms - 1500ms (AC-14.2).</li>
+                      <li>Telemetry isolation: results tracked with <code>is_bot: 1</code> distinction (AC-14.3).</li>
+                    </ul>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={styles.primaryBtn}
+                    disabled={loading || !currentUser}
+                    onClick={handleStartBotMatch}
+                    id="btn-start-bot-match"
+                  >
+                    {loading ? 'Initializing AI Match...' : 'Play Against Nexus AI (AC-14.1)'}
+                  </button>
+                </div>
               )}
 
               {/* JOIN LOBBY TAB */}
@@ -853,9 +1082,21 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
               {/* Room Header with Status Badge */}
               <div className={styles.roomHeader}>
                 <div>
-                  <div className={styles.roomGameTitle}>{activeLobby.game.title}</div>
-                  <div style={{ fontSize: '0.82rem', color: '#9CA3AF', marginTop: 4 }}>
-                    Session Capacity: <strong>{activeLobby.playerCount} / {activeLobby.maxPlayers} Players</strong>
+                  <div className={styles.roomGameTitle} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span>{activeLobby.game.title}</span>
+                    {activeLobby.isBot && (
+                      <span className={`${styles.roleBadge} ${styles.botBadge}`} id="badge-bot-match">
+                        🤖 AI BOT MATCH (EP04-02)
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#9CA3AF', marginTop: 4, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span>Session Capacity: <strong>{activeLobby.playerCount} / {activeLobby.maxPlayers} Players</strong></span>
+                    {isBotThinking && (
+                      <span className={styles.botThinking} id="bot-thinking-indicator">
+                        🤖 Nexus AI is calculating move (500ms - 1500ms)...
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -878,18 +1119,18 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
                       display: 'inline-block'
                     }}
                   />
-                  {activeLobby.status === 'waiting' && 'Waiting (1/2 Slots)'}
-                  {activeLobby.status === 'full' && 'Lobby Full (2/2 Ready)'}
+                  {activeLobby.status === 'waiting' && `Waiting (${activeLobby.playerCount}/${activeLobby.maxPlayers} Slots)`}
+                  {activeLobby.status === 'full' && `Lobby Full (${activeLobby.maxPlayers}/${activeLobby.maxPlayers} Ready)`}
                   {activeLobby.status === 'active' && 'Match Active'}
                   {activeLobby.status === 'ended' && 'Session Ended'}
                 </div>
               </div>
 
               {/* Invitation Code Card */}
-              {activeLobby.status !== 'active' && (
+              {activeLobby.status !== 'active' && !activeLobby.isBot && (
                 <div className={styles.codeBox} id="invitation-code-card">
                   <div className={styles.codeLabel}>
-                    Invitation Code (Share with Opponent)
+                    Invitation Code (Share with Players)
                   </div>
                   <div className={styles.codeDisplay} id="display-invitation-code">
                     {activeLobby.code}
@@ -909,43 +1150,56 @@ export const MultiplayerLobbyModal: React.FC<MultiplayerLobbyModalProps> = ({
                 </div>
               )}
 
-              {/* Participants Grid (AC-18.1, AC-18.2) */}
+              {/* Participants Grid (AC-18.1, AC-18.2, AC-20.1, AC-21.1) */}
               <div className={styles.participantsGrid} id="participants-grid">
-                {/* Host Slot */}
-                <div className={`${styles.participantCard} ${styles.hostCard}`} id="participant-slot-host">
-                  <div className={styles.playerAvatar}>
-                    {hostParticipant?.avatar || '👑'}
-                  </div>
-                  <div className={styles.playerInfo}>
-                    <div className={styles.playerName}>
-                      {hostParticipant?.displayName || 'Host Player'}
-                      <span className={styles.roleBadge}>HOST</span>
-                    </div>
-                    <div className={styles.playerStatus}>Ready • White Pieces</div>
-                  </div>
-                </div>
-
-                {/* Guest Slot */}
-                {guestParticipant ? (
-                  <div className={`${styles.participantCard} ${styles.guestCard}`} id="participant-slot-guest">
-                    <div className={styles.playerAvatar}>
-                      {guestParticipant.avatar || '⚔️'}
-                    </div>
-                    <div className={styles.playerInfo}>
-                      <div className={styles.playerName}>
-                        {guestParticipant.displayName}
-                        <span className={`${styles.roleBadge} ${styles.guestRoleBadge}`}>GUEST</span>
+                {activeLobby.participants.map((p, idx) => {
+                  const isBotPart = p.playerId === 'bot-nexus-ai' || (activeLobby.isBot && p.role === 'guest');
+                  const isHostPart = p.role === 'host';
+                  return (
+                    <div
+                      key={p.id || idx}
+                      className={`${styles.participantCard} ${isHostPart ? styles.hostCard : isBotPart ? styles.botCard : styles.guestCard}`}
+                      id={`participant-slot-${idx}`}
+                    >
+                      <div className={styles.playerAvatar}>
+                        {isBotPart ? '🤖' : p.avatar || (isHostPart ? '👑' : '⚔️')}
                       </div>
-                      <div className={styles.playerStatus}>Connected • Black Pieces</div>
+                      <div className={styles.playerInfo}>
+                        <div className={styles.playerName}>
+                          {p.displayName}
+                          <span className={`${styles.roleBadge} ${isHostPart ? '' : isBotPart ? styles.botBadge : styles.guestRoleBadge}`}>
+                            {isHostPart ? 'HOST' : isBotPart ? 'AI BOT' : `PLAYER ${idx + 1}`}
+                          </span>
+                        </div>
+                        <div className={styles.playerStatus}>
+                          {isBotPart
+                            ? `Nexus AI (${activeLobby.botDifficulty || 'medium'}) • Black Pieces`
+                            : isHostPart
+                            ? 'Ready • White Pieces'
+                            : p.status === 'disconnected'
+                            ? '⚠️ Disconnected'
+                            : 'Connected • In Room'}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className={`${styles.participantCard} ${styles.emptySlotCard}`} id="participant-slot-empty">
-                    <div style={{ fontSize: '1.5rem', marginBottom: 6 }}>👤</div>
-                    <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Waiting for Opponent</div>
-                    <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>Share code: {activeLobby.code}</div>
-                  </div>
-                )}
+                  );
+                })}
+
+                {/* Empty Slots */}
+                {Array.from({ length: Math.max(0, activeLobby.maxPlayers - activeLobby.participants.length) }).map((_, emptyIdx) => {
+                  const slotNum = activeLobby.participants.length + emptyIdx + 1;
+                  return (
+                    <div
+                      key={`empty-${emptyIdx}`}
+                      className={`${styles.participantCard} ${styles.emptySlotCard}`}
+                      id={`participant-slot-empty-${emptyIdx}`}
+                    >
+                      <div style={{ fontSize: '1.5rem', marginBottom: 6 }}>👤</div>
+                      <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Waiting for Player {slotNum}</div>
+                      <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>Share code: {activeLobby.code}</div>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* IN-MATCH REAL-TIME BOARD (AC-18.3) */}

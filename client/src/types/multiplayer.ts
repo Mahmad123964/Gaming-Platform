@@ -28,6 +28,8 @@ export interface Lobby {
   isFull: boolean;
   participants: LobbyParticipant[];
   sessionId?: string;
+  isBot?: boolean;
+  botDifficulty?: string;
   expiresAt?: string;
   startedAt?: string;
   endedAt?: string;

@@ -591,6 +591,71 @@
   font-weight: 700;
 }
 
+/* Bot Opponent & Capacity Selector (Sprint 10) */
+.botBadge {
+  background: rgba(168, 85, 247, 0.25) !important;
+  color: #C084FC !important;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.botCard {
+  border-color: rgba(168, 85, 247, 0.4);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(17, 24, 39, 0.85));
+}
+
+.botThinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #C084FC;
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: pulseWarn 1s infinite;
+}
+
+.capacitySelector {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.capacityBtn {
+  flex: 1;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #D1D5DB;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.capacityBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+
+.capacityBtnActive {
+  background: rgba(0, 240, 255, 0.15) !important;
+  border-color: #00F0FF !important;
+  color: #00F0FF !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.25);
+}
+
+.capacityBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+
 @media (max-width: 640px) {
   .participantsGrid {
     grid-template-columns: 1fr;

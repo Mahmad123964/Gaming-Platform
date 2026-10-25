@@ -205,6 +205,10 @@ class RealtimeSessionService {
       });
     }
 
+    const payload = data.payload || {};
+    if (!data.lobbyId && payload.lobbyId) data.lobbyId = payload.lobbyId;
+    if (!data.code && payload.code) data.code = payload.code;
+
     switch (data.type) {
       case 'PING':
         this.sendToSocket(client.ws, { type: 'PONG', timestamp: Date.now() });
@@ -223,7 +227,11 @@ class RealtimeSessionService {
         break;
 
       case 'JOIN_LOBBY':
-        this.handleJoinLobby(client, data);
+        if (data.lobbyId && !data.code) {
+          this.handleSubscribeLobby(client, data);
+        } else {
+          this.handleJoinLobby(client, data);
+        }
         break;
 
       case 'SUBSCRIBE_LOBBY':

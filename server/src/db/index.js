@@ -21,6 +21,9 @@ class DatabaseManager {
   }
 
   init() {
+    try {
+      this.db.exec('PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;');
+    } catch (e) {}
     const schemaFile = path.join(__dirname, 'schema.sql');
     const sql = fs.readFileSync(schemaFile, 'utf8');
     // DatabaseSync exec supports executing entire scripts
@@ -72,6 +75,15 @@ class DatabaseManager {
     } catch (e) {}
     try {
       this.db.exec('ALTER TABLE lobbies ADD COLUMN winner_id TEXT REFERENCES players(id);');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE lobbies ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0;');
+    } catch (e) {}
+    try {
+      this.db.exec("ALTER TABLE lobbies ADD COLUMN bot_difficulty TEXT DEFAULT 'medium';");
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE game_sessions ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0;');
     } catch (e) {}
     try {
       this.db.exec(`CREATE TABLE IF NOT EXISTS lobby_participants (

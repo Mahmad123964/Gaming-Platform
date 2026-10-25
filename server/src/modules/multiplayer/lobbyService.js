@@ -152,7 +152,7 @@ class LobbyService {
   /**
    * EP05-01 / AC-16.1 & AC-16.2: Create a two-player private lobby.
    */
-  createLobby({ gameIdOrSlug, hostPlayerId }) {
+  createLobby({ gameIdOrSlug, hostPlayerId, maxPlayers = 2, isBot = false, botDifficulty = 'medium' }) {
     if (!hostPlayerId) {
       const err = new Error('Host player ID is required to create a lobby.');
       err.status = 401;
@@ -216,7 +216,28 @@ class LobbyService {
       throw err;
     }
 
-    // 3. Generate unique invitation code
+    // 3. EP06-01 / EP06-02: Support configurable 2, 3, and 4 player capacities
+    const targetCapacity = parseInt(maxPlayers, 10) || 2;
+    if (targetCapacity < 2 || targetCapacity > 4) {
+      const err = new Error('Lobby capacity must be between 2 and 4 players.');
+      err.status = 400;
+      err.code = 'INVALID_LOBBY_CAPACITY';
+      throw err;
+    }
+
+    if (targetCapacity > game.max_players) {
+      const err = new Error(`Game '${game.title}' only supports up to ${game.max_players} players (requested ${targetCapacity}) (AC-20.1, AC-21.1).`);
+      err.status = 422;
+      err.code = 'CAPACITY_EXCEEDS_GAME_LIMIT';
+      err.capacityDetails = {
+        requested: targetCapacity,
+        gameLimit: game.max_players,
+        gameTitle: game.title
+      };
+      throw err;
+    }
+
+    // Generate unique invitation code
     let code = this.generateInvitationCode();
     let collisionCheck = this.db.prepare("SELECT id FROM lobbies WHERE code = ? AND status IN ('waiting', 'full')").get(code);
     while (collisionCheck) {
@@ -229,14 +250,13 @@ class LobbyService {
 
     // AC-18.1: Given a lobby has an unfilled slot, waiting is shown
     const initialStatus = 'waiting';
-    const maxPlayers = 2; // Strict two-player capacity for EP05-01
 
     // 4. Atomic transaction: create lobby and insert host participant
     this.dbManager.transaction(() => {
       this.db.prepare(
-        `INSERT INTO lobbies (id, game_id, host_player_id, code, max_players, status, expires_at, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`
-      ).run(lobbyId, game.id, hostPlayerId, code, maxPlayers, initialStatus, expiresAt);
+        `INSERT INTO lobbies (id, game_id, host_player_id, code, max_players, status, is_bot, bot_difficulty, expires_at, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`
+      ).run(lobbyId, game.id, hostPlayerId, code, targetCapacity, initialStatus, isBot ? 1 : 0, botDifficulty || 'medium', expiresAt);
 
       const participantId = 'part-' + crypto.randomUUID().slice(0, 8);
       this.db.prepare(
@@ -261,7 +281,7 @@ class LobbyService {
   getLobby(lobbyId) {
     const lobby = this.db.prepare(
       `SELECT l.id, l.game_id, l.host_player_id, l.code, l.max_players, l.status,
-              l.is_matchmaking, l.board_state_json, l.winner_id,
+              l.is_matchmaking, l.is_bot, l.bot_difficulty, l.board_state_json, l.winner_id,
               l.expires_at, l.started_at, l.ended_at, l.created_at,
               g.title as game_title, g.slug as game_slug, g.category_id
        FROM lobbies l
@@ -316,6 +336,8 @@ class LobbyService {
       code: lobby.code,
       status: lobby.status, // 'waiting', 'full', 'active', 'ended', 'forfeited'
       isMatchmaking: Boolean(lobby.is_matchmaking),
+      isBot: Boolean(lobby.is_bot),
+      botDifficulty: lobby.bot_difficulty || 'medium',
       boardState: parsedBoardState,
       game: {
         id: lobby.game_id,
