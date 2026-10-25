@@ -88,25 +88,33 @@ In strict compliance with architectural guidelines, this architecture leverages 
 
 ---
 
-## 3. WebSocket Connection Lifecycle & Authentication
+## 3. WebSocket Connection Lifecycle, Origin Defense & Authentication
 
-### 3.1 Dual-Mode Handshake Authentication
-WebSocket connection establishment strictly enforces identity verification before any real-time frames are processed. Two authentication vectors are supported:
-1. **Cookie-Based Authentication:** During the initial HTTP `Upgrade` handshake, the server inspects the `nexus_session` HTTP-only cookie. The session token is validated against the SQLite `auth_sessions` table.
-2. **Bearer Token Authentication:** For cross-origin or automated headless testing, clients may supply a query parameter `?token=<session_token>` or an `Authorization: Bearer <token>` header in the upgrade request.
+### 3.1 Cross-Site WebSocket Hijacking (CSWSH) Defense & verifyClient
+WebSocket upgrade requests undergo strict pre-handshake validation in `verifyClient` (`server/src/index.js`) before protocol upgrade:
+1. **Origin Verification:** The `Origin` header is validated against an explicit whitelist of trusted origins (`process.env.CLIENT_URL`, `http://localhost:5050`, `http://127.0.0.1:5050`). Cross-origin upgrade requests from unauthorized origins are rejected immediately with HTTP `403 Forbidden` (`FORBIDDEN_ORIGIN`), preventing Cross-Site WebSocket Hijacking (CSWSH).
+2. **Raw Token Query Parameter Prohibition:** Reusable raw session tokens in WebSocket URL query strings (`/ws?token=...`) are strictly prohibited and rejected with HTTP `400 Bad Request` (`RAW_SESSION_TOKENS_FORBIDDEN`). This prevents credential leakage into access logs, browser history, reverse proxy telemetry, and error monitoring systems.
 
-If the session token is missing, expired, or marked as `revoked = 1`, the upgrade is immediately rejected with HTTP `401 Unauthorized`.
+### 3.2 Dual Authentication Vectors
+Once origin and query sanity checks pass, identity verification proceeds through one of two authorized mechanisms:
+1. **HttpOnly Session Cookie (Primary Vector):** Standard browser clients provide the signed `nexus_session` HttpOnly cookie in the HTTP Upgrade handshake headers. The session token is validated against the SQLite `auth_sessions` table (`revoked = 0` and `expires_at > CURRENT_TIMESTAMP`).
+2. **Short-Lived Connection Ticket (Secondary Vector):** Cross-origin, headless, or automated testing clients obtain a single-use ticket via authenticated REST endpoint `POST /api/v1/lobbies/ws-ticket`. 
+   - **Ticket Properties:** Prefixed with `wst_`, 60-second Time-To-Live (TTL), audience-scoped strictly to `nexusplay:websocket`, and bound to the authenticated player.
+   - **Single-Use Consumption:** Sockets pass the ticket via `/ws?ticket=wst_...` or via initial frame `{ type: "AUTH_TICKET", ticket: "wst_..." }`. The ticket is atomically consumed and purged upon first use. Tickets cannot be reused and cannot grant general REST API or account access.
 
-### 3.2 Connection Registry
+If authentication credentials are missing, expired, revoked, or invalid, the upgrade or connection is rejected with HTTP `401 Unauthorized` or WebSocket closure code `4001` (`SESSION_REVOKED`).
+
+### 3.3 Connection Registry
 Upon successful handshake, the authenticated player is registered in `RealTimeService`:
 - `this.connections`: Maps `playerId -> Set<WebSocket>` (supporting multi-tab sessions per player).
 - `this.playerSockets`: Reverse lookup tracking `WebSocket -> playerId`.
 - `this.rooms`: Maps `lobbyId -> Set<WebSocket>`.
 - `this.socketRooms`: Maps `WebSocket -> Set<lobbyId>`.
+- `this.tickets`: In-memory registry of active unconsumed connection tickets with automated TTL eviction.
 
 `MetricsService.trackWsConnection(true)` increments the real-time Concurrent Connected Users (CCU) counter, exposing live telemetry to the Sprint 07 Operational Dashboard.
 
-### 3.3 Heartbeat & Ping-Pong
+### 3.4 Heartbeat & Ping-Pong
 To detect abandoned client connections and prevent intermediate proxy timeouts:
 - The server issues a ping frame every 30,000 milliseconds to all connected sockets.
 - Sockets failing to respond with a pong frame within 10,000 milliseconds are flagged as dead and terminated.
@@ -138,6 +146,21 @@ Not all catalog games support multiplayer sessions. Single-player titles (such a
   INSERT INTO lobby_participants (lobby_id, player_id, role) VALUES (?, ?, 'guest');
   ```
 - **Cross-Room Isolation:** WebSocket message broadcasting is strictly partitioned by `lobbyId`. A client can only receive frames for rooms to which they are explicitly subscribed upon verified membership. Sockets cannot spoof messages into other rooms.
+
+### 4.4 Abuse Prevention & Invalid Code Rate Limiting
+To defend against automated enumeration and brute-force guessing of active invitation codes:
+- **Dual-Key Sliding Window:** Failed code lookups and join attempts are tracked at two distinct dimensions:
+  1. **IP Dimension:** `lobby_code:ip:<client_ip>` (supporting `X-Forwarded-For` with trust proxy).
+  2. **Account Dimension:** `lobby_code:account:<playerId>`.
+- **Threshold & Lockout:** 5 consecutive failures within a 5-minute sliding window triggers a 5-minute cooldown period. Subsequent join attempts are rejected immediately with HTTP `429 Too Many Requests` and standard `Retry-After: 300` header.
+- **Persistence without Redis:** Tracked through an in-memory high-performance LRU sliding window map, persisted to the existing SQLite `auth_rate_limits` table to survive process restarts while avoiding the infrastructure overhead of Redis.
+- **Generic Safe Error Responses:** Error responses for invalid, expired, or full lobbies use sanitized messages and never disclose database query errors, table structures, or stack traces.
+
+### 4.5 Pre-Authorization Participant Privacy & Data Minimization
+Unauthenticated and pre-authorization lookups must not disclose participant identities or personally identifiable information (PII):
+- When inspecting a lobby prior to joining (`GET /api/v1/lobbies/code/:code` or `GET /api/v1/lobbies/:id` by non-members), `LobbyService.getLobbyPreview` returns sanitized metadata with `participants: []`.
+- Only authorized lobby members (`host` or joined `guest`) receive full participant lists and presence events.
+- No player email addresses, password hashes, or internal database metadata are ever transmitted across WebSocket or REST payloads.
 
 ---
 

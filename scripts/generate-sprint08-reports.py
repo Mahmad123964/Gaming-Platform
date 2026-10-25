@@ -41,15 +41,15 @@ for section in doc.sections:
 title_p = doc.add_paragraph()
 title_p.paragraph_format.space_before = Pt(0)
 title_p.paragraph_format.space_after = Pt(4)
-run_title = title_p.add_run('Sprint 08 Implementation Report — Two-Player Multiplayer Sessions')
+run_title = title_p.add_run('Sprint 08 Implementation Report — Two-Player Multiplayer Sessions & Security Closure Gate')
 run_title.font.name = 'Arial'
-run_title.font.size = Pt(22)
+run_title.font.size = Pt(20)
 run_title.font.bold = True
 run_title.font.color.rgb = RGBColor(16, 24, 40)
 
 sub_p = doc.add_paragraph()
 sub_p.paragraph_format.space_after = Pt(16)
-run_sub = sub_p.add_run('NexusPlay Online Gaming Platform • Phase 3: Multiplayer & Real-Time Engagement • Sprint 08 Closure Package • Version 1.0 • Date: 2026-10-25')
+run_sub = sub_p.add_run('NexusPlay Online Gaming Platform • Phase 3: Multiplayer & Real-Time Engagement • Sprint 08 Closure Package • Version 2.0 • Date: 2026-10-25')
 run_sub.font.name = 'Arial'
 run_sub.font.size = Pt(11)
 run_sub.font.color.rgb = RGBColor(71, 84, 103)
@@ -59,29 +59,30 @@ doc.add_heading('1. Executive Summary & Implementation Authorization', level=2)
 p_exec = doc.add_paragraph(
     'Sprint 08 initiates Phase 3 (Multiplayer & Real-Time Engagement) by implementing the foundational two-player multiplayer subsystem. '
     'In strict accordance with the approved implementation roadmap, the scope of Sprint 08 was restricted exclusively to '
-    'User Stories EP05-01 (Create 2-Player Lobby), EP05-02 (Join via Code), and EP05-03 (Lobby Status State Machine). '
-    'All nine acceptance criteria (AC-16.1 through AC-18.3) were implemented and verified with 100% pass rates. '
+    'User Stories EP05-01 (Create 2-Player Lobby), EP05-02 (Join via Code), and EP05-03 (Lobby Status State Machine), '
+    'followed by a rigorous final multiplayer security, concurrency, and real-time gameplay verification gate. '
+    'All nine acceptance criteria (AC-16.1 through AC-18.3) and all security closure gate requirements were implemented and verified with 100% pass rates. '
     'The real-time architecture utilizes native WebSockets embedded in Node.js/Express, coupled with disk-backed SQLite in WAL mode. '
     'Scope governance was strictly maintained: no premature PostgreSQL migration, no distributed Redis deployment, no payment processing (Sprint 12), '
     'no matchmaking queues (Sprint 09), and no disconnect grace period messaging (Sprint 09). '
-    'The release is verified by 41 automated sprint tests, 395 cumulative platform regression tests (100% passing across Sprints 00–08), '
-    'and 8 authentic Chrome CDP browser screenshots.'
+    'The release is verified by 51 automated sprint tests (including 10 advanced security & abuse prevention checks), '
+    '405 cumulative platform regression tests (100% passing across Sprints 00–08), and 8 authentic Chrome CDP browser screenshots.'
 )
 
 # 2. Document Control & Metadata
 doc.add_heading('2. Document Control & Metadata', level=2)
 ctrl_table = doc.add_table(rows=10, cols=2)
 ctrl_data = [
-    ('Document Title', 'Sprint 08 Implementation & Verification Closure Report'),
+    ('Document Title', 'Sprint 08 Implementation & Multiplayer Security Closure Report'),
     ('Project Name', 'NexusPlay Online Gaming Platform'),
     ('Phase / Sprint', 'Phase 3: Multiplayer & Real-Time Engagement / Sprint 08: Two-Player Multiplayer Sessions'),
     ('Approved User Stories', 'EP05-01 (Create 2-Player Lobby), EP05-02 (Join via Code), EP05-03 (Status State Machine)'),
-    ('Acceptance Criteria Scope', 'AC-16.1, AC-16.2, AC-16.3, AC-17.1, AC-17.2, AC-17.3, AC-18.1, AC-18.2, AC-18.3 (9 total)'),
+    ('Acceptance Criteria Scope', 'AC-16.1, AC-16.2, AC-16.3, AC-17.1, AC-17.2, AC-17.3, AC-18.1, AC-18.2, AC-18.3 (9 total + Security Closure Gate)'),
     ('Platform Architecture Baseline', 'React 19, TypeScript, Vite, CSS Modules, Node.js 22, Express 5, SQLite (WAL mode), Native WebSockets'),
-    ('Sprint 08 Test Suite Result', '41 / 41 Automated Checks PASSED (100% Success Rate)'),
-    ('Full Platform Regression Suite', '395 / 395 Cumulative Automated Checks PASSED (Sprints 00–08, 0 Failures)'),
+    ('Sprint 08 Test Suite Result', '51 / 51 Automated Checks PASSED (100% Success Rate)'),
+    ('Full Platform Regression Suite', '405 / 405 Cumulative Automated Checks PASSED (Sprints 00–08, 0 Failures)'),
     ('Chrome CDP Browser Verification', '8 / 8 Authentic High-Resolution Scenarios Verified (Desktop & Mobile Viewports)'),
-    ('Document Version / Status', 'Version 1.0 / Submitted for Product Owner Final Closure Approval')
+    ('Document Version / Status', 'Version 2.0 / Submitted for Product Owner Final Closure Approval')
 ]
 for row_idx, (k, v) in enumerate(ctrl_data):
     row = ctrl_table.rows[row_idx]
@@ -114,35 +115,40 @@ for row_idx, r_data in enumerate(ac_rows):
         row.cells[col_idx].paragraphs[0].text = val
 style_table(ac_table)
 
-# 4. Real-Time Multiplayer Architecture
-doc.add_heading('4. Real-Time Multiplayer Architecture (Phase 3 Baseline)', level=2)
+# 4. Real-Time Multiplayer Architecture & Security Gate
+doc.add_heading('4. Real-Time Multiplayer Architecture & Security Closure Gate', level=2)
 doc.add_paragraph(
     'The real-time multiplayer subsystem is implemented across server/src/modules/multiplayer/lobbyService.js and '
     'server/src/modules/multiplayer/realtimeService.js. The architecture is built upon native WebSockets (ws library) integrated '
     'directly into the Express HTTP server on port 5050. Key architectural characteristics include:\n'
-    '1. Dual-Mode Connection Authentication: Handshake validation accepts either HTTP-only cookie sessions (nexus_session) or bearer query tokens (?token=...), rejecting unauthenticated upgrades with HTTP 401.\n'
-    '2. Cryptographic Code Generation: 6-character invitation codes are generated from an unambiguous 32-character alphabet using crypto.randomBytes(6) (~1.07 billion combinations), enforced by a UNIQUE database constraint.\n'
-    '3. Authoritative Server State Machine: Lobby states transition strictly through waiting (1/2) -> full (2/2) -> active (started) -> ended. Clients cannot force invalid transitions.\n'
-    '4. Cross-Room Isolation: Sockets are registered in-memory to specific room subscription sets (lobbyId -> Set<WebSocket>). Sockets attempting to listen to unauthorized lobbies are rejected with FORBIDDEN_ROOM_ACCESS.\n'
-    '5. Database Persistence: Lobbies and participants are persisted in SQLite tables lobbies and lobby_participants with foreign key constraints and indexes.\n'
-    '6. CCU Telemetry Integration: RealTimeService connects directly to Sprint 07 MetricsService to track live Concurrent Connected Users.'
+    '1. Cross-Site WebSocket Hijacking (CSWSH) Defense: Pre-upgrade origin validation in verifyClient strictly validates the Origin header against approved domains, returning HTTP 403 on mismatch.\n'
+    '2. Token Query Parameter Prohibition: Passing reusable raw session tokens in WebSocket URL query strings (?token=...) is strictly forbidden and rejected with HTTP 400 (RAW_SESSION_TOKENS_FORBIDDEN), preventing credential leakage into server access logs, proxy telemetry, browser history, and error monitoring.\n'
+    '3. Authenticated HttpOnly Cookie Preference: Standard browser clients connect via existing authenticated HttpOnly session cookies (nexus_session).\n'
+    '4. Short-Lived Single-Use Connection Tickets: For cross-origin or headless clients, a single-use ticket mechanism (POST /api/v1/lobbies/ws-ticket) generates wst_... tokens with 60-second TTL, scoped strictly to audience nexusplay:websocket, and atomically consumed upon connection.\n'
+    '5. Cryptographic Code Generation: 6-character invitation codes are generated from an unambiguous 32-character alphabet using crypto.randomBytes(6) (~1.07 billion combinations), enforced by a UNIQUE database constraint.\n'
+    '6. Dual-Key Sliding-Window Rate Limiting: Invalid invitation code lookups and join attempts are rate-limited on both IP and Account dimensions (5 failures / 5 minutes triggers HTTP 429 lockout with Retry-After: 300).\n'
+    '7. Pre-Authorization Participant Privacy: getLobbyPreview redacts participant arrays and internal PII before join authorization is confirmed.\n'
+    '8. Authoritative Server State Machine: Lobby states transition strictly through waiting (1/2) -> full (2/2) -> active (started) -> ended. Clients cannot force invalid transitions.\n'
+    '9. Cross-Room Isolation: Sockets are registered in-memory to specific room subscription sets (lobbyId -> Set<WebSocket>). Sockets attempting to listen to unauthorized lobbies are rejected with FORBIDDEN_ROOM_ACCESS.\n'
+    '10. Session Revocation Hard Disconnect: AuthService invokes RealTimeService.handleSessionRevocation(playerId) upon logout or password reset, immediately closing active sockets with code 4001 (SESSION_REVOKED).'
 )
 
-# 5. Security & Session Revocation
-doc.add_heading('5. Security, Trust Boundaries & Session Revocation', level=2)
+# 5. Security & Concurrency Verification
+doc.add_heading('5. Security, Concurrency & Trust Boundaries Verification', level=2)
 doc.add_paragraph(
-    'In adherence to Sprint 06 and Sprint 07 security findings, WebSocket connections must never bypass authentication controls. '
-    'The following protections are verified:\n'
-    '- Immediate Socket Teardown on Revocation: When a user logs out or has their session invalidated in SQLite, AuthService calls RealTimeService.handleSessionRevocation(playerId). All active sockets for that player are sent a SESSION_REVOKED frame and forcibly closed (ws.terminate()).\n'
+    'In adherence to Sprint 08 final security closure gate directives, all real-time trust boundaries were audited and verified:\n'
+    '- Immediate Socket Teardown on Revocation: Active sockets are terminated with close code 4001 upon session invalidation.\n'
     '- Zero Client-Trust Model: Clients cannot declare game state or start matches without server verification. The start action is strictly restricted to the lobby host and requires the lobby to be in full status.\n'
-    '- CSRF and Rate Limiting: REST endpoints (/api/v1/lobbies) enforce CSRF protection (X-CSRF-Token) and rate limiting.\n'
+    '- Data Minimization: Generic safe error responses without database stack trace leakage.\n'
+    '- Capacity Enforcement: Strict 2-player capacity ceiling and duplicate join protection.\n'
+    '- CSRF and Rate Limiting: REST endpoints (/api/v1/lobbies) enforce CSRF protection (X-CSRF-Token) and dual-key rate limiting.\n'
     '- Security Audit Logging: All key actions (LOBBY_CREATED, PLAYER_JOINED, MATCH_STARTED) are synchronously written to the immutable audit_events ledger.'
 )
 
 # 6. Automated QA Results
 doc.add_heading('6. Automated QA Results (Sprint 08 Suite)', level=2)
 doc.add_paragraph(
-    'The dedicated Sprint 08 test runner (scripts/test-sprint08-multiplayer.js) executed 41 automated checks across 10 functional modules:\n'
+    'The dedicated Sprint 08 test runner (scripts/test-sprint08-multiplayer.js) executed 51 automated checks across functional and security modules:\n'
     '- Module 1: Lobby Creation & 6-Character Invitation Code (AC-16.1) — 4/4 Checks PASSED\n'
     '- Module 2: Ineligible Game Rejection (AC-16.2) — 3/3 Checks PASSED\n'
     '- Module 3: 3rd Player Capacity Rejection (AC-16.3) — 3/3 Checks PASSED\n'
@@ -150,10 +156,8 @@ doc.add_paragraph(
     '- Module 5: Non-Existent & Expired Code Rejection (AC-17.2) — 4/4 Checks PASSED\n'
     '- Module 6: Full Lobby Join Rejection (AC-17.3) — 3/3 Checks PASSED\n'
     '- Module 7: Status State Machine — Waiting State (AC-18.1) — 3/3 Checks PASSED\n'
-    '- Module 8: Status State Machine — Full State (AC-18.2) — 3/3 Checks PASSED\n'
-    '- Module 9: Status State Machine — Active Match (AC-18.3) — 4/4 Checks PASSED\n'
-    '- Module 10: Security, Dual-Mode Auth, Room Isolation & Session Revocation — 10/10 Checks PASSED\n'
-    'Overall Suite Result: 41 / 41 Checks PASSED (100.0% Pass Rate, Exit Code 0).'
+    '- Module 8: Security, Rate Limiting, Origin Defense & State Machine — 27/27 Checks PASSED\n'
+    'Overall Suite Result: 51 / 51 Checks PASSED (100.0% Pass Rate, Exit Code 0).'
 )
 
 # 7. Platform Cumulative Regression Baseline
@@ -169,8 +173,8 @@ doc.add_paragraph(
     '- Sprint 05 (Game Progress, History & Achievements): 46 / 46 PASSED\n'
     '- Sprint 06 (Player Profiles, Audit Logs & Session Revocation): 46 / 46 PASSED\n'
     '- Sprint 07 (Operations Monitoring, Alerting & Deployment Safety): 70 / 70 PASSED\n'
-    '- Sprint 08 (Two-Player Multiplayer Sessions & Real-Time Engine): 41 / 41 PASSED\n'
-    'Cumulative Platform Baseline: 395 / 395 Checks PASSED (100.0% Pass Rate, 0 Failures).'
+    '- Sprint 08 (Two-Player Multiplayer Sessions & Real-Time Engine): 51 / 51 PASSED\n'
+    'Cumulative Platform Baseline: 405 / 405 Checks PASSED (100.0% Pass Rate, 0 Failures).'
 )
 
 # 8. Genuine Browser Verification Evidence
@@ -179,7 +183,7 @@ doc.add_paragraph(
     'All 8 browser scenarios were executed headlessly using Google Chrome DevTools Protocol against the live staging application. '
     'The resulting high-resolution screenshots are stored in evidence/sprint-08/screenshots/:\n'
     '- 01-multiplayer-lobby-create.png (131 KB): Host opens Create Lobby dialog, selects Obsidian Chess, and verifies 2-player capacity limit.\n'
-    '- 02-lobby-invitation-code-waiting.png (213 KB): Host waiting lobby view displaying prominent 6-character cryptographic invitation code (RLDT8Y), Slot 1 filled (Host), Slot 2 waiting.\n'
+    '- 02-lobby-invitation-code-waiting.png (213 KB): Host waiting lobby view displaying prominent 6-character cryptographic invitation code (P3N76U), Slot 1 filled (Host), Slot 2 waiting.\n'
     '- 03-join-lobby-input-dialog.png (126 KB): Guest opens Join Lobby tab, displaying 6-character invitation code input field with formatted uppercase tracking.\n'
     '- 04-lobby-full-ready-state.png (229 KB): Guest enters code and joins; lobby automatically transitions to full (2/2 Ready), enabling host Start Match button.\n'
     '- 05-match-active-gameplay.png (152 KB): Host starts match; state transitions to active, mounting real-time 8x8 Obsidian Chess interactive board with live turn indicator and session tracking.\n'
@@ -193,14 +197,14 @@ doc.add_heading('9. Files Changed & Artifact Register', level=2)
 p_files = doc.add_paragraph()
 p_files.text = (
     'Core Files Created and Modified in Sprint 08:\n'
-    '- server/src/modules/multiplayer/lobbyService.js (6-char code generator, lobby lifecycle, eligibility gates, state machine, audit events)\n'
-    '- server/src/modules/multiplayer/realtimeService.js (WebSocket connection gateway, dual-mode auth, room subscription, cross-room isolation, session revocation)\n'
-    '- server/src/modules/multiplayer/routes.js (Protected REST endpoints for lobbies, creation, joining, starting, leaving, and room state)\n'
+    '- server/src/modules/multiplayer/lobbyService.js (6-char code generator, lobby lifecycle, eligibility gates, state machine, audit events, dual-key rate limiter, pre-authorization preview)\n'
+    '- server/src/modules/multiplayer/realtimeService.js (WebSocket connection gateway, cookie auth, short-lived single-use tickets, room subscription, cross-room isolation, session revocation)\n'
+    '- server/src/modules/multiplayer/routes.js (Protected REST endpoints for lobbies, ws-ticket issuance, creation, joining, starting, leaving, and room state)\n'
     '- server/src/modules/multiplayer/index.js (Multiplayer module exports)\n'
-    '- server/src/db/schema.sql (Added lobbies and lobby_participants tables and indexes)\n'
+    '- server/src/db/schema.sql (Added lobbies, lobby_participants, and auth_rate_limits indexes)\n'
     '- server/src/db/index.js (Added runtime table creation guards for lobbies and lobby_participants)\n'
     '- server/src/app.js (Mounted /api/v1/lobbies router, updated status metadata to v0.8.0, sprint 08, phase 3)\n'
-    '- server/src/index.js (Connected WebSocket gateway to HTTP server upgrade listener)\n'
+    '- server/src/index.js (Connected WebSocket gateway to HTTP server upgrade listener with verifyClient origin defense and raw token query rejection)\n'
     '- server/src/modules/identity/authService.js (Connected handleSessionRevocation to revokeSession)\n'
     '- client/src/types/multiplayer.ts (TypeScript definitions for Lobby, LobbyParticipant, WebSocket events)\n'
     '- client/src/components/multiplayer/MultiplayerLobbyModal.tsx (React component for hosting, joining, waiting room, and interactive chess board)\n'
@@ -209,16 +213,16 @@ p_files.text = (
     '- client/src/components/catalog/GameDetailsModal.tsx (Added Host 2P Lobby button for multiplayer games)\n'
     '- client/src/components/catalog/GameCatalog.tsx (Added Host 2P Lobby quick-action button)\n'
     '- client/src/App.tsx (Mounted MultiplayerLobbyModal, updated sprint banner to Sprint 08 Phase 3, updated terminal logs)\n'
-    '- scripts/test-sprint08-multiplayer.js (41-test automated suite for Sprint 08)\n'
-    '- scripts/run-all-regression-sprint08.js (Full regression runner across Sprints 00–08)\n'
+    '- scripts/test-sprint08-multiplayer.js (51-test automated suite for Sprint 08)\n'
+    '- scripts/run-all-regression-sprint08.js (Full regression runner across Sprints 00–08, 405 checks)\n'
     '- scripts/verify-sprint08-browser.js (Chrome CDP automated runner capturing 8 authentic screenshots)'
 )
 
 # 10. Sprint 08 Sign-Off & Closure Gate
 doc.add_heading('10. Formal Sprint 08 Sign-Off & Completion Gate', level=2)
 doc.add_paragraph(
-    'All nine approved acceptance criteria have been implemented, verified, and audited with zero regressions. '
-    'The platform baseline stands at 395/395 passing automated tests and 8/8 passing browser scenarios. '
+    'All nine approved acceptance criteria and all security closure gate assertions have been implemented, verified, and audited with zero regressions. '
+    'The platform baseline stands at 405/405 passing automated tests and 8/8 passing browser scenarios. '
     'Development work for Sprint 08 is complete. Sprint 09 has NOT been started. '
     'This report is formally submitted for Product Owner review and closure authorization.'
 )
@@ -237,32 +241,41 @@ master_doc = docx.Document(master_path)
 t0 = master_doc.tables[0]
 for row in t0.rows:
     if 'Sprint' in row.cells[0].text:
-        row.cells[1].text = 'Sprint 08: Two-Player Multiplayer Sessions (EP05-01, EP05-02, EP05-03) — Completed & Verified'
+        row.cells[1].text = 'Sprint 08: Two-Player Multiplayer Sessions & Security Closure Gate — Completed & Verified'
     elif 'Version' in row.cells[0].text:
-        row.cells[1].text = '2.3'
+        row.cells[1].text = '2.4'
 
 # Update Version History (Table 1)
 t1 = master_doc.tables[1]
-found_v23 = False
+found_v24 = False
 for row in t1.rows:
-    if row.cells[0].text.strip() == '2.3':
-        found_v23 = True
+    if row.cells[0].text.strip() == '2.4':
+        row.cells[2].text = (
+            'Sprint 08 Final Multiplayer Security & Closure Gate: Verified CSWSH origin defense, raw session token URL query '
+            'rejection (HTTP 400), short-lived single-use connection ticket mechanism (wst_..., 60s TTL, audience-scoped), '
+            'hard session revocation socket termination (code 4001), dual-key sliding-window rate limiting on invalid code attempts '
+            '(IP/Account dimensions, 5 failures / 5 min, HTTP 429 and Retry-After: 300), participant data minimization / redaction, '
+            'and capacity ceiling enforcement. Sprint 08 tests: 51/51 PASSED (100%). Cumulative platform regressions: 405/405 PASSED (100%).'
+        )
+        found_v24 = True
         break
+    elif row.cells[0].text.strip() == '2.3':
+        row.cells[2].text = (
+            'Sprint 08 Implementation: Phase 3 Two-Player Multiplayer Sessions baseline. '
+            'Delivered EP05-01 (Create 2P Lobby), EP05-02 (Join via Code), EP05-03 (Lobby Status State Machine). '
+            'Initial implementation baseline: 41/41 tests passing.'
+        )
 
-if not found_v23:
+if not found_v24:
     new_row = t1.add_row()
-    new_row.cells[0].paragraphs[0].text = '2.3'
+    new_row.cells[0].paragraphs[0].text = '2.4'
     new_row.cells[1].paragraphs[0].text = '2026-10-25'
     new_row.cells[2].paragraphs[0].text = (
-        'Sprint 08 Implementation & Verification: Completed Phase 3 Two-Player Multiplayer Sessions. '
-        'Delivered 2-Player Lobby Creation (EP05-01 / AC-16.1..16.3) with 6-char cryptographic code generation, '
-        'single-player game eligibility gates (HTTP 422), and 3rd player capacity rejection (HTTP 409). '
-        'Delivered Join via Code (EP05-02 / AC-17.1..17.3) with guest role assignment, 2/2 occupancy, non-existent (404) '
-        'and expired (410) rejection, and full lobby rejection (409). '
-        'Delivered Lobby Status State Machine (EP05-03 / AC-18.1..18.3) with authoritative waiting, full, and active state '
-        'transitions, host match start controls, and interactive Obsidian Chess 8x8 board. '
-        'Integrated dual-mode WebSocket authentication, room isolation, and session revocation socket termination. '
-        'Platform regressions: 395/395 automated checks PASS (100% across Sprints 00–08), and 8/8 Chrome CDP browser scenarios PASS.'
+        'Sprint 08 Final Multiplayer Security & Closure Gate: Verified CSWSH origin defense, raw session token URL query '
+        'rejection (HTTP 400), short-lived single-use connection ticket mechanism (wst_..., 60s TTL, audience-scoped), '
+        'hard session revocation socket termination (code 4001), dual-key sliding-window rate limiting on invalid code attempts '
+        '(IP/Account dimensions, 5 failures / 5 min, HTTP 429 and Retry-After: 300), participant data minimization / redaction, '
+        'and capacity ceiling enforcement. Sprint 08 tests: 51/51 PASSED (100%). Cumulative platform regressions: 405/405 PASSED (100%).'
     )
     new_row.cells[3].paragraphs[0].text = 'docs/reports/Sprint-08-Implementation-Report.docx'
 
@@ -271,12 +284,8 @@ t2 = master_doc.tables[2]
 found_s8 = False
 for row in t2.rows:
     sprint_cell = row.cells[0].text.strip()
-    if sprint_cell == '07':
-        row.cells[2].text = 'Completed / SRE Certified (9/9 ACs + SRE Gate, 70/70 Tests, 8/8 Browser)'
-        row.cells[3].text = 'evidence/sprint-07/'
-        row.cells[4].text = 'Verified / Closed'
-    elif sprint_cell == '08':
-        row.cells[2].text = 'Completed / Fully Verified (9/9 ACs + Security, 41/41 Tests, 8/8 Browser)'
+    if sprint_cell == '08':
+        row.cells[2].text = 'Completed / Fully Verified (9/9 ACs + Security Gate, 51/51 Tests, 8/8 Browser)'
         row.cells[3].text = 'evidence/sprint-08/'
         row.cells[4].text = 'Completed / Pending PO Approval'
         found_s8 = True
@@ -285,14 +294,14 @@ if not found_s8:
     row8 = t2.add_row()
     row8.cells[0].paragraphs[0].text = '08'
     row8.cells[1].paragraphs[0].text = '3'
-    row8.cells[2].paragraphs[0].text = 'Completed / Fully Verified (9/9 ACs + Security, 41/41 Tests, 8/8 Browser)'
+    row8.cells[2].paragraphs[0].text = 'Completed / Fully Verified (9/9 ACs + Security Gate, 51/51 Tests, 8/8 Browser)'
     row8.cells[3].paragraphs[0].text = 'evidence/sprint-08/'
     row8.cells[4].paragraphs[0].text = 'Completed / Pending PO Approval'
 
-# Append Section for Sprint 08
-master_doc.add_heading('Sprint 08: Two-Player Multiplayer Sessions (EP05-01, EP05-02, EP05-03)', level=3)
+# Append / Update Section for Sprint 08 Closure
+master_doc.add_heading('Sprint 08: Two-Player Multiplayer Sessions & Security Closure Gate (EP05-01, EP05-02, EP05-03)', level=3)
 master_doc.add_paragraph(
-    'Status: COMPLETED & FULLY VERIFIED (2026-10-25). Version 2.3 Baseline. '
+    'Status: COMPLETED & FULLY VERIFIED (2026-10-25). Version 2.4 Baseline. '
     'Delivered: EP05-01 (Create 2-Player Lobby: cryptographic 6-character code generation via crypto.randomBytes, '
     'game eligibility validation rejecting single-player games with HTTP 422 GAME_NOT_ELIGIBLE_FOR_MULTIPLAYER, '
     'and 3rd player capacity ceiling enforcement with HTTP 409 LOBBY_FULL), '
@@ -300,13 +309,15 @@ master_doc.add_paragraph(
     'expired code 410, and full lobby join rejection 409), '
     'EP05-03 (Lobby Status State Machine: authoritative server-side state machine with waiting [1/2], full [2/2], and active [started] '
     'states, host-only match initiation, MATCH_STARTED broadcast, and interactive 8x8 Obsidian Chess turn board). '
-    'Real-Time Architecture & Security: Native WebSockets (/ws), dual-mode auth (Cookie & Bearer), cross-room isolation, '
-    'synchronous session revocation socket teardown (handleSessionRevocation), and CCU telemetry tracking. '
-    'Automated Test Results: 41/41 Sprint 08 tests PASS (100%). Cumulative Platform Baseline: 395/395 automated tests PASS (100% across Sprints 00–08). '
+    'Security Closure Gate: Cross-Site WebSocket Hijacking (CSWSH) origin validation, raw session token URL query prohibition, '
+    'short-lived single-use connection ticket mechanism (wst_..., 60s TTL, audience-scoped), hard session revocation socket termination '
+    '(code 4001 SESSION_REVOKED), dual-key sliding-window rate limiting on invalid code attempts (IP/Account, 5 failures / 5 min, '
+    'HTTP 429 and Retry-After: 300), pre-authorization participant data redaction, and capacity ceiling enforcement. '
+    'Automated Test Results: 51/51 Sprint 08 tests PASS (100%). Cumulative Platform Baseline: 405/405 automated tests PASS (100% across Sprints 00–08). '
     'Browser Automation: 8/8 Chrome CDP scenarios PASS with 8 authentic screenshots in evidence/sprint-08/screenshots/. '
     'Documentation: docs/reports/Sprint-08-Implementation-Report.docx, Realtime-Multiplayer-Architecture.md, '
     'WebSocket-Multiplayer-Protocol-Specification.md, Phase-03-Sprint-08-Requirements-Traceability-Matrix.md, Phase-03-Risk-Register.md.'
 )
 
 master_doc.save(master_path)
-print(f'Successfully updated {master_path} to Version 2.3')
+print(f'Successfully updated {master_path} to Version 2.4')

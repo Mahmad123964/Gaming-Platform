@@ -481,6 +481,196 @@ async function runSprint08TestSuite() {
     if (wsObserver) wsObserver.close();
   }
 
+  // =========================================================================
+  // Module 8: Sprint 08 Final Multiplayer Security & Closure Gate Tests
+  // Task 1: WebSocket Authentication Security & CSWSH Defense
+  // Task 2: Invitation Code Security, Rate Limiting & Privacy Redaction
+  // =========================================================================
+  console.log('\n--- Module 8: Sprint 08 Final Multiplayer Security & Closure Gate Tests ---');
+  try {
+    // 1. Task 1 / Item 4 & 6 & 10: Untrusted Cross-Origin WebSocket rejection (CSWSH defense)
+    let cswshRejected = false;
+    let cswshStatus = 0;
+    await new Promise((resolve) => {
+      const wsBad = new WebSocket(WS_URL, {
+        headers: {
+          Origin: 'http://malicious-attacker-site.com',
+          Cookie: hostUser.cookies
+        }
+      });
+      wsBad.on('unexpected-response', (req, res) => {
+        cswshStatus = res.statusCode;
+        cswshRejected = (res.statusCode === 403);
+        resolve();
+      });
+      wsBad.on('open', () => {
+        wsBad.close();
+        resolve();
+      });
+      wsBad.on('error', () => resolve());
+    });
+    recordCheck('SEC-WS-01', 'Untrusted Cross-Origin WebSocket request (CSWSH defense) is rejected with HTTP 403',
+      cswshRejected && cswshStatus === 403
+    );
+
+    // 2. Task 1 / Item 2 & 7: Reusable raw session tokens in WebSocket URL query parameter rejected
+    let rawTokenRejected = false;
+    let rawTokenStatus = 0;
+    await new Promise((resolve) => {
+      const wsRaw = new WebSocket(`${WS_URL}?token=raw_session_secret_token_12345`);
+      wsRaw.on('unexpected-response', (req, res) => {
+        rawTokenStatus = res.statusCode;
+        rawTokenRejected = (res.statusCode === 400);
+        resolve();
+      });
+      wsRaw.on('open', () => {
+        wsRaw.close();
+        resolve();
+      });
+      wsRaw.on('error', () => resolve());
+    });
+    recordCheck('SEC-WS-02', 'Reusable raw session token in WebSocket URL is rejected with HTTP 400',
+      rawTokenRejected && rawTokenStatus === 400
+    );
+
+    // 3. Task 1 / Item 8: Authenticated player requests short-lived single-use connection ticket via REST
+    const ticketRes = await fetch(`${BASE_URL}/api/v1/lobbies/ws-ticket`, {
+      method: 'POST',
+      headers: {
+        'Cookie': thirdUser.cookies,
+        'X-CSRF-Token': thirdUser.csrfToken
+      }
+    });
+    const ticketData = await ticketRes.json();
+    recordCheck('SEC-WS-03', 'Authenticated player requests short-lived single-use WS ticket (60s TTL, audience scoped)',
+      ticketRes.status === 200 && ticketData.ticket?.startsWith('wst_') && ticketData.audience === 'nexusplay:websocket'
+    );
+    const validTicket = ticketData.ticket;
+
+    // 4. Task 1 / Item 8: Connect using single-use connection ticket in URL query
+    let ticketAuthPassed = false;
+    const wsTicket = new WebSocket(`${WS_URL}?ticket=${validTicket}`);
+    const ticketHandshake = await waitWsEvent(wsTicket, 'CONNECTION_ESTABLISHED');
+    ticketAuthPassed = (ticketHandshake.authenticated === true && ticketHandshake.player?.id === thirdUser.user.id);
+    recordCheck('SEC-WS-04', 'Client connects and authenticates using single-use connection ticket (?ticket=wst_...)',
+      ticketAuthPassed
+    );
+    wsTicket.close();
+
+    // 5. Task 1 / Item 8: Single-use ticket reuse is rejected / cannot authenticate a second time
+    const wsTicketReused = new WebSocket(`${WS_URL}?ticket=${validTicket}`);
+    const reusedHandshake = await waitWsEvent(wsTicketReused, 'CONNECTION_ESTABLISHED');
+    recordCheck('SEC-WS-05', 'Reused connection ticket is rejected as single-use (authenticated: false)',
+      reusedHandshake.authenticated === false
+    );
+    wsTicketReused.close();
+
+    // 6. Task 1 / Item 2 & 7: Sending raw session token in message is rejected with RAW_SESSION_TOKENS_FORBIDDEN
+    const wsRawMsg = new WebSocket(WS_URL);
+    await waitWsEvent(wsRawMsg, 'CONNECTION_ESTABLISHED');
+    const authRejectPromise = waitWsEvent(wsRawMsg, 'AUTH_FAILED');
+    wsRawMsg.send(JSON.stringify({ type: 'AUTH', token: thirdUser.sessionToken }));
+    const authRejectEvt = await authRejectPromise;
+    recordCheck('SEC-WS-06', 'Passing raw session token in message is rejected with RAW_SESSION_TOKENS_FORBIDDEN',
+      authRejectEvt.code === 'RAW_SESSION_TOKENS_FORBIDDEN'
+    );
+    wsRawMsg.close();
+
+    // 7. Task 2: Pre-authorization lobby preview redacts participant details and PII
+    // Host creates a lobby for this test
+    const secLobbyRes = await fetch(`${BASE_URL}/api/v1/lobbies`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': hostUser.cookies,
+        'X-CSRF-Token': hostUser.csrfToken
+      },
+      body: JSON.stringify({ gameSlug: 'obsidian-chess' })
+    });
+    const secLobbyData = await secLobbyRes.json();
+    const secCode = secLobbyData.lobby.code;
+
+    const previewRes = await fetch(`${BASE_URL}/api/v1/lobbies/code/${secCode}`);
+    const previewData = await previewRes.json();
+    recordCheck('SEC-LOBBY-01', 'Pre-authorization lobby preview redacts participant details and PII (participants empty)',
+      previewRes.status === 200 && previewData.lobby && Array.isArray(previewData.lobby.participants) && previewData.lobby.participants.length === 0 && !!previewData.lobby.hostDisplayName
+    );
+
+    // 8. Task 2: Protection against duplicate joins
+    const joinOnce = await fetch(`${BASE_URL}/api/v1/lobbies/join`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': thirdUser.cookies,
+        'X-CSRF-Token': thirdUser.csrfToken
+      },
+      body: JSON.stringify({ code: secCode })
+    });
+    const joinOnceData = await joinOnce.json();
+
+    const joinTwice = await fetch(`${BASE_URL}/api/v1/lobbies/join`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': thirdUser.cookies,
+        'X-CSRF-Token': thirdUser.csrfToken
+      },
+      body: JSON.stringify({ code: secCode })
+    });
+    const joinTwiceData = await joinTwice.json();
+    recordCheck('SEC-LOBBY-02', 'Duplicate join by already admitted player succeeds idempotently without duplicate participant slots',
+      joinTwice.status === 200 && joinTwiceData.lobby.participants.filter(p => p.playerId === thirdUser.user.id).length === 1
+    );
+
+    // 9. Task 2: Rate limiting for invalid code attempts (account and IP)
+    let rateLimitHit = false;
+    let rateLimitStatus = 0;
+    let retryAfterHeader = null;
+    const testIp = '198.51.100.42';
+    // Register separate player for rate-limit testing to keep thirdUser clean
+    const rateLimitUser = await registerAndLogin('ratelimit.tester');
+    for (let i = 0; i < 6; i++) {
+      const failRes = await fetch(`${BASE_URL}/api/v1/lobbies/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': rateLimitUser.cookies,
+          'X-CSRF-Token': rateLimitUser.csrfToken,
+          'X-Forwarded-For': testIp
+        },
+        body: JSON.stringify({ code: `INVALID${i}` })
+      });
+      if (failRes.status === 429) {
+        rateLimitHit = true;
+        rateLimitStatus = 429;
+        retryAfterHeader = failRes.headers.get('Retry-After');
+        break;
+      }
+    }
+    recordCheck('SEC-LOBBY-03', 'Repeated invalid code attempts trigger rate limiting (HTTP 429 TOO_MANY_FAILED_ATTEMPTS with Retry-After)',
+      rateLimitHit && rateLimitStatus === 429 && !!retryAfterHeader
+    );
+
+    // Clean up test rate-limit keys in DB so test runs remain isolated
+    try {
+      const dbPath = path.join(__dirname, '..', 'server', 'data', 'platform-staging.db');
+      const { DatabaseSync } = require('node:sqlite');
+      const testDb = new DatabaseSync(dbPath);
+      testDb.prepare("DELETE FROM auth_rate_limits WHERE key LIKE 'lobby_code:%'").run();
+      testDb.close();
+    } catch (e) {}
+
+    // 10. Task 2: Generic safe error responses without leaking internal stack traces or DB details
+    const genericErrRes = await fetch(`${BASE_URL}/api/v1/lobbies/code/NONEXISTENT99`);
+    const genericErrData = await genericErrRes.json();
+    recordCheck('SEC-LOBBY-04', 'Safe generic error response returned for invalid code without stack trace or DB schema leak',
+      genericErrRes.status === 404 && genericErrData.error === 'INVALID_INVITATION_CODE' && !genericErrData.stack
+    );
+
+  } catch (secErr) {
+    recordCheck('SEC-FAIL', 'Security module failed with unexpected error', false, secErr.message);
+  }
+
   // -------------------------------------------------------------------------
   // Summary & Persistence
   // -------------------------------------------------------------------------

@@ -22,9 +22,38 @@ const server = http.createServer(app);
 // WebSocket server setup for real-time multiplayer lobbies (EP-05/06)
 const { getMetricsService } = require('./modules/operations');
 const { getRealtimeService } = require('./modules/multiplayer');
+const { validateOrigin } = require('./modules/identity/middleware');
 const metricsService = getMetricsService();
 const realtimeService = getRealtimeService();
-const wss = new WebSocketServer({ server, path: '/ws' });
+
+const wss = new WebSocketServer({
+  server,
+  path: '/ws',
+  verifyClient: (info, callback) => {
+    const req = info.req;
+    const origin = info.origin || req.headers['origin'];
+
+    // 1. Cross-Site WebSocket Hijacking (CSWSH) Defense: Validate Origin
+    // Browser clients supplying an Origin header must originate from trusted origins
+    if (origin && !validateOrigin(req)) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.warn(`[WS_SECURITY] Untrusted Cross-Origin WebSocket rejected from origin: ${origin}`);
+      }
+      return callback(false, 403, 'Forbidden: Untrusted Cross-Origin WebSocket Request (CSWSH Defense).');
+    }
+
+    // 2. Remove support for passing reusable raw authentication session tokens through WebSocket URL query parameters
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    if (parsedUrl.searchParams.has('token') || parsedUrl.searchParams.has('sessionToken')) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.warn(`[WS_SECURITY] Rejected connection attempt with raw session token in WebSocket URL.`);
+      }
+      return callback(false, 400, 'Bad Request: Reusable session tokens in WebSocket URL query parameters are forbidden. Use HttpOnly cookies or short-lived connection tickets.');
+    }
+
+    return callback(true);
+  }
+});
 
 wss.on('connection', (ws, req) => {
   metricsService.incrementWebSocketClientCount();

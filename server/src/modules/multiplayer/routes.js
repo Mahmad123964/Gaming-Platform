@@ -1,11 +1,35 @@
 const express = require('express');
 const { getLobbyService } = require('./lobbyService');
 const { getRealtimeService } = require('./realtimeService');
-const { requireAuth } = require('../identity/middleware');
+const { requireAuth, optionalAuth } = require('../identity/middleware');
 
 const router = express.Router();
 const lobbyService = getLobbyService();
 const realtimeService = getRealtimeService();
+
+/**
+ * POST /api/v1/lobbies/ws-ticket
+ * Issues a short-lived (60s), audience-scoped ('nexusplay:websocket'), single-use connection ticket.
+ * Eliminates passing reusable raw session tokens through WebSocket URLs.
+ */
+router.post('/ws-ticket', requireAuth, (req, res) => {
+  try {
+    const player = req.player || req.user;
+    const ticketInfo = realtimeService.createTicket({ playerId: player.id });
+    return res.status(200).json({
+      success: true,
+      ticket: ticketInfo.ticket,
+      expiresInSeconds: ticketInfo.expiresInSeconds,
+      audience: ticketInfo.audience,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: 'TicketCreationError',
+      message: err.message
+    });
+  }
+});
 
 /**
  * POST /api/v1/lobbies
@@ -53,11 +77,14 @@ router.post('/', requireAuth, (req, res) => {
  * EP05-02 / AC-17.1: Join lobby with invitation code.
  * AC-17.2: Rejects invalid or expired code.
  * AC-17.3 / AC-16.3: Rejects full lobby.
+ * Enforces rate limiting on failed attempts.
  */
 router.post('/join', requireAuth, (req, res) => {
   try {
     const player = req.player || req.user;
     const { code } = req.body;
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip = (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null) || req.ip || req.socket?.remoteAddress || '127.0.0.1';
 
     if (!code || typeof code !== 'string' || !code.trim()) {
       return res.status(400).json({
@@ -68,7 +95,8 @@ router.post('/join', requireAuth, (req, res) => {
 
     const lobby = lobbyService.joinLobby({
       code: code.trim(),
-      playerId: player.id
+      playerId: player.id,
+      ip
     });
 
     // Broadcast updated state to room participants
@@ -116,10 +144,14 @@ router.post('/join', requireAuth, (req, res) => {
     });
   } catch (err) {
     const status = err.status || 500;
+    if (status === 429 && err.retryAfterSeconds) {
+      res.setHeader('Retry-After', err.retryAfterSeconds);
+    }
     return res.status(status).json({
       error: err.code || 'JoinLobbyError',
       message: err.message,
       capacityDetails: err.capacityDetails || null,
+      retryAfter: err.retryAfterSeconds || null,
       timestamp: new Date().toISOString()
     });
   }
@@ -127,12 +159,21 @@ router.post('/join', requireAuth, (req, res) => {
 
 /**
  * GET /api/v1/lobbies/code/:code
- * Lookup lobby by invitation code (case-insensitive)
+ * Lookup lobby by invitation code (case-insensitive).
+ * Enforces rate limiting on failed lookups and redacts participant PII before authorization.
  */
-router.get('/code/:code', (req, res) => {
+router.get('/code/:code', optionalAuth, (req, res) => {
   try {
     const code = req.params.code;
-    const lobby = lobbyService.getLobbyByCode(code);
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip = (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null) || req.ip || req.socket?.remoteAddress || '127.0.0.1';
+    const player = req.player || req.user || null;
+
+    const lobby = lobbyService.getLobbyByCode(code, {
+      ip,
+      playerId: player ? player.id : null,
+      previewOnly: true
+    });
 
     if (!lobby) {
       return res.status(404).json({
@@ -144,9 +185,13 @@ router.get('/code/:code', (req, res) => {
     return res.status(200).json({ lobby });
   } catch (err) {
     const status = err.status || 500;
+    if (status === 429 && err.retryAfterSeconds) {
+      res.setHeader('Retry-After', err.retryAfterSeconds);
+    }
     return res.status(status).json({
       error: err.code || 'LookupError',
-      message: err.message
+      message: err.message,
+      retryAfter: err.retryAfterSeconds || null
     });
   }
 });
@@ -157,10 +202,24 @@ router.get('/code/:code', (req, res) => {
  * AC-18.1: waiting
  * AC-18.2: full
  * AC-18.3: active
+ * Redacts participant details if caller is not an authorized member.
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', optionalAuth, (req, res) => {
   try {
+    const player = req.player || req.user || null;
     const lobby = lobbyService.getLobby(req.params.id);
+
+    // If caller is not the host and not an active participant, return preview
+    const isMember = player && (
+      lobby.hostPlayerId === player.id ||
+      lobby.participants.some(p => p.playerId === player.id)
+    );
+
+    if (!isMember) {
+      const preview = lobbyService.getLobbyPreview(req.params.id);
+      return res.status(200).json({ lobby: preview });
+    }
+
     return res.status(200).json({ lobby });
   } catch (err) {
     const status = err.status || 500;

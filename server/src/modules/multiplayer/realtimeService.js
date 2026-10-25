@@ -12,6 +12,7 @@ class RealtimeSessionService {
     this.connections = new Map(); // socketId -> { ws, socketId, player, lobbyId, connectedAt, lastSeen }
     this.rooms = new Map();       // lobbyId -> Set<socketId>
     this.playerSockets = new Map(); // playerId -> Set<socketId>
+    this.tickets = new Map();     // ticketId -> { ticket, playerId, audience, expiresAt, createdAt }
   }
 
   /**
@@ -28,6 +29,66 @@ class RealtimeSessionService {
       list[name] = decodeURIComponent(value);
     });
     return list;
+  }
+
+  /**
+   * Generates a short-lived, single-use, audience-scoped connection ticket.
+   * Enforces 60-second TTL. Does not grant general account access.
+   */
+  createTicket({ playerId }) {
+    if (!playerId) return null;
+    const ticketId = 'wst_' + crypto.randomBytes(24).toString('base64url');
+    const expiresAt = Date.now() + 60 * 1000; // 60s TTL
+    const ticketData = {
+      ticket: ticketId,
+      playerId,
+      audience: 'nexusplay:websocket',
+      expiresAt,
+      createdAt: Date.now()
+    };
+    this.tickets.set(ticketId, ticketData);
+    return {
+      ticket: ticketId,
+      expiresInSeconds: 60,
+      audience: 'nexusplay:websocket'
+    };
+  }
+
+  /**
+   * Consumes and invalidates a single-use connection ticket.
+   */
+  consumeTicket(ticketId) {
+    if (!ticketId || typeof ticketId !== 'string') return null;
+    const ticketData = this.tickets.get(ticketId);
+    if (!ticketData) return null;
+
+    // Immediately remove (single-use enforcement)
+    this.tickets.delete(ticketId);
+
+    if (Date.now() > ticketData.expiresAt || ticketData.audience !== 'nexusplay:websocket') {
+      return null;
+    }
+
+    return ticketData;
+  }
+
+  /**
+   * Fetch player by ID safely
+   */
+  getPlayerById(playerId) {
+    if (!playerId) return null;
+    try {
+      const row = this.db.prepare('SELECT id, email, display_name, role FROM players WHERE id = ?').get(playerId);
+      if (!row) return null;
+      return {
+        id: row.id,
+        email: row.email,
+        displayName: row.display_name,
+        role: row.role
+      };
+    } catch (e) {
+      return null;
+    }
   }
 
   /**
@@ -55,9 +116,25 @@ class RealtimeSessionService {
    */
   handleConnection(ws, req) {
     const socketId = 'sock-' + crypto.randomUUID().slice(0, 8);
+
+    // 1. Primary Vector: Ambient HttpOnly session cookie
     const cookies = this.parseCookies(req.headers?.cookie);
     const sessionToken = cookies['nexusplay_session'] || cookies['auth_session'] || null;
-    const player = this.authenticateToken(sessionToken);
+    let player = this.authenticateToken(sessionToken);
+
+    // 2. Secondary Vector: Short-lived, audience-scoped single-use connection ticket
+    if (!player && req.url) {
+      try {
+        const parsedUrl = new URL(req.url, 'http://localhost');
+        const ticketParam = parsedUrl.searchParams.get('ticket');
+        if (ticketParam) {
+          const ticketData = this.consumeTicket(ticketParam);
+          if (ticketData) {
+            player = this.getPlayerById(ticketData.playerId);
+          }
+        }
+      } catch (e) {}
+    }
 
     const clientState = {
       ws,
@@ -132,6 +209,10 @@ class RealtimeSessionService {
         this.sendToSocket(client.ws, { type: 'PONG', timestamp: Date.now() });
         break;
 
+      case 'AUTH_TICKET':
+        this.handleAuthTicketMessage(client, data);
+        break;
+
       case 'AUTH':
         this.handleAuthMessage(client, data);
         break;
@@ -167,16 +248,32 @@ class RealtimeSessionService {
   }
 
   /**
-   * Explicit message authentication
+   * Explicit message authentication via short-lived connection ticket
    */
-  handleAuthMessage(client, data) {
-    const token = data.token;
-    const player = this.authenticateToken(token);
+  handleAuthTicketMessage(client, data) {
+    if (!data.ticket || typeof data.ticket !== 'string') {
+      return this.sendToSocket(client.ws, {
+        type: 'AUTH_FAILED',
+        code: 'MISSING_TICKET',
+        message: 'A short-lived single-use connection ticket is required.'
+      });
+    }
+
+    const ticketData = this.consumeTicket(data.ticket);
+    if (!ticketData) {
+      return this.sendToSocket(client.ws, {
+        type: 'AUTH_FAILED',
+        code: 'INVALID_TICKET',
+        message: 'Connection ticket is invalid, expired, or already consumed.'
+      });
+    }
+
+    const player = this.getPlayerById(ticketData.playerId);
     if (!player) {
       return this.sendToSocket(client.ws, {
         type: 'AUTH_FAILED',
-        code: 'INVALID_TOKEN',
-        message: 'Authentication token is invalid, revoked, or expired.'
+        code: 'PLAYER_NOT_FOUND',
+        message: 'Player account associated with ticket was not found.'
       });
     }
 
@@ -190,6 +287,17 @@ class RealtimeSessionService {
       type: 'AUTH_SUCCESS',
       player: { id: player.id, displayName: player.displayName, role: player.role },
       timestamp: new Date().toISOString()
+    });
+  }
+
+  /**
+   * Reject reusable raw session tokens passed in messages
+   */
+  handleAuthMessage(client, data) {
+    return this.sendToSocket(client.ws, {
+      type: 'AUTH_FAILED',
+      code: 'RAW_SESSION_TOKENS_FORBIDDEN',
+      message: 'Passing raw session tokens in WebSocket messages is forbidden. Use HttpOnly session cookies or request a short-lived single-use connection ticket via REST.'
     });
   }
 
@@ -537,6 +645,15 @@ class RealtimeSessionService {
    * Revoke active WebSocket connections when player session is revoked
    */
   handleSessionRevocation(playerId) {
+    if (!playerId) return;
+
+    // Invalidate any unconsumed tickets for this player
+    for (const [tid, tdata] of this.tickets.entries()) {
+      if (tdata.playerId === playerId) {
+        this.tickets.delete(tid);
+      }
+    }
+
     const socketIds = this.playerSockets.get(playerId);
     if (!socketIds || socketIds.size === 0) return;
 
@@ -545,6 +662,7 @@ class RealtimeSessionService {
       if (client && client.ws) {
         this.sendToSocket(client.ws, {
           type: 'SESSION_REVOKED',
+          code: 'SESSION_REVOKED',
           message: 'Your active session has been terminated or revoked.'
         });
         try {

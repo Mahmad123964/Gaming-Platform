@@ -5,10 +5,121 @@ const { getDb } = require('../../db');
 const CODE_CHARS = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 const LOBBY_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes lifetime
 
+class LobbyCodeRateLimiter {
+  constructor(db) {
+    this.db = db;
+    this.maxAttempts = 5;
+    this.windowMs = 5 * 60 * 1000; // 5-minute sliding window
+    this.lockoutMs = 5 * 60 * 1000; // 5-minute lockout
+    this.records = new Map();
+  }
+
+  getKey(type, identifier) {
+    const clean = (identifier || 'unknown').toString().trim().toLowerCase().replace(/^.*:/, '');
+    return `lobby_code:${type}:${clean}`;
+  }
+
+  getRecord(key) {
+    let record = this.records.get(key);
+    if (!record && this.db) {
+      try {
+        const row = this.db.prepare('SELECT * FROM auth_rate_limits WHERE key = ?').get(key);
+        if (row) {
+          record = {
+            attemptCount: row.attempt_count,
+            firstAttemptAt: new Date(row.first_attempt_at).getTime(),
+            lastAttemptAt: new Date(row.last_attempt_at).getTime(),
+            lockedUntil: row.locked_until ? new Date(row.locked_until).getTime() : null
+          };
+          this.records.set(key, record);
+        }
+      } catch (e) {}
+    }
+    return record;
+  }
+
+  saveRecord(key, record) {
+    this.records.set(key, record);
+    if (this.db) {
+      try {
+        const firstIso = new Date(record.firstAttemptAt).toISOString();
+        const lastIso = new Date(record.lastAttemptAt).toISOString();
+        const lockedIso = record.lockedUntil ? new Date(record.lockedUntil).toISOString() : null;
+        this.db.prepare(
+          `INSERT INTO auth_rate_limits (key, attempt_count, first_attempt_at, last_attempt_at, locked_until)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT(key) DO UPDATE SET
+             attempt_count = excluded.attempt_count,
+             first_attempt_at = excluded.first_attempt_at,
+             last_attempt_at = excluded.last_attempt_at,
+             locked_until = excluded.locked_until`
+        ).run(key, record.attemptCount, firstIso, lastIso, lockedIso);
+      } catch (e) {}
+    }
+  }
+
+  checkLimit(ip, playerId) {
+    const now = Date.now();
+    const keys = [];
+    if (ip) keys.push(this.getKey('ip', ip));
+    if (playerId) keys.push(this.getKey('account', playerId));
+
+    for (const k of keys) {
+      const rec = this.getRecord(k);
+      if (rec && rec.lockedUntil && now < rec.lockedUntil) {
+        const retryAfterSeconds = Math.ceil((rec.lockedUntil - now) / 1000);
+        const err = new Error(`Too many invalid invitation code attempts. Please wait ${retryAfterSeconds} seconds before trying again.`);
+        err.status = 429;
+        err.code = 'TOO_MANY_FAILED_ATTEMPTS';
+        err.retryAfterSeconds = retryAfterSeconds;
+        throw err;
+      }
+    }
+  }
+
+  recordFailure(ip, playerId) {
+    const now = Date.now();
+    const keys = [];
+    if (ip) keys.push(this.getKey('ip', ip));
+    if (playerId) keys.push(this.getKey('account', playerId));
+
+    for (const k of keys) {
+      let rec = this.getRecord(k);
+      if (!rec || (now - rec.firstAttemptAt) > this.windowMs) {
+        rec = { attemptCount: 1, firstAttemptAt: now, lastAttemptAt: now, lockedUntil: null };
+      } else {
+        rec.attemptCount += 1;
+        rec.lastAttemptAt = now;
+      }
+
+      if (rec.attemptCount >= this.maxAttempts) {
+        rec.lockedUntil = now + this.lockoutMs;
+      }
+      this.saveRecord(k, rec);
+    }
+  }
+
+  recordSuccess(ip, playerId) {
+    const keys = [];
+    if (ip) keys.push(this.getKey('ip', ip));
+    if (playerId) keys.push(this.getKey('account', playerId));
+
+    for (const k of keys) {
+      this.records.delete(k);
+      if (this.db) {
+        try {
+          this.db.prepare('DELETE FROM auth_rate_limits WHERE key = ?').run(k);
+        } catch (e) {}
+      }
+    }
+  }
+}
+
 class LobbyService {
   constructor(dbManager) {
     this.dbManager = dbManager || getDb();
     this.db = this.dbManager.db;
+    this.rateLimiter = new LobbyCodeRateLimiter(this.db);
   }
 
   /**
@@ -219,27 +330,69 @@ class LobbyService {
   }
 
   /**
-   * Retrieves lobby by invitation code (case-insensitive).
+   * Safe pre-authorization lobby preview that redacts participant identities and PII.
    */
-  getLobbyByCode(code) {
+  getLobbyPreview(lobbyId) {
+    const lobby = this.getLobby(lobbyId);
+    const hostUser = this.db.prepare('SELECT display_name FROM players WHERE id = ?').get(lobby.hostPlayerId);
+
+    return {
+      id: lobby.id,
+      code: lobby.code,
+      status: lobby.status,
+      game: lobby.game,
+      maxPlayers: lobby.maxPlayers,
+      playerCount: lobby.playerCount,
+      isFull: lobby.isFull,
+      hostDisplayName: hostUser ? hostUser.display_name : 'Host',
+      participants: [], // Redacted before authorization to prevent PII exposure
+      expiresAt: lobby.expiresAt,
+      createdAt: lobby.createdAt
+    };
+  }
+
+  /**
+   * Retrieves lobby by invitation code (case-insensitive).
+   * Supports privacy preview for unjoined players and IP/account rate limiting.
+   */
+  getLobbyByCode(code, options = {}) {
     if (!code || typeof code !== 'string') return null;
     const cleanCode = code.trim().toUpperCase();
+    const { ip = null, playerId = null, previewOnly = false } = options;
+
+    if (ip) {
+      this.rateLimiter.checkLimit(ip, playerId);
+    }
+
     const row = this.db.prepare('SELECT id FROM lobbies WHERE UPPER(code) = ?').get(cleanCode);
-    if (!row) return null;
+    if (!row) {
+      if (ip) {
+        this.rateLimiter.recordFailure(ip, playerId);
+      }
+      return null;
+    }
+
+    if (previewOnly) {
+      return this.getLobbyPreview(row.id);
+    }
     return this.getLobby(row.id);
   }
 
   /**
    * EP05-02: Join lobby via invitation code.
    * Enforces AC-17.1 (valid code joins), AC-17.2 (invalid/expired code), AC-17.3 / AC-16.3 (full capacity).
+   * Enforces rate limiting on failed attempts and duplicate join protection.
    */
-  joinLobby({ code, playerId }) {
+  joinLobby({ code, playerId, ip = 'unknown' }) {
     if (!playerId) {
       const err = new Error('Authenticated player identity is required to join a lobby.');
       err.status = 401;
       err.code = 'UNAUTHORIZED';
       throw err;
     }
+
+    // Rate limiting check: check IP and account lockouts before processing code
+    this.rateLimiter.checkLimit(ip, playerId);
 
     if (!code || typeof code !== 'string' || !code.trim()) {
       const err = new Error('Invitation code is required.');
@@ -266,6 +419,7 @@ class LobbyService {
 
     // AC-17.2: Non-existent code
     if (!lobbyRow) {
+      this.rateLimiter.recordFailure(ip, playerId);
       const err = new Error(`Invitation code '${cleanCode}' is invalid or does not exist.`);
       err.status = 404;
       err.code = 'INVALID_INVITATION_CODE';
@@ -281,19 +435,21 @@ class LobbyService {
       if (lobbyRow.status !== 'ended') {
         this.db.prepare("UPDATE lobbies SET status = 'ended', ended_at = CURRENT_TIMESTAMP WHERE id = ?").run(lobbyRow.id);
       }
+      this.rateLimiter.recordFailure(ip, playerId);
       const err = new Error(`Invitation code '${cleanCode}' has expired. Lobbies expire after 30 minutes.`);
       err.status = 410; // Gone
       err.code = 'INVITATION_CODE_EXPIRED';
       throw err;
     }
 
-    // Check if player is already in this lobby
+    // Check if player is already in this lobby (duplicate join protection)
     const existing = this.db.prepare(
       'SELECT id, role, status FROM lobby_participants WHERE lobby_id = ? AND player_id = ?'
     ).get(lobbyRow.id, playerId);
 
     if (existing && existing.status !== 'left') {
       // Already an active member; return current lobby representation without error
+      this.rateLimiter.recordSuccess(ip, playerId);
       return this.getLobby(lobbyRow.id);
     }
 
@@ -344,6 +500,8 @@ class LobbyService {
       resource: `lobby:${lobbyRow.id}`,
       details: { code: cleanCode, role: 'guest' }
     });
+
+    this.rateLimiter.recordSuccess(ip, playerId);
 
     return this.getLobby(lobbyRow.id);
   }

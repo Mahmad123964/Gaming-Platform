@@ -1,8 +1,8 @@
 {
   "sprint": "Sprint 08 — Two-Player Multiplayer Lobbies & Real-Time Sessions",
-  "timestamp": "2026-10-25T15:07:55.743Z",
-  "totalChecks": 41,
-  "passed": 41,
+  "timestamp": "2026-10-25T15:38:06.187Z",
+  "totalChecks": 51,
+  "passed": 51,
   "failed": 0,
   "results": [
     {
@@ -21,7 +21,7 @@
       "id": "AC-16.1-03",
       "name": "Invitation code is displayed and matches 6-character uppercase format",
       "status": "PASSED",
-      "details": "Code: PC2Z47"
+      "details": "Code: Z8VJVE"
     },
     {
       "id": "AC-16.1-04",
@@ -248,6 +248,66 @@
     {
       "id": "WS-11",
       "name": "Session revocation listener terminates active WebSocket connection on logout",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-WS-01",
+      "name": "Untrusted Cross-Origin WebSocket request (CSWSH defense) is rejected with HTTP 403",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-WS-02",
+      "name": "Reusable raw session token in WebSocket URL is rejected with HTTP 400",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-WS-03",
+      "name": "Authenticated player requests short-lived single-use WS ticket (60s TTL, audience scoped)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-WS-04",
+      "name": "Client connects and authenticates using single-use connection ticket (?ticket=wst_...)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-WS-05",
+      "name": "Reused connection ticket is rejected as single-use (authenticated: false)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-WS-06",
+      "name": "Passing raw session token in message is rejected with RAW_SESSION_TOKENS_FORBIDDEN",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-LOBBY-01",
+      "name": "Pre-authorization lobby preview redacts participant details and PII (participants empty)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-LOBBY-02",
+      "name": "Duplicate join by already admitted player succeeds idempotently without duplicate participant slots",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-LOBBY-03",
+      "name": "Repeated invalid code attempts trigger rate limiting (HTTP 429 TOO_MANY_FAILED_ATTEMPTS with Retry-After)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-LOBBY-04",
+      "name": "Safe generic error response returned for invalid code without stack trace or DB schema leak",
       "status": "PASSED",
       "details": ""
     }
