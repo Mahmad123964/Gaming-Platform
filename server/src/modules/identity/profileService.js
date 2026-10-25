@@ -153,7 +153,7 @@ class ProfileService {
         playerId: player.id,
         displayName: profileRow.display_name,
         avatar: profileRow.avatar,
-        bio: profileRow.bio,
+        bio: '',
         privacyMode: 'private',
         isPrivate: true,
         message: 'This player profile is set to private by the account owner.'
