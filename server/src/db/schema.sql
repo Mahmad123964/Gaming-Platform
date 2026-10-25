@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS game_history (
     score INTEGER NOT NULL DEFAULT 0,
     level INTEGER NOT NULL DEFAULT 1,
     duration_seconds INTEGER DEFAULT 0,
-    verification_status TEXT NOT NULL DEFAULT 'verified',
+    verification_status TEXT NOT NULL DEFAULT 'PLAUSIBILITY_CHECK_PASSED',
     details_json TEXT,
     completed_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -183,6 +183,7 @@ CREATE TABLE IF NOT EXISTS player_achievements (
     player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
     achievement_id TEXT NOT NULL REFERENCES achievements(id) ON DELETE CASCADE,
     game_id TEXT NOT NULL REFERENCES games(id),
+    verification_type TEXT NOT NULL DEFAULT 'PROVISIONAL',
     unlocked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     session_id TEXT,
     UNIQUE(player_id, achievement_id)

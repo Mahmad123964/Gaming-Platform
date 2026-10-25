@@ -1,0 +1,290 @@
+{
+  "suite": "Sprint 02 Game Discovery & Catalog Automated Suite",
+  "sprint": "02",
+  "timestamp": "2026-10-25T06:16:20.156Z",
+  "totalTests": 31,
+  "passed": 31,
+  "failed": 0,
+  "successRate": "100%",
+  "tests": [
+    {
+      "id": "CAT-BRW-01",
+      "ac": "AC-5.1",
+      "name": "Browse published games returns all published games with required metadata",
+      "status": "PASS",
+      "details": "HTTP 200, count=8, allPublished=true",
+      "durationMs": 19,
+      "timestamp": "2026-10-25T06:16:19.874Z"
+    },
+    {
+      "id": "CAT-BRW-02",
+      "ac": "AC-5.2",
+      "name": "Unpublished game is strictly excluded from catalog browse results",
+      "status": "PASS",
+      "details": "hasUnpublished=false (draft excluded)",
+      "durationMs": 3,
+      "timestamp": "2026-10-25T06:16:19.878Z"
+    },
+    {
+      "id": "CAT-BRW-03",
+      "ac": "AC-5.3",
+      "name": "Empty catalog returns empty array and total=0 for empty-state UI",
+      "status": "PASS",
+      "details": "gamesCount=0, total=0",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.882Z"
+    },
+    {
+      "id": "CAT-BRW-04",
+      "ac": "AC-5.1",
+      "name": "Pagination boundaries accurately partition games without overlap",
+      "status": "PASS",
+      "details": "p1=[Chrono Tactics, Cipher Matrix, Cyber Invaders], p2=[Neon Horizon, Obsidian Chess, Quantum Grid], overlap=false",
+      "durationMs": 9,
+      "timestamp": "2026-10-25T06:16:19.892Z"
+    },
+    {
+      "id": "CAT-BRW-05",
+      "ac": "AC-5.1",
+      "name": "Custom sorting (sort=title:desc) sorts games in reverse alphabetical order",
+      "status": "PASS",
+      "details": "first=\"Vortex Arena\", last=\"Chrono Tactics\", isDesc=true",
+      "durationMs": 5,
+      "timestamp": "2026-10-25T06:16:19.913Z"
+    },
+    {
+      "id": "CAT-SRC-01",
+      "ac": "AC-6.1",
+      "name": "Exact title search returns the single matching published game",
+      "status": "PASS",
+      "details": "HTTP 200, match=\"Cyber Invaders\"",
+      "durationMs": 3,
+      "timestamp": "2026-10-25T06:16:19.916Z"
+    },
+    {
+      "id": "CAT-SRC-02",
+      "ac": "AC-6.1",
+      "name": "Partial case-insensitive substring search (\"grid\") matches Quantum Grid",
+      "status": "PASS",
+      "details": "match=\"Quantum Grid\"",
+      "durationMs": 3,
+      "timestamp": "2026-10-25T06:16:19.919Z"
+    },
+    {
+      "id": "CAT-SRC-03",
+      "ac": "AC-6.2",
+      "name": "Search with no matching results returns empty games array (no-results UI state)",
+      "status": "PASS",
+      "details": "HTTP 200, count=0, total=0",
+      "durationMs": 3,
+      "timestamp": "2026-10-25T06:16:19.922Z"
+    },
+    {
+      "id": "CAT-SRC-04",
+      "ac": "AC-6.3",
+      "name": "Search for unpublished draft game (\"Shadow\") returns empty results",
+      "status": "PASS",
+      "details": "unpublished draft excluded from search results (count=0)",
+      "durationMs": 4,
+      "timestamp": "2026-10-25T06:16:19.926Z"
+    },
+    {
+      "id": "CAT-SRC-05",
+      "ac": "AC-6.1",
+      "name": "Whitespace-only search query is trimmed and returns all published games",
+      "status": "PASS",
+      "details": "count=8 (unfiltered published games returned)",
+      "durationMs": 3,
+      "timestamp": "2026-10-25T06:16:19.929Z"
+    },
+    {
+      "id": "CAT-SRC-06",
+      "ac": "AC-6.1",
+      "name": "SQL LIKE wildcard character \"%\" is safely sanitized and not evaluated as regex",
+      "status": "PASS",
+      "details": "count=0 (no wildcard leak)",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.931Z"
+    },
+    {
+      "id": "CAT-CAT-01",
+      "ac": "AC-7.1",
+      "name": "Categories listing returns all categories with accurate published game counts",
+      "status": "PASS",
+      "details": "categoriesCount=6, strategyCount=2, simCount=0",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.933Z"
+    },
+    {
+      "id": "CAT-CAT-02",
+      "ac": "AC-7.1",
+      "name": "Filter by category slug (\"strategy\") returns only published games in that category",
+      "status": "PASS",
+      "details": "count=2, titles=[Chrono Tactics, Obsidian Chess]",
+      "durationMs": 3,
+      "timestamp": "2026-10-25T06:16:19.936Z"
+    },
+    {
+      "id": "CAT-CAT-03",
+      "ac": "AC-7.2",
+      "name": "Filter by category with no published games (\"simulation\") returns empty list (no-results UI)",
+      "status": "PASS",
+      "details": "count=0, total=0",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.938Z"
+    },
+    {
+      "id": "CAT-CAT-04",
+      "ac": "AC-7.3",
+      "name": "Clearing category filter (category=all) restores full unfiltered published catalog",
+      "status": "PASS",
+      "details": "count=8 (all published games restored)",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.941Z"
+    },
+    {
+      "id": "CAT-CAT-05",
+      "ac": "AC-7.1",
+      "name": "Filter by invalid category slug returns empty array cleanly without server error",
+      "status": "PASS",
+      "details": "HTTP 200, count=0",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.943Z"
+    },
+    {
+      "id": "CAT-CAT-06",
+      "ac": "AC-6.1 / AC-7.1",
+      "name": "Combined title search and category filter enforces AND logic on both criteria",
+      "status": "PASS",
+      "details": "match=\"Vortex Arena\" (in category \"action\")",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.945Z"
+    },
+    {
+      "id": "CAT-DET-01",
+      "ac": "AC-8.1",
+      "name": "Retrieve game details by slug returns mode, capacity, bot support, and description",
+      "status": "PASS",
+      "details": "title=\"Obsidian Chess\", mode=\"1–2 Players\", bots=true",
+      "durationMs": 3,
+      "timestamp": "2026-10-25T06:16:19.948Z"
+    },
+    {
+      "id": "CAT-DET-02",
+      "ac": "AC-8.1",
+      "name": "Retrieve game details by database UUID id returns complete game record",
+      "status": "PASS",
+      "details": "id=\"game-001\", title=\"Cyber Invaders\"",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.950Z"
+    },
+    {
+      "id": "CAT-DET-03",
+      "ac": "AC-8.2",
+      "name": "Premium game details clearly display VIP subscription access requirement before launch",
+      "status": "PASS",
+      "details": "isPremium=true, accessLabel=\"Obsidian VIP Required\"",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.952Z"
+    },
+    {
+      "id": "CAT-DET-04",
+      "ac": "AC-8.2",
+      "name": "Free game details clearly display Free to Play access status",
+      "status": "PASS",
+      "details": "isPremium=false, accessLabel=\"Free to Play\"",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.954Z"
+    },
+    {
+      "id": "CAT-DET-05",
+      "ac": "AC-8.3",
+      "name": "Direct lookup of unpublished game (\"shadow-protocol\") returns HTTP 404 (unavailable state)",
+      "status": "PASS",
+      "details": "HTTP 404 (Game not found or unavailable)",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.956Z"
+    },
+    {
+      "id": "CAT-DET-06",
+      "ac": "AC-8.3",
+      "name": "Direct lookup of non-existent game returns HTTP 404 Not Found",
+      "status": "PASS",
+      "details": "HTTP 404 (Game not found or unavailable)",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.958Z"
+    },
+    {
+      "id": "CAT-SEC-01",
+      "ac": "AC-6.1",
+      "name": "SQL injection vector in search query is safely parameterized (returns 0 games)",
+      "status": "PASS",
+      "details": "count=0 (no injection leak)",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.960Z"
+    },
+    {
+      "id": "CAT-SEC-02",
+      "ac": "AC-6.1",
+      "name": "Extremely long search query (1500 chars) handled safely without buffer overflow",
+      "status": "PASS",
+      "details": "HTTP 200, count=0",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:19.962Z"
+    },
+    {
+      "id": "CAT-SEC-03",
+      "ac": "AC-5.1",
+      "name": "Invalid pagination parameters safely clamped (page clamped to 1, limit clamped to 50)",
+      "status": "PASS",
+      "details": "clampedPage=1, clampedLimit=50",
+      "durationMs": 3,
+      "timestamp": "2026-10-25T06:16:19.965Z"
+    },
+    {
+      "id": "CAT-REG-01",
+      "ac": "AC-1.1",
+      "name": "Sprint 01 Regression: Player registration endpoint remains operational",
+      "status": "PASS",
+      "details": "HTTP 201, user=\"CatalogTester\"",
+      "durationMs": 99,
+      "timestamp": "2026-10-25T06:16:20.064Z"
+    },
+    {
+      "id": "CAT-REG-02",
+      "ac": "AC-2.1",
+      "name": "Sprint 01 Regression: Player authentication endpoint verifies credentials properly",
+      "status": "PASS",
+      "details": "HTTP 401 on invalid credentials",
+      "durationMs": 84,
+      "timestamp": "2026-10-25T06:16:20.148Z"
+    },
+    {
+      "id": "CAT-REG-03",
+      "ac": "AC-2.1",
+      "name": "Sprint 01 Regression: Protected /api/v1/auth/me verifies HttpOnly session cookie",
+      "status": "PASS",
+      "details": "HTTP 200, user=\"CatalogTester\"",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:20.151Z"
+    },
+    {
+      "id": "CAT-REG-04",
+      "ac": "AC-2.2",
+      "name": "Sprint 01 Regression: State-changing logout rejects requests missing X-CSRF-Token",
+      "status": "PASS",
+      "details": "HTTP 403 (CSRF token validation failed. Missing or invalid X-CSRF-Token header.)",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:20.153Z"
+    },
+    {
+      "id": "CAT-REG-05",
+      "ac": "AC-3.1",
+      "name": "Sprint 01 Regression: Recovery outbox endpoint permanently returns 404 in production",
+      "status": "PASS",
+      "details": "HTTP 404 in production environment",
+      "durationMs": 2,
+      "timestamp": "2026-10-25T06:16:20.155Z"
+    }
+  ]
+}

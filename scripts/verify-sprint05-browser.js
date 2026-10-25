@@ -155,7 +155,7 @@ async function run() {
     );
     db.run(
       `INSERT OR REPLACE INTO game_history (id, session_id, player_id, game_id, score, level, duration_seconds, verification_status, completed_at)
-       VALUES (?, ?, ?, 'game-001', ?, ?, ?, 'verified', ?)`,
+       VALUES (?, ?, ?, 'game-001', ?, ?, ?, 'PLAUSIBILITY_CHECK_PASSED', ?)`,
       [hId, sId, qaPlayerId, i * 650, Math.min(5, i), 35 + i * 5, compTime]
     );
   }
@@ -167,14 +167,14 @@ async function run() {
     [qaPlayerId]
   );
 
-  // Seed unlocked achievements
+  // Seed unlocked achievements with PROVISIONAL verification_type
   const achList = ['FIRST_CONTACT', 'GRID_SENTINEL', 'DEADEYE_GUNNER'];
   for (const achCode of achList) {
     const ach = db.get('SELECT id FROM achievements WHERE code = ?', [achCode]);
     if (ach) {
       db.run(
-        `INSERT OR REPLACE INTO player_achievements (id, player_id, game_id, achievement_id, session_id, unlocked_at)
-         VALUES (?, ?, 'game-001', ?, 'ses-qa-demo-3', CURRENT_TIMESTAMP)`,
+        `INSERT OR REPLACE INTO player_achievements (id, player_id, game_id, achievement_id, verification_type, session_id, unlocked_at)
+         VALUES (?, ?, 'game-001', ?, 'PROVISIONAL', 'ses-qa-demo-3', CURRENT_TIMESTAMP)`,
         [`pa-${qaPlayerId}-${achCode}`, qaPlayerId, ach.id]
       );
     }

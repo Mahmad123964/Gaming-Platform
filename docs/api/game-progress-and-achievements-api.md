@@ -10,10 +10,18 @@ Sprint 05 establishes the player career lifecycle engine for the NexusPlay Onlin
 ### Core Architectural Principles (ADR-0005):
 1. **Player Data Isolation & RBAC:** All career endpoints enforce strict ownership validation. A player may only record, retrieve, or resume progress belonging to their authenticated `req.player.id`. Cross-player inspections or modification attempts are rejected with `HTTP 403 Forbidden` (`AC-23.2`, `AC-24.3`, `AC-26.3`).
 2. **Session Completion Idempotency:** The `game_history` table enforces a unique constraint on `session_id`. Replayed or duplicate game completion requests return `duplicate: true` idempotently with HTTP 200 without duplicating history rows or inflating achievements (`AC-23.3`).
-3. **Score Trust Model & Velocity Heuristics:** Client-reported scores are validated against mathematical bounds (`0 <= score <= 1,000,000`). Completed sessions evaluate the simulated score velocity (`score / duration_seconds`). Scores generated at `<= 120 pts/sec` are classified as `'verified'`. Scores exceeding physical gameplay capabilities or lacking telemetry are recorded but designated `'unverified'`.
-4. **Resumable Progression:** Supported single-player titles (e.g. Cyber Invaders) save checkpoint waves and scores to `game_progress`. Launching with `{ "resume": true }` initializes the runtime session at the player's saved wave and score (`AC-24.1`). If no progress exists, a new wave 1 session is cleanly initialized (`AC-24.2`).
-5. **Recent Session Audit:** Retrieves up to the 10 most recent completed sessions per player sorted in descending chronological order (`ORDER BY completed_at DESC LIMIT 10`) (`AC-25.1`, `AC-25.2`). Abandoned or uncompleted sessions are excluded from history (`AC-25.3`).
-6. **Milestone Achievements:** Game-specific achievements are evaluated against session metrics. Unlocking an achievement grants gamerscore points, records an immutable unlock timestamp, and issues real-time notifications (`AC-26.1`). Duplicate awards are prevented at the database layer (`AC-26.2`).
+3. **Score Trust Classifications:**
+   - Single-player games run on client devices. The backend applies fail-fast boundary checks ($0 \le score \le 1,000,000$) and point velocity heuristics ($\le 120\text{ pts/sec}$).
+   - `PLAUSIBILITY_CHECK_PASSED`: Scores passing heuristic checks are classified as plausibility checked. They are **not** labeled authoritatively verified because client-reported canvas outcomes cannot be mathematically proven without server simulation.
+   - `UNVERIFIED`: Scores exceeding velocity bounds or lacking duration telemetry.
+   - `AUTHORITATIVELY_VERIFIED`: Reserved for future server-authoritative multiplayer simulation.
+4. **Session Lifecycle & Transactional Atomicity:**
+   - Complete lifecycle: `ACTIVE` → `CHECKPOINT_SAVED` → `COMPLETION_RECORDED` → `SESSION_ENDED`.
+   - Completion recording, session transition to `completed`, checkpoint updating, and achievement awarding execute inside an atomic database transaction. Any failure rolls back all mutations cleanly.
+   - Sessions already ended reject score submissions with `HTTP 400 Bad Request`.
+5. **Resumable Progression:** Supported single-player titles (e.g. Cyber Invaders) save checkpoint waves and scores to `game_progress`. Launching with `{ "resume": true }` initializes the runtime session at the player's saved wave and score (`AC-24.1`). If no progress exists, a new wave 1 session is cleanly initialized (`AC-24.2`).
+6. **Recent Session Audit:** Retrieves up to the 10 most recent completed sessions per player sorted in descending chronological order (`ORDER BY completed_at DESC LIMIT 10`) (`AC-25.1`, `AC-25.2`). Abandoned or in-flight sessions are excluded from history (`AC-25.3`).
+7. **Provisional Milestone Achievements:** Achievements awarded from client-reported single-player gameplay are explicitly marked with `verification_type = 'PROVISIONAL'`. Duplicate awards are strictly prevented (`AC-26.1`, `AC-26.2`).
 
 ---
 
@@ -45,7 +53,7 @@ Records a completed game session into `game_history`, evaluates achievement unlo
   ```
 
 - **Field Constraints:**
-  - `sessionId` (String, UUID, Required): Must reference an existing session owned by the authenticated player.
+  - `sessionId` (String, UUID, Required): Must reference an active session owned by the authenticated player.
   - `gameId` (String, Required): Target game ID.
   - `score` (Integer, Required): Must be between `0` and `1,000,000`.
   - `level` (Integer, Optional): Level/Wave reached (default: 1).
@@ -55,47 +63,68 @@ Records a completed game session into `game_history`, evaluates achievement unlo
 - **Success Response (HTTP 200 OK — First Completion):**
   ```json
   {
-    "success": true,
+    "status": "SUCCESS",
+    "duplicate": false,
     "historyId": "hist-304bfa4d-bb03-4f9e-bf33-a3d82a4666f7",
-    "verificationStatus": "verified",
+    "score": 3850,
+    "level": 3,
+    "verificationStatus": "PLAUSIBILITY_CHECK_PASSED",
     "newAchievements": [
       {
         "id": "ach-001",
         "code": "FIRST_CONTACT",
         "title": "First Contact",
-        "description": "Score at least 10 points in Cyber Invaders",
+        "description": "Destroy your first alien invader and register telemetry score.",
         "points": 10,
-        "badgeIcon": "crosshair"
+        "icon": "target",
+        "verificationType": "PROVISIONAL"
       }
     ],
-    "message": "Game session completed and recorded successfully"
+    "message": "Game score and session history recorded successfully (AC-23.1).",
+    "history": {
+      "id": "hist-304bfa4d-bb03-4f9e-bf33-a3d82a4666f7",
+      "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
+      "gameId": "game-001",
+      "gameTitle": "Cyber Invaders",
+      "sessionId": "ses-91b40fd2-6899-4d69-a1b4-2195f1bc1d88",
+      "score": 3850,
+      "level": 3,
+      "durationSeconds": 145,
+      "verificationStatus": "PLAUSIBILITY_CHECK_PASSED",
+      "completedAt": "2026-10-25T06:15:00.000Z"
+    }
   }
   ```
 
 - **Success Response (HTTP 200 OK — Idempotent Duplicate Completion):**
   ```json
   {
-    "success": true,
-    "historyId": "hist-304bfa4d-bb03-4f9e-bf33-a3d82a4666f7",
+    "status": "SUCCESS",
     "duplicate": true,
-    "message": "Session score already recorded (idempotent submission)"
+    "historyId": "hist-304bfa4d-bb03-4f9e-bf33-a3d82a4666f7",
+    "score": 3850,
+    "level": 3,
+    "verificationStatus": "PLAUSIBILITY_CHECK_PASSED",
+    "message": "Game result already recorded for this session. Score was not duplicated (AC-23.3).",
+    "newAchievements": []
   }
   ```
 
 - **Error Responses:**
   - `HTTP 400 Bad Request`: Missing `sessionId`, negative score, or score exceeding 1,000,000.
     ```json
-    { "error": "Invalid score value. Score must be between 0 and 1,000,000." }
+    { "error": "INVALID_SCORE_RANGE", "message": "Invalid score: Score must be a non-negative integer (AC-23.1)." }
     ```
-  - `HTTP 400 Bad Request`: Session already marked ended or terminated.
+  - `HTTP 400 Bad Request`: Session already marked ended.
     ```json
-    { "error": "Session is already ended and cannot be modified." }
+    { "error": "SESSION_ALREADY_COMPLETED", "message": "Cannot record score: The target game session has already ended or terminated (AC-23.1)." }
     ```
   - `HTTP 401 Unauthorized`: Missing or invalid credentials.
   - `HTTP 403 Forbidden`: Session belongs to another player.
     ```json
-    { "error": "Unauthorized: Session belongs to another player" }
+    { "error": "UNAUTHORIZED_SESSION_ACCESS", "message": "Access denied: You cannot record game progress for another player's session (AC-23.2)." }
     ```
+  - `HTTP 404 Not Found`: Session ID does not exist in `game_sessions`.
 
 ---
 
@@ -108,13 +137,13 @@ Saves interim level and score progression for the active game session so the pla
 - **Request Body:**
   ```json
   {
-    "gameId": "game-001",
+    "gameId": "cyber-invaders",
     "level": 4,
     "score": 4200,
-    "stateJson": {
+    "state": {
       "wave": 4,
       "lives": 3,
-      "shields": 1
+      "bunkerIntegrity": [3, 2, 3]
     }
   }
   ```
@@ -122,65 +151,58 @@ Saves interim level and score progression for the active game session so the pla
 - **Success Response (HTTP 200 OK):**
   ```json
   {
-    "success": true,
-    "progress": {
-      "gameId": "game-001",
-      "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
-      "currentLevel": 4,
-      "highestScore": 4200,
-      "state": { "wave": 4, "lives": 3, "shields": 1 },
-      "lastPlayedAt": "2026-10-25T05:58:20.120Z"
-    },
-    "message": "Progress checkpoint saved successfully"
-  }
-  ```
-
-- **Error Responses:**
-  - `HTTP 400 Bad Request`: Missing `gameId` or negative level.
-  - `HTTP 401 Unauthorized`: Unauthenticated request.
-
----
-
-### 2.3 GET `/api/v1/progress/checkpoint/:gameId/:playerId`
-Retrieves the saved checkpoint progress for a specific player and game. Used to determine if the player can resume.
-
-- **URL:** `/api/v1/progress/checkpoint/:gameId/:playerId`
-- **Method:** `GET`
-- **Authentication:** Required.
-- **Parameters:**
-  - `gameId`: Game ID (e.g., `game-001`).
-  - `playerId`: Player ID (must match `req.player.id` unless requester is an Administrator).
-
-- **Success Response (HTTP 200 OK — Progress Exists):**
-  ```json
-  {
     "hasSavedProgress": true,
+    "gameId": "game-001",
+    "gameTitle": "Cyber Invaders",
+    "gameSlug": "cyber-invaders",
     "progress": {
       "id": "prog-810a0df6-a3bd-47c3-bb18-472efbf485e9",
-      "gameId": "game-001",
       "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
-      "currentLevel": 4,
-      "highestScore": 4200,
-      "state": { "wave": 4, "lives": 3, "shields": 1 },
-      "lastPlayedAt": "2026-10-25T05:58:20.120Z"
+      "level": 4,
+      "score": 4200,
+      "state": { "wave": 4, "lives": 3, "bunkerIntegrity": [3, 2, 3] },
+      "updatedAt": "2026-10-25T06:15:20.120Z"
     }
   }
   ```
 
-- **Success Response (HTTP 200 OK — No Progress Saved):**
+---
+
+### 2.3 GET `/api/v1/progress/checkpoint/:gameIdOrSlug`
+Retrieves saved checkpoint progress for the authenticated player.
+
+- **URL:** `/api/v1/progress/checkpoint/:gameIdOrSlug`
+- **Method:** `GET`
+- **Authentication:** Required.
+- **Success Response (HTTP 200 OK — Progress Exists):**
   ```json
   {
-    "hasSavedProgress": false,
-    "progress": null
+    "hasSavedProgress": true,
+    "gameId": "game-001",
+    "gameTitle": "Cyber Invaders",
+    "gameSlug": "cyber-invaders",
+    "progress": {
+      "id": "prog-810a0df6-a3bd-47c3-bb18-472efbf485e9",
+      "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
+      "level": 4,
+      "score": 4200,
+      "state": { "wave": 4, "lives": 3 },
+      "updatedAt": "2026-10-25T06:15:20.120Z"
+    }
   }
   ```
 
-- **Error Responses:**
-  - `HTTP 401 Unauthorized`: Unauthenticated request.
-  - `HTTP 403 Forbidden`: Player A attempting to query Player B's saved progress (`AC-24.3`).
-    ```json
-    { "error": "Unauthorized access to player progress" }
-    ```
+- **Success Response (HTTP 200 OK — No Saved Progress):**
+  ```json
+  {
+    "hasSavedProgress": false,
+    "gameId": "game-001",
+    "gameTitle": "Cyber Invaders",
+    "gameSlug": "cyber-invaders",
+    "progress": null,
+    "message": "No saved progress found for \"Cyber Invaders\". You can start a new mission from Level 1 (AC-24.2)."
+  }
+  ```
 
 ---
 
@@ -190,213 +212,111 @@ Retrieves up to the 10 most recent completed sessions for the specified player i
 - **URL:** `/api/v1/progress/history/:playerId?limit=10`
 - **Method:** `GET`
 - **Authentication:** Required.
-- **Query Parameters:**
-  - `limit`: Optional integer (defaults to `10`, max `50`).
 - **Success Response (HTTP 200 OK):**
   ```json
   {
     "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
-    "totalSessions": 14,
-    "count": 10,
+    "totalSessions": 10,
     "history": [
       {
-        "id": "hist-c001",
-        "sessionId": "ses-001",
+        "id": "gh-304bfa4d-bb03-4f9e-bf33-a3d82a4666f7",
+        "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
         "gameId": "game-001",
         "gameTitle": "Cyber Invaders",
-        "gameSlug": "cyber-invaders",
+        "sessionId": "ses-91b40fd2-6899-4d69-a1b4-2195f1bc1d88",
         "score": 3850,
         "level": 3,
         "durationSeconds": 145,
-        "gameMode": "single_player",
-        "verificationStatus": "verified",
-        "completedAt": "2026-10-25T05:58:20.000Z"
+        "verificationStatus": "PLAUSIBILITY_CHECK_PASSED",
+        "completedAt": "2026-10-25T06:15:00.000Z"
       }
-    ]
+    ],
+    "isEmpty": false,
+    "emptyMessage": "No completed game sessions recorded yet..."
   }
   ```
 
-- **Empty State Response (HTTP 200 OK — 0 Games Completed):**
+- **Empty State Response (HTTP 200 OK):**
   ```json
   {
     "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
     "totalSessions": 0,
-    "count": 0,
     "history": [],
-    "emptyMessage": "No completed game sessions found. Play a game to build your career history!"
+    "isEmpty": true,
+    "emptyMessage": "No completed game sessions recorded yet. Play a mission to build your gaming record (AC-25.3)!"
   }
   ```
 
-- **Error Responses:**
-  - `HTTP 403 Forbidden`: Cross-player history inspection blocked (`AC-23.2`).
-    ```json
-    { "error": "Unauthorized access to player history" }
-    ```
-
 ---
 
-### 2.5 GET `/api/v1/progress/achievements/:playerId`
-Retrieves all achievements for a player, including unlock status, earned timestamps, and total gamerscore points.
+### 2.5 GET `/api/v1/progress/achievements`
+Retrieves all achievements with unlock status and provisional tags.
 
-- **URL:** `/api/v1/progress/achievements/:playerId?gameId=game-001`
+- **URL:** `/api/v1/progress/achievements`
 - **Method:** `GET`
 - **Authentication:** Required.
-- **Query Parameters:**
-  - `gameId`: Optional game ID filter.
 - **Success Response (HTTP 200 OK):**
   ```json
   {
-    "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
-    "totalGamerscore": 60,
-    "unlockedCount": 3,
     "totalAchievements": 5,
+    "unlockedCount": 3,
+    "totalPoints": 60,
+    "isEmpty": false,
     "achievements": [
       {
-        "id": "ach-001",
-        "gameId": "game-001",
+        "id": "ach-first-blood",
         "code": "FIRST_CONTACT",
         "title": "First Contact",
-        "description": "Score at least 10 points in Cyber Invaders",
+        "description": "Destroy your first alien invader and register telemetry score.",
         "points": 10,
-        "badgeIcon": "crosshair",
-        "isUnlocked": true,
-        "unlockedAt": "2026-10-25T05:50:00.000Z"
-      },
-      {
-        "id": "ach-002",
-        "gameId": "game-001",
-        "code": "GRID_SENTINEL",
-        "title": "Grid Sentinel",
-        "description": "Score at least 20 points in Cyber Invaders",
-        "points": 20,
-        "badgeIcon": "shield",
-        "isUnlocked": true,
-        "unlockedAt": "2026-10-25T05:52:00.000Z"
-      },
-      {
-        "id": "ach-003",
-        "gameId": "game-001",
-        "code": "DEADEYE_GUNNER",
-        "title": "Deadeye Gunner",
-        "description": "Score at least 30 points in Cyber Invaders",
-        "points": 30,
-        "badgeIcon": "target",
-        "isUnlocked": false,
-        "unlockedAt": null
+        "icon": "target",
+        "gameTitle": "Cyber Invaders",
+        "gameSlug": "cyber-invaders",
+        "unlocked": true,
+        "unlockedAt": "2026-10-25T06:15:00.000Z",
+        "verificationType": "PROVISIONAL"
       }
     ]
   }
   ```
 
-- **Empty State Response (HTTP 200 OK — 0 Unlocked):**
-  ```json
-  {
-    "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
-    "totalGamerscore": 0,
-    "unlockedCount": 0,
-    "totalAchievements": 5,
-    "achievements": [ ... ],
-    "emptyMessage": "No achievements earned yet. Play games and hit high scores to unlock badges!"
-  }
-  ```
-
-- **Error Responses:**
-  - `HTTP 403 Forbidden`: Cross-player private achievement status hidden (`AC-26.3`).
-    ```json
-    { "error": "Unauthorized access to player achievements" }
-    ```
-
 ---
 
-### 2.6 POST `/api/v1/games/:idOrSlug/launch` (with Resume Option)
-Enhanced launch endpoint supporting wave checkpoint resumption (`EP07-02`, `AC-24.1`).
+## 3. Database Schema & Data Integrity
 
-- **URL:** `/api/v1/games/:idOrSlug/launch`
-- **Method:** `POST`
-- **Request Body (Resuming Saved Level):**
-  ```json
-  {
-    "resume": true,
-    "clientCapabilities": {
-      "canvas": true,
-      "webgl": true
-    }
-  }
-  ```
+```sql
+-- Completed game audit ledger
+CREATE TABLE IF NOT EXISTS game_history (
+    id TEXT PRIMARY KEY,
+    player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+    game_id TEXT NOT NULL REFERENCES games(id),
+    session_id TEXT UNIQUE REFERENCES game_sessions(id),
+    score INTEGER NOT NULL DEFAULT 0,
+    level INTEGER NOT NULL DEFAULT 1,
+    duration_seconds INTEGER DEFAULT 0,
+    verification_status TEXT NOT NULL DEFAULT 'PLAUSIBILITY_CHECK_PASSED',
+    details_json TEXT,
+    completed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-- **Success Response (HTTP 200 OK — Resumed at Saved Checkpoint):**
-  ```json
-  {
-    "launchTicket": "ltkt-eyJzZXNzaW9uSWQiOiJzZXMtNTA2MTNjY2QtNy4uLiJ9.1906cb86...",
-    "sessionId": "ses-50613ccd-7a24-4db2-a78e-d90f66e556c5",
-    "resumed": true,
-    "session": {
-      "sessionId": "ses-50613ccd-7a24-4db2-a78e-d90f66e556c5",
-      "gameId": "game-001",
-      "playerId": "usr-d779269e-17cf-4963-89ea-baefc4b574a4",
-      "mode": "single_player",
-      "status": "active",
-      "score": 4200,
-      "wave": 4,
-      "restartCount": 0,
-      "startedAt": "2026-10-25T05:58:25.000Z"
-    },
-    "game": {
-      "id": "game-001",
-      "slug": "cyber-invaders",
-      "title": "Cyber Invaders"
-    }
-  }
-  ```
-
----
-
-## 3. Database Integrity & Constraints
-
-### 3.1 Relational Schema Diagram
-```
-+--------------------+           +------------------------+
-|    game_sessions   |           |      game_history      |
-+--------------------+           +------------------------+
-| id (PK, UUID)      | <-------+ | id (PK, UUID)          |
-| game_id (FK)       |           | session_id (FK, UNIQUE)|
-| player_id (FK)     |           | player_id (FK)         |
-| status             |           | game_id (FK)           |
-| score              |           | score (INTEGER)        |
-| wave / level       |           | level (INTEGER)        |
-| restart_count      |           | verification_status    |
-+--------------------+           +------------------------+
-           |                                  |
-           v                                  v
-+--------------------+           +------------------------+
-|   game_progress    |           |   player_achievements  |
-+--------------------+           +------------------------+
-| id (PK, UUID)      |           | id (PK, UUID)          |
-| player_id (FK)     |           | player_id (FK)         |
-| game_id (FK)       |           | achievement_id (FK)    |
-| current_level      |           | unlocked_at (DATETIME) |
-| highest_score      |           | session_id (FK)        |
-| UNIQUE(player,game)|           | UNIQUE(player,achieve) |
-+--------------------+           +------------------------+
+-- Player achievement unlocks
+CREATE TABLE IF NOT EXISTS player_achievements (
+    id TEXT PRIMARY KEY,
+    player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+    achievement_id TEXT NOT NULL REFERENCES achievements(id) ON DELETE CASCADE,
+    game_id TEXT NOT NULL REFERENCES games(id),
+    verification_type TEXT NOT NULL DEFAULT 'PROVISIONAL',
+    unlocked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    session_id TEXT,
+    UNIQUE(player_id, achievement_id)
+);
 ```
 
-### 3.2 Integrity Invariants
-1. **Idempotency Guarantee:** `UNIQUE INDEX idx_game_history_session ON game_history(session_id)` guarantees that no single session can be recorded more than once.
-2. **Duplicate Badge Prevention:** `UNIQUE INDEX idx_player_achievements_unique ON player_achievements(player_id, achievement_id)` prevents granting the same achievement more than once to a player.
-3. **Single Checkpoint Per Title:** `UNIQUE INDEX idx_game_progress_player_game ON game_progress(player_id, game_id)` ensures only one active checkpoint state exists per player-game pair.
-4. **Referential Integrity:** Foreign keys link to `users(id)` and `games(id)`. Cascade or delete constraints prevent dangling progress data.
-
 ---
 
-## 4. Error Code Summary
+## 4. Trust Model & Security Invariants
 
-| HTTP Status | Error String | Cause / Resolution |
-| :--- | :--- | :--- |
-| `400 Bad Request` | `Invalid score value. Score must be between 0 and 1,000,000.` | Score submitted was `< 0` or `> 1,000,000`. |
-| `400 Bad Request` | `Session is already ended and cannot be modified.` | Attempted to submit completion for an expired/ended session. |
-| `401 Unauthorized` | `Authentication token missing or invalid.` | User is not logged in or JWT is expired. |
-| `403 Forbidden` | `Unauthorized access to player history` | Requesting history for a player ID other than caller's authenticated ID. |
-| `403 Forbidden` | `Unauthorized access to player progress` | Requesting checkpoint for a player ID other than caller's authenticated ID. |
-| `403 Forbidden` | `Unauthorized access to player achievements` | Requesting private achievements for another player. |
-| `404 Not Found` | `Session not found or invalid.` | Session UUID does not exist in `game_sessions`. |
-| `500 Server Error` | `Internal progress engine error.` | Database or runtime exception caught and safely wrapped. |
+1. **Plausibility vs Authoritative Verification:** Heuristic verification ($\le 120\text{ pts/sec}$) flags scores as `PLAUSIBILITY_CHECK_PASSED`. Scores are never marked `AUTHORITATIVELY_VERIFIED` in single-player mode.
+2. **Idempotency:** Unique index `idx_game_history_session` ensures that replayed session completions return `duplicate: true` idempotently without altering existing scores or creating duplicate history records.
+3. **Transactional Integrity:** Session completion status change, history creation, checkpoint persistence, and achievement awards run inside an atomic transaction. Any error rolls back all mutations cleanly.
+4. **Data Isolation:** Cross-player inspection or submission attempts strictly return `HTTP 403 Forbidden`.

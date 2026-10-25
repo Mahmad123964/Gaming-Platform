@@ -40,6 +40,26 @@ class DatabaseManager {
     try {
       this.db.exec('ALTER TABLE game_sessions ADD COLUMN restart_count INTEGER NOT NULL DEFAULT 0;');
     } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE player_achievements ADD COLUMN verification_type TEXT NOT NULL DEFAULT "PROVISIONAL";');
+    } catch (e) {}
+    try {
+      this.db.exec("UPDATE game_history SET verification_status = 'PLAUSIBILITY_CHECK_PASSED' WHERE verification_status = 'verified';");
+    } catch (e) {}
+  }
+
+  transaction(fn) {
+    this.db.exec('BEGIN IMMEDIATE;');
+    try {
+      const result = fn();
+      this.db.exec('COMMIT;');
+      return result;
+    } catch (err) {
+      try {
+        this.db.exec('ROLLBACK;');
+      } catch (_) {}
+      throw err;
+    }
   }
 
   query(sql, params = []) {

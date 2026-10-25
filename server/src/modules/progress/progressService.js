@@ -25,7 +25,7 @@ class ProgressService {
         score INTEGER NOT NULL DEFAULT 0,
         level INTEGER NOT NULL DEFAULT 1,
         duration_seconds INTEGER DEFAULT 0,
-        verification_status TEXT NOT NULL DEFAULT 'verified',
+        verification_status TEXT NOT NULL DEFAULT 'PLAUSIBILITY_CHECK_PASSED',
         details_json TEXT,
         completed_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
@@ -52,13 +52,20 @@ class ProgressService {
         player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
         achievement_id TEXT NOT NULL REFERENCES achievements(id) ON DELETE CASCADE,
         game_id TEXT NOT NULL REFERENCES games(id),
+        verification_type TEXT NOT NULL DEFAULT 'PROVISIONAL',
         unlocked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         session_id TEXT,
         UNIQUE(player_id, achievement_id)
       )
     `);
 
-    // 4. Ensure indexes
+    // 4. Ensure schema migrations and indexes
+    try {
+      this.db.run('ALTER TABLE player_achievements ADD COLUMN verification_type TEXT NOT NULL DEFAULT "PROVISIONAL"');
+    } catch (_) {}
+    try {
+      this.db.run("UPDATE game_history SET verification_status = 'PLAUSIBILITY_CHECK_PASSED' WHERE verification_status = 'verified'");
+    } catch (_) {}
     try {
       this.db.run('CREATE UNIQUE INDEX IF NOT EXISTS idx_game_progress_player_game ON game_progress(player_id, game_id)');
     } catch (_) {}
@@ -233,62 +240,92 @@ class ProgressService {
     // 5. Level Bounds Validation (AC-24.1, bounds [1, 99])
     const parsedLevel = Math.max(1, Math.min(99, parseInt(level, 10) || 1));
 
-    // 6. Score Trust Model & Heuristic Verification Status
-    // Max legitimate points velocity in Cyber Invaders: ~100 points/sec
+    // 6. Score Trust Classification (Task 1)
+    // Note: Cyber Invaders is executed as a client-side canvas simulation in Sprint 05.
+    // The backend applies numeric plausibility bounds (0 <= score <= 1,000,000) and point velocity limits (<= 120 pts/sec).
+    // Scores passing these heuristic limits are accurately classified as 'PLAUSIBILITY_CHECK_PASSED'.
+    // They are NOT classified as 'AUTHORITATIVELY_VERIFIED' because client-reported browser outcomes
+    // cannot be authoritatively proven without server-authoritative tick replay simulation.
+    // Scores exceeding velocity limits or with missing telemetry are marked 'UNVERIFIED'.
     const safeDuration = Math.max(1, parseInt(durationSeconds, 10) || 1);
     const velocity = parsedScore / safeDuration;
-    const isVerified = velocity <= 120 && parsedScore <= 500000;
-    const verificationStatus = isVerified ? 'verified' : 'unverified';
+    const isPlausible = velocity <= 120 && parsedScore <= 500000;
+    const verificationStatus = isPlausible ? 'PLAUSIBILITY_CHECK_PASSED' : 'UNVERIFIED';
 
-    // 7. Record Game Completion in game_history (AC-23.1)
+    // 7. Atomic Transactional Session Lifecycle (Task 2)
+    // Lifecycle: ACTIVE -> CHECKPOINT_SAVED -> COMPLETION_RECORDED -> SESSION_ENDED
+    // Wrap session status transition, game_history insertion, checkpoint saving, and achievement evaluation
+    // in an atomic database transaction to guarantee all-or-nothing consistency.
     const historyId = 'gh-' + crypto.randomUUID();
-    this.db.run(
-      `INSERT INTO game_history (
-        id, player_id, game_id, session_id, score, level, duration_seconds, verification_status, details_json, completed_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-      [
-        historyId,
-        playerId,
-        resolvedGameId,
-        sessionId,
-        parsedScore,
-        parsedLevel,
-        safeDuration,
-        verificationStatus,
-        JSON.stringify(state || {})
-      ]
-    );
+    let newAchievements = [];
+    let recordedRow = null;
 
-    // 8. Update Session State to completed
-    if (sessionId) {
+    const executeLifecycleTransaction = () => {
+      // Step A: Transition session state: ACTIVE -> COMPLETION_RECORDED / SESSION_ENDED
+      if (sessionId) {
+        this.db.run(
+          `UPDATE game_sessions 
+           SET status = 'completed', score = ?, ended_at = CURRENT_TIMESTAMP 
+           WHERE id = ?`,
+          [parsedScore, sessionId]
+        );
+      }
+
+      // Step B: Record Game Completion in game_history (AC-23.1)
       this.db.run(
-        `UPDATE game_sessions 
-         SET status = 'completed', score = ?, ended_at = CURRENT_TIMESTAMP 
-         WHERE id = ?`,
-        [parsedScore, sessionId]
+        `INSERT INTO game_history (
+          id, player_id, game_id, session_id, score, level, duration_seconds, verification_status, details_json, completed_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+        [
+          historyId,
+          playerId,
+          resolvedGameId,
+          sessionId,
+          parsedScore,
+          parsedLevel,
+          safeDuration,
+          verificationStatus,
+          JSON.stringify(state || {})
+        ]
       );
+
+      // Step C: Update / Upsert Saved Checkpoint Progress (EP07-02, AC-24.1)
+      this.saveProgress({
+        playerId,
+        gameId: resolvedGameId,
+        score: parsedScore,
+        level: parsedLevel,
+        state
+      });
+
+      // Step D: Evaluate & Award Achievements with PROVISIONAL classification (EP07-04, AC-26.1, Task 3)
+      newAchievements = this.evaluateMilestones({
+        playerId,
+        gameId: resolvedGameId,
+        score: parsedScore,
+        level: parsedLevel,
+        state,
+        sessionId
+      });
+
+      recordedRow = this.db.get('SELECT * FROM game_history WHERE id = ?', [historyId]);
+    };
+
+    if (typeof this.db.transaction === 'function') {
+      this.db.transaction(executeLifecycleTransaction);
+    } else {
+      this.db.run('BEGIN IMMEDIATE;');
+      try {
+        executeLifecycleTransaction();
+        this.db.run('COMMIT;');
+      } catch (txErr) {
+        try {
+          this.db.run('ROLLBACK;');
+        } catch (_) {}
+        throw txErr;
+      }
     }
 
-    // 9. Update / Upsert Saved Checkpoint Progress (EP07-02, AC-24.1)
-    this.saveProgress({
-      playerId,
-      gameId: resolvedGameId,
-      score: parsedScore,
-      level: parsedLevel,
-      state
-    });
-
-    // 10. Evaluate & Award Achievements (EP07-04, AC-26.1)
-    const newAchievements = this.evaluateMilestones({
-      playerId,
-      gameId: resolvedGameId,
-      score: parsedScore,
-      level: parsedLevel,
-      state,
-      sessionId
-    });
-
-    const recordedRow = this.db.get('SELECT * FROM game_history WHERE id = ?', [historyId]);
     return {
       status: 'SUCCESS',
       duplicate: false,
@@ -493,8 +530,8 @@ class ProgressService {
       if (!alreadyUnlocked) {
         const id = 'pach-' + crypto.randomUUID();
         this.db.run(
-          `INSERT INTO player_achievements (id, player_id, achievement_id, game_id, session_id, unlocked_at)
-           VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+          `INSERT INTO player_achievements (id, player_id, achievement_id, game_id, verification_type, session_id, unlocked_at)
+           VALUES (?, ?, ?, ?, 'PROVISIONAL', ?, CURRENT_TIMESTAMP)`,
           [id, playerId, ach.id, gameId, sessionId]
         );
         awarded.push({
@@ -503,7 +540,8 @@ class ProgressService {
           title: ach.title,
           description: ach.description,
           points: ach.points,
-          icon: ach.icon
+          icon: ach.icon,
+          verificationType: 'PROVISIONAL'
         });
       }
     };
@@ -565,7 +603,7 @@ class ProgressService {
     const sql = `
       SELECT a.id, a.code, a.title, a.description, a.points, a.icon,
              g.title as game_title, g.slug as game_slug,
-             pa.unlocked_at,
+             pa.unlocked_at, pa.verification_type,
              CASE WHEN pa.id IS NOT NULL THEN 1 ELSE 0 END as is_unlocked
       FROM achievements a
       JOIN games g ON a.game_id = g.id
@@ -598,7 +636,8 @@ class ProgressService {
         gameTitle: r.game_title,
         gameSlug: r.game_slug,
         unlocked: r.is_unlocked === 1,
-        unlockedAt: r.unlocked_at
+        unlockedAt: r.unlocked_at,
+        verificationType: r.verification_type || (r.is_unlocked === 1 ? 'PROVISIONAL' : null)
       }))
     };
   }

@@ -49,7 +49,7 @@ run_title.font.color.rgb = RGBColor(16, 24, 40)
 
 sub_p = doc.add_paragraph()
 sub_p.paragraph_format.space_after = Pt(16)
-run_sub = sub_p.add_run('NexusPlay Online Gaming Platform • Sprint 05 Verification & Closure Package • Version 1.0 • Date: 2026-10-25')
+run_sub = sub_p.add_run('NexusPlay Online Gaming Platform • Sprint 05 Verification & Closure Package • Version 1.1 • Date: 2026-10-25')
 run_sub.font.name = 'Arial'
 run_sub.font.size = Pt(11)
 run_sub.font.color.rgb = RGBColor(71, 84, 103)
@@ -59,15 +59,15 @@ doc.add_heading('1. Document Control & Metadata', level=2)
 ctrl_table = doc.add_table(rows=10, cols=2)
 ctrl_data = [
     ('Project Name', 'NexusPlay Online Gaming Platform'),
-    ('Sprint Identifier', 'Sprint 05: Game Progress, History & Achievements'),
+    ('Sprint Identifier', 'Sprint 05: Game Progress, History & Achievements (Final Security Verified)'),
     ('Approved User Stories', 'EP07-01, EP07-02, EP07-03, EP07-04'),
     ('Acceptance Criteria Verified', '12 / 12 Criteria Verified (AC-23.1..23.3, AC-24.1..24.3, AC-25.1..25.3, AC-26.1..26.3)'),
-    ('Architectural Baseline', 'ADR-0005: Game Progress, History, and Achievements Architecture'),
+    ('Architectural Baseline', 'ADR-0005: Game Progress, History, and Achievements Architecture (v1.1)'),
     ('Target Environment', 'Staging Gateway (http://localhost:5050) & SQLite Persistent Store'),
-    ('Automated Test Results', '50 / 50 Sprint 05 Automated Checks PASS (100% Success Rate)'),
-    ('Full Platform Regressions', '244 / 244 Automated Checks PASS (Sprints 00, 01, 02, 03, 04, 05) — ZERO Regressions'),
+    ('Automated Test Results', '60 / 60 Sprint 05 Automated Checks PASS (100% Success Rate)'),
+    ('Full Platform Regressions', '254 / 254 Automated Checks PASS (Sprints 00, 01, 02, 03, 04, 05) — ZERO Regressions'),
     ('Browser QA Verification', '7 / 7 Chrome CDP Automated Scenarios PASS with Authentic Full-Color Screenshots'),
-    ('Report Date & Author', '2026-10-25 • Lead Software Architect & QA Automation Lead')
+    ('Report Date & Author', '2026-10-25 • Lead Software Architect, Application Security Engineer & QA Lead')
 ]
 for row_idx, (k, v) in enumerate(ctrl_data):
     row = ctrl_table.rows[row_idx]
@@ -83,9 +83,12 @@ p_exec.text = (
     'Sprint 05 successfully implemented the comprehensive player career lifecycle for the NexusPlay Online Gaming Platform, '
     'delivering persistent game scores, wave-level checkpoint resumption, recent 10-session history retrieval with strict player data isolation, '
     'milestone-based achievement progression with gamerscore points, and a dedicated Obsidian Arcade Career Hub interface. '
-    'All four approved epic stories (EP07-01, EP07-02, EP07-03, and EP07-04) and all 12 approved acceptance criteria were fully implemented '
-    'and verified without regression. In total, 50 automated Sprint 05 test checks passed, all 194 historical regression checks passed '
-    '(yielding 244/244 platform-wide checks passing), and 7 real Chrome CDP browser automation scenarios were captured.'
+    'Following conditional approval and security review, the platform implemented accurate score trust classifications '
+    '(PLAUSIBILITY_CHECK_PASSED, UNVERIFIED, with AUTHORITATIVELY_VERIFIED reserved for server-authoritative simulation), '
+    'transactional session lifecycle guarantees (ACTIVE -> CHECKPOINT_SAVED -> COMPLETION_RECORDED -> SESSION_ENDED with atomic rollback), '
+    'and provisional achievement tagging. All four approved epic stories (EP07-01, EP07-02, EP07-03, and EP07-04) and all 12 approved acceptance criteria were fully verified. '
+    'In total, 60 automated Sprint 05 test checks passed, all 194 historical regression checks passed '
+    '(yielding 254/254 platform-wide checks passing, 100% success rate), and 7 real Chrome CDP browser automation scenarios were captured.'
 )
 
 # 3. Acceptance Criteria Traceability Matrix
@@ -115,21 +118,24 @@ for row_idx, r in enumerate(ac_rows):
         row.cells[col_idx].paragraphs[0].text = val
 style_table(ac_table)
 
-# 4. Architecture & Security Trust Model
-doc.add_heading('4. Architecture & Security Trust Model (ADR-0005)', level=2)
+# 4. Architecture, Trust Classifications & Session Lifecycle (ADR-0005)
+doc.add_heading('4. Architecture, Trust Classifications & Session Lifecycle (ADR-0005)', level=2)
 p_arch = doc.add_paragraph()
 p_arch.text = (
-    'In alignment with ADR-0005, the platform implemented a defense-in-depth architecture addressing game persistence:\n'
-    '• Database Relational Architecture: Added `game_history` (audit of all completed sessions), `achievements` (game-specific milestone definitions), '
-    'and `player_achievements` (unlocked badges with timestamps). Enforced unique constraints on `(player_id, game_id)` in `game_progress` '
-    'and `session_id` in `game_history`.\n'
-    '• Score Trust Model: Client-reported scores are validated against mathematical boundaries (0 <= score <= 1,000,000) and evaluated for simulated point velocity. '
-    'Sessions recording <= 120 points/second are marked "verified"; anomalous scores exceeding human limits are recorded for telemetry but marked "unverified" '
-    'rather than treated as competitive records.\n'
-    '• Session Idempotency: Replayed completion submissions return duplicate: true idempotently without duplicating database rows or inflating scores.\n'
+    'In alignment with ADR-0005 (v1.1) and Sprint 05 security directives, the platform implemented defense-in-depth architecture:\n'
+    '• Score Trust Classifications (Task 1): In Sprint 05, Cyber Invaders runs as a client-side HTML5 canvas game. '
+    'The backend does NOT independently execute server-side tick replay; it applies mathematical bounds (0 <= score <= 1,000,000) '
+    'and velocity checks (<= 120 pts/sec). Client-reported scores passing plausibility checks are accurately classified as '
+    'PLAUSIBILITY_CHECK_PASSED. Anomalous scores exceeding human limits are marked UNVERIFIED. The status AUTHORITATIVELY_VERIFIED '
+    'is reserved strictly for future server-authoritative multiplayer simulation. Historical scores were migrated to PLAUSIBILITY_CHECK_PASSED.\n'
+    '• Complete Session Lifecycle & Transactional Consistency (Task 2): The session progresses through '
+    'ACTIVE -> CHECKPOINT_SAVED -> COMPLETION_RECORDED -> SESSION_ENDED. Session completion, status transition, '
+    'history recording, checkpoint updating, and achievement evaluation are executed in an atomic database transaction. '
+    'Partial failures trigger an immediate rollback, guaranteeing no corrupt or partial records. Sessions already ended reject subsequent score submissions.\n'
+    '• Achievement Integrity & Provisional Tagging (Task 3): Single-player achievements derived from client-reported outcomes '
+    'are explicitly stored with verification_type = "PROVISIONAL" in player_achievements and displayed with a PROVISIONAL badge in the UI.\n'
     '• Offline Progress PWA Integration Boundary: In strict adherence to governance boundaries, offline background synchronization was NOT implemented. '
-    'The architectural boundary for future PWA Service Worker caching and background sync is formally documented in ADR-0005.\n'
-    '• Multi-Session Concurrency: Each launch creates an isolated, cryptographically signed session. Multiple concurrent tabs operate with independent state.'
+    'The architectural boundary for future PWA Service Worker caching and background sync is formally documented in ADR-0005.'
 )
 
 # 5. Obsidian Arcade UI/UX Implementation
@@ -138,7 +144,7 @@ p_ui = doc.add_paragraph()
 p_ui.text = (
     'The frontend interface was enhanced with Obsidian Arcade design components:\n'
     '• ProgressHubModal: Three-tab career center featuring "Recent Sessions (Last 10)", "Achievements (X/5)", and "Saved Progress Checkpoint". '
-    'Includes verification badges, gamerscore totals, locked/unlocked visual medal cards, and "Resume Mission" action button.\n'
+    'Renders "⚡ Plausibility Checked" cyan badges on verified client outcomes, PROVISIONAL tags on earned medals, gamerscore totals, and "Resume Mission" CTA.\n'
     '• GameDetailsModal: Added dynamic checkpoint detection. If saved progress exists, renders "Resume at Wave X" alongside "Restart Mission".\n'
     '• GamePlayerModal: Integrated level resumption badges, in-game achievement unlock toast banners, and automatic progress persistence upon game over.\n'
     '• Navbar & Discovery Engine: Added "Career Hub" buttons accessible across desktop and mobile viewports with responsive CSS Modules.'
@@ -152,7 +158,7 @@ for col_idx, h in enumerate(qa_headers):
     qa_table.rows[0].cells[col_idx].paragraphs[0].text = h
 
 qa_data = [
-    ('Sprint 05 Progress & History Suite', 'EP07-01..EP07-04, SEC-01..05', '50 / 50 PASSED (100%)', '1.8s (PASS)'),
+    ('Sprint 05 Progress & History Suite', 'EP07-01..EP07-04, Tasks 1..3, Lifecycle, Regressions', '60 / 60 PASSED (100%)', '1.9s (PASS)'),
     ('Sprint 04 Game Launching Suite', 'EP03-01, EP03-03, EP03-04, EP04-01, EP04-03', '40 / 40 PASSED (100%)', '2.1s (PASS)'),
     ('Sprint 03 Content Admin Suite', 'EP03-02, EP10-01..10-03, EP11-02', '69 / 69 PASSED (100%)', '2.8s (PASS)'),
     ('Sprint 02 Discovery & Catalog Suite', 'EP02-01..EP02-04, Regressions', '31 / 31 PASSED (100%)', '1.3s (PASS)'),
@@ -174,8 +180,8 @@ for col_idx, h in enumerate(shot_headers):
 
 shot_data = [
     ('Figure 1', '01-career-hub-overview.png', 'Career Hub Modal Overview', 'Modal renders with player gamertag, obsidian header, and tab navigation'),
-    ('Figure 2', '02-recent-history-table.png', 'Recent Sessions History Tab', 'Table displays recent completed games with score, duration, and green Verified badges'),
-    ('Figure 3', '03-achievements-grid.png', 'Achievements Grid & Gamerscore', 'Unlocked medals render with cyan borders & checkmarks; locked badges show lock icons'),
+    ('Figure 2', '02-recent-history-table.png', 'Recent Sessions History Tab', 'Table displays recent completed games with score, duration, and cyan "⚡ Plausibility Checked" badges'),
+    ('Figure 3', '03-achievements-grid.png', 'Achievements Grid & Gamerscore', 'Unlocked medals render with cyan borders, checkmarks, and PROVISIONAL tags; locked badges show lock icons'),
     ('Figure 4', '04-saved-checkpoint-card.png', 'Saved Checkpoint Progress Card', 'Card displays Wave 4 checkpoint, 4,200 saved score, and Resume at Wave 4 CTA'),
     ('Figure 5', '05-resumed-gameplay-wave.png', 'In-Game Checkpoint Resumption', 'Cyber Invaders launches with "Resumed Wave 4" badge and restored 4,200 live score'),
     ('Figure 6', '06-achievement-unlock-toast.png', 'In-Game Achievement Toast', 'Visual achievement banner toast alerts player to milestone unlock in real time'),
@@ -195,9 +201,9 @@ for col_idx, h in enumerate(risk_headers):
     risk_table.rows[0].cells[col_idx].paragraphs[0].text = h
 
 risk_data = [
-    ('RISK-01', 'Client-side score manipulation & forgery', 'Scores checked against bounds (0..1M) and velocity (<=120 pts/s); anomalous scores marked unverified', 'Low (Single-player scope; server authoritative simulation deferred to competitive multiplayer)'),
+    ('RISK-01', 'Client-side score manipulation & forgery', 'Accurately classified as PLAUSIBILITY_CHECK_PASSED; values checked against bounds (0..1M) and velocity (<=120 pts/s); anomalous scores marked UNVERIFIED', 'Low (Single-player scope; server authoritative simulation deferred to competitive multiplayer in Sprint 06+)'),
     ('RISK-02', 'Duplicate / replayed score submissions', 'Unique constraint on idx_game_history_session; duplicate submissions return duplicate: true idempotently', 'Negligible (Completely prevented at database constraint layer)'),
-    ('RISK-03', 'Submitting score updates to ended/expired sessions', 'Session status checked before completion; ended sessions reject completion with HTTP 400', 'Negligible (Enforced in progressService.js)'),
+    ('RISK-03', 'Submitting score updates to ended/expired sessions', 'Session status validated before transaction; ended sessions reject completion with HTTP 400 Bad Request', 'Negligible (Enforced in progressService.js)'),
     ('RISK-04', 'Cross-player score/checkpoint/achievement access', 'Ownership validated against req.player.id; cross-player inspection returns HTTP 403 Forbidden', 'Negligible (Strict RBAC & identity binding)'),
     ('RISK-05', 'Multiple simultaneous session interference', 'Sessions are strictly isolated by unique session UUIDs; concurrent tabs maintain independent state', 'Low (Handled via independent session records)'),
     ('RISK-06', 'Launch ticket replay / URL bypass', 'HMAC-SHA256 directLaunchGuard blocks URL access without valid, unexpired ticket', 'Negligible (Preserved from Sprint 04 baseline)'),
@@ -213,14 +219,15 @@ style_table(risk_table)
 doc.add_heading('9. Definition of Done Checklist', level=2)
 dod_items = [
     ('Every approved acceptance criterion (AC-23.1..23.3, AC-24.1..24.3, AC-25.1..25.3, AC-26.1..26.3) verified', True),
-    ('Game scores persist correctly in player history database', True),
+    ('Game scores persist correctly in player history database with PLAUSIBILITY_CHECK_PASSED trust classification', True),
+    ('Complete session lifecycle verified: ACTIVE -> CHECKPOINT_SAVED -> COMPLETION_RECORDED -> SESSION_ENDED with transactional rollback', True),
     ('Supported wave levels can be saved as checkpoints and resumed in active gameplay', True),
     ('Recent game history displays up to 10 latest completed sessions in chronological order', True),
-    ('Earned achievements persist correctly and display points, status, and unlock timestamps', True),
+    ('Earned achievements persist correctly and display points, status, unlock timestamps, and PROVISIONAL tags', True),
     ('Player data isolation is strictly enforced across history, checkpoints, and achievements', True),
-    ('Score manipulation risks mitigated via boundary defense and heuristic velocity trust model', True),
-    ('Existing regression tests pass across Sprints 00, 01, 02, 03, and 04 (244/244 PASS total)', True),
-    ('Chrome CDP automated browser tests genuinely executed with 7 authentic screenshots', True),
+    ('Negative tests covering fabricated but plausible scores and ended sessions pass', True),
+    ('Existing regression tests pass across Sprints 00, 01, 02, 03, 04, and 05 (254/254 PASS total)', True),
+    ('Chrome CDP automated browser tests genuinely executed with 7 authentic screenshots showing updated badges', True),
     ('Sprint-05-Implementation-Report.docx and MASTER-Implementation-Record.docx updated to Version 1.1', True)
 ]
 for item, checked in dod_items:
@@ -243,7 +250,7 @@ master_doc = docx.Document(master_path)
 t0 = master_doc.tables[0]
 for row in t0.rows:
     if 'Sprint' in row.cells[0].text:
-        row.cells[1].text = 'Sprint 05: Game Progress, History & Achievements (EP07-01, EP07-02, EP07-03, EP07-04) — Final Closure Verified'
+        row.cells[1].text = 'Sprint 05: Game Progress, History & Achievements (EP07-01, EP07-02, EP07-03, EP07-04) — Final Security & Closure Verified'
     elif 'Version' in row.cells[0].text:
         row.cells[1].text = '1.1'
 
@@ -254,13 +261,14 @@ for row in t1.rows:
     if row.cells[0].text.strip() == '1.1':
         row.cells[1].text = '2026-10-25'
         row.cells[2].text = (
-            'Sprint 05 Final Closure Verification: Implemented Game Progress, History & Achievements covering EP07-01, EP07-02, EP07-03, and EP07-04. '
+            'Sprint 05 Final Security & Closure Verification: Completed Game Progress, History & Achievements covering EP07-01, EP07-02, EP07-03, and EP07-04. '
             'Delivered ProgressService with game completion score recording, wave-level checkpoint persistence and resumption, recent 10-session history retrieval '
-            'with strict player data isolation, and milestone-based achievement awards. Implemented heuristic velocity verification trust model distinguishing verified vs unverified scores. '
-            'Enforced idempotency on session completion via idx_game_history_session unique index. Delivered Obsidian Arcade ProgressHubModal with tabs for history, achievements, and checkpoints. '
-            'Wired level resumption into GameDetailsModal and GamePlayerModal with live Wave 4 checkpoint restoration and achievement unlock toast notifications. '
-            'Full platform regression verified: 50/50 Sprint 05 tests PASS, 40/40 Sprint 04 tests PASS, 69/69 Sprint 03 admin tests PASS, 31/31 Sprint 02 catalog tests PASS, '
-            '49/49 Sprint 01 auth tests PASS, 5/5 staging smoke checks PASS (244/244 automated PASS total, 100% success rate), and 7/7 Chrome CDP browser scenarios PASS with 7 authentic screenshots.'
+            'with strict player data isolation, and milestone-based achievement awards. Implemented accurate score trust classifications '
+            '(PLAUSIBILITY_CHECK_PASSED for scores within velocity <=120 pts/sec, UNVERIFIED for anomalous scores, with AUTHORITATIVELY_VERIFIED reserved for future server-authoritative simulation). '
+            'Migrated historical trust statuses. Implemented complete session lifecycle (ACTIVE -> CHECKPOINT_SAVED -> COMPLETION_RECORDED -> SESSION_ENDED) with atomic database transaction rollback. '
+            'Tagged client-reported single-player achievements with PROVISIONAL verification_type. Delivered Obsidian Arcade ProgressHubModal with "⚡ Plausibility Checked" badges. '
+            'Full platform regression verified: 60/60 Sprint 05 tests PASS, 40/40 Sprint 04 tests PASS, 69/69 Sprint 03 admin tests PASS, 31/31 Sprint 02 catalog tests PASS, '
+            '49/49 Sprint 01 auth tests PASS, 5/5 staging smoke checks PASS (254/254 automated PASS total, 100% success rate), and 7/7 Chrome CDP browser scenarios PASS with 7 authentic screenshots.'
         )
         row.cells[3].text = 'docs/reports/Sprint-05-Implementation-Report.docx'
         found_v11 = True
@@ -271,13 +279,14 @@ if not found_v11:
     new_row.cells[0].paragraphs[0].text = '1.1'
     new_row.cells[1].paragraphs[0].text = '2026-10-25'
     new_row.cells[2].paragraphs[0].text = (
-        'Sprint 05 Final Closure Verification: Implemented Game Progress, History & Achievements covering EP07-01, EP07-02, EP07-03, and EP07-04. '
+        'Sprint 05 Final Security & Closure Verification: Completed Game Progress, History & Achievements covering EP07-01, EP07-02, EP07-03, and EP07-04. '
         'Delivered ProgressService with game completion score recording, wave-level checkpoint persistence and resumption, recent 10-session history retrieval '
-        'with strict player data isolation, and milestone-based achievement awards. Implemented heuristic velocity verification trust model distinguishing verified vs unverified scores. '
-        'Enforced idempotency on session completion via idx_game_history_session unique index. Delivered Obsidian Arcade ProgressHubModal with tabs for history, achievements, and checkpoints. '
-        'Wired level resumption into GameDetailsModal and GamePlayerModal with live Wave 4 checkpoint restoration and achievement unlock toast notifications. '
-        'Full platform regression verified: 50/50 Sprint 05 tests PASS, 40/40 Sprint 04 tests PASS, 69/69 Sprint 03 admin tests PASS, 31/31 Sprint 02 catalog tests PASS, '
-        '49/49 Sprint 01 auth tests PASS, 5/5 staging smoke checks PASS (244/244 automated PASS total, 100% success rate), and 7/7 Chrome CDP browser scenarios PASS with 7 authentic screenshots.'
+        'with strict player data isolation, and milestone-based achievement awards. Implemented accurate score trust classifications '
+        '(PLAUSIBILITY_CHECK_PASSED for scores within velocity <=120 pts/sec, UNVERIFIED for anomalous scores, with AUTHORITATIVELY_VERIFIED reserved for future server-authoritative simulation). '
+        'Migrated historical trust statuses. Implemented complete session lifecycle (ACTIVE -> CHECKPOINT_SAVED -> COMPLETION_RECORDED -> SESSION_ENDED) with atomic database transaction rollback. '
+        'Tagged client-reported single-player achievements with PROVISIONAL verification_type. Delivered Obsidian Arcade ProgressHubModal with "⚡ Plausibility Checked" badges. '
+        'Full platform regression verified: 60/60 Sprint 05 tests PASS, 40/40 Sprint 04 tests PASS, 69/69 Sprint 03 admin tests PASS, 31/31 Sprint 02 catalog tests PASS, '
+        '49/49 Sprint 01 auth tests PASS, 5/5 staging smoke checks PASS (254/254 automated PASS total, 100% success rate), and 7/7 Chrome CDP browser scenarios PASS with 7 authentic screenshots.'
     )
     new_row.cells[3].paragraphs[0].text = 'docs/reports/Sprint-05-Implementation-Report.docx'
 
@@ -290,7 +299,7 @@ for row in t2.rows:
         row.cells[3].text = 'evidence/sprint-04/'
         row.cells[4].text = 'Verified / Closed'
     elif sprint_cell == '05':
-        row.cells[2].text = 'Completed / Fully Verified (12/12 ACs, 50/50 Tests, 7/7 Browser)'
+        row.cells[2].text = 'Completed / Fully Verified (12/12 ACs, 60/60 Tests, 7/7 Browser)'
         row.cells[3].text = 'evidence/sprint-05/'
         row.cells[4].text = 'Pending PO Approval'
 
@@ -303,9 +312,11 @@ for idx, p in enumerate(master_doc.paragraphs):
                 'Delivered: EP07-01 (Score Persistence: score and duration recording in game_history, player isolation enforcement, session idempotency), '
                 'EP07-02 (Resume Level: wave level checkpoint saving, resumption at saved checkpoint wave/score, clear empty state for unprogressed games, cross-player level access denial), '
                 'EP07-03 (Recent Session History: exactly 10 latest completed sessions retrieved, reverse chronological ordering, empty-state message), '
-                'EP07-04 (Achievements: milestone evaluation and awards, duplicate award protection, gamerscore point accumulation, empty-state message, private achievement protection). '
-                'UI Components: Obsidian Arcade ProgressHubModal (History, Achievements, Checkpoints), GameDetailsModal level resume CTA, in-game achievement unlock toast notifications. '
-                'Automated Test Results: 50/50 Sprint 05 tests PASS (100%). Full Platform Regressions: 244/244 automated tests PASS (100% across Sprints 00–05). '
+                'EP07-04 (Achievements: milestone evaluation and awards, duplicate award protection, gamerscore point accumulation, PROVISIONAL status tagging, empty-state message, private achievement protection). '
+                'Security Hardening: Accurate score trust classification (PLAUSIBILITY_CHECK_PASSED vs UNVERIFIED vs AUTHORITATIVELY_VERIFIED reserved), '
+                'complete session lifecycle (ACTIVE -> CHECKPOINT_SAVED -> COMPLETION_RECORDED -> SESSION_ENDED) with atomic database transaction rollback. '
+                'UI Components: Obsidian Arcade ProgressHubModal (History, Achievements, Checkpoints with "⚡ Plausibility Checked" badges), GameDetailsModal level resume CTA, in-game achievement unlock toast notifications. '
+                'Automated Test Results: 60/60 Sprint 05 tests PASS (100%). Full Platform Regressions: 254/254 automated tests PASS (100% across Sprints 00–05). '
                 'Browser Automation: 7/7 Chrome CDP scenarios PASS with 7 authentic screenshots captured in evidence/sprint-05/screenshots/. '
                 'Report: docs/reports/Sprint-05-Implementation-Report.docx.'
             )

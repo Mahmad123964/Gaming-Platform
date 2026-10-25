@@ -163,15 +163,27 @@ export const ProgressHubModal: React.FC<ProgressHubModalProps> = ({
                             <td>{record.durationSeconds}s</td>
                             <td className={styles.scoreCell}>{record.score.toLocaleString()}</td>
                             <td>
-                              {record.verificationStatus === 'verified' ? (
-                                <span className={styles.badgeVerified}>
+                              {record.verificationStatus === 'PLAUSIBILITY_CHECK_PASSED' || record.verificationStatus === 'verified' ? (
+                                <span className={styles.badgePlausibility} title="Client-reported outcome passed heuristic velocity & boundary plausibility checks">
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                                  </svg>
+                                  Plausibility Checked
+                                </span>
+                              ) : record.verificationStatus === 'AUTHORITATIVELY_VERIFIED' ? (
+                                <span className={styles.badgeAuthoritative} title="Server-authoritatively verified gameplay simulation">
                                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                                     <polyline points="20 6 9 17 4 12" />
                                   </svg>
-                                  Verified
+                                  Authoritative
                                 </span>
                               ) : (
-                                <span className={styles.badgeUnverified}>
+                                <span className={styles.badgeUnverified} title="Score exceeds plausibility thresholds or lacks telemetry">
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                  </svg>
                                   Unverified
                                 </span>
                               )}
@@ -232,7 +244,14 @@ export const ProgressHubModal: React.FC<ProgressHubModalProps> = ({
                           <div className={styles.achBody}>
                             <h4 className={styles.achTitle}>{ach.title}</h4>
                             <p className={styles.achDesc}>{ach.description}</p>
-                            <div className={styles.achPoints}>+{ach.points} POINTS</div>
+                            <div className={styles.achMetaRow}>
+                              <div className={styles.achPoints}>+{ach.points} POINTS</div>
+                              {ach.unlocked && (
+                                <span className={styles.achProvisionalBadge} title="Provisional milestone earned via client-reported single-player gameplay">
+                                  {ach.verificationType || 'PROVISIONAL'}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}

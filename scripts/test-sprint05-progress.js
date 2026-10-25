@@ -149,7 +149,7 @@ async function run() {
   assert(completeAlphaRes.status === 200, 'AC-23.1a', 'Score completion returns HTTP 200 OK (AC-23.1)');
   assert(completeAlphaData.status === 'SUCCESS' && completeAlphaData.historyId, 'AC-23.1b', 'History record created with unique historyId (AC-23.1)');
   assert(completeAlphaData.score === 1850 && completeAlphaData.level === 3, 'AC-23.1c', 'Recorded score (1,850) and wave level (3) match submitted payload (AC-23.1)');
-  assert(completeAlphaData.verificationStatus === 'verified', 'AC-23.1d', 'Reasonable score within velocity threshold marked "verified"');
+  assert(completeAlphaData.verificationStatus === 'PLAUSIBILITY_CHECK_PASSED', 'AC-23.1d', 'Reasonable score within velocity threshold marked "PLAUSIBILITY_CHECK_PASSED" (Task 1)');
 
   // Verify in DB that history row belongs to alphaId
   const historyDbRow = db.get("SELECT * FROM game_history WHERE session_id = ?", [alphaSessionId]);
@@ -495,7 +495,7 @@ async function run() {
   });
   const highVelData = await highVelRes.json();
   assert(highVelRes.status === 200, 'SEC-02a', 'High score accepted for telemetry recording');
-  assert(highVelData.verificationStatus === 'unverified', 'SEC-02b', 'Score exceeding human simulation velocity marked "unverified" rather than trusted');
+  assert(highVelData.verificationStatus === 'UNVERIFIED', 'SEC-02b', 'Score exceeding human simulation velocity marked "UNVERIFIED" rather than trusted (Task 1)');
 
   // SEC-03: Submitting score update to non-existent session
   const nonExistentSessionRes = await fetch(`${BASE_URL}/api/v1/progress/complete`, {
@@ -544,6 +544,154 @@ async function run() {
     method: 'GET'
   });
   assert(unauthRes.status === 401, 'SEC-05a', 'Direct unauthenticated API access returns HTTP 401 Unauthorized');
+
+  console.log('\n--- Phase 6: Session Lifecycle, Integrity & Negative Security Tests (Tasks 1, 2, 3) ---');
+
+  // LIFECYCLE-01: Full lifecycle test: ACTIVE -> CHECKPOINT_SAVED -> COMPLETION_RECORDED -> SESSION_ENDED
+  const lifeCycleRes = await fetch(`${BASE_URL}/api/v1/games/cyber-invaders/launch`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${alphaToken}`,
+      'X-CSRF-Token': alphaCsrf,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ resume: false })
+  });
+  const lifeCycleData = await lifeCycleRes.json();
+  const lcSessionId = lifeCycleData.sessionId || (lifeCycleData.session && lifeCycleData.session.sessionId);
+
+  // Step 1: Verify ACTIVE
+  const s1 = db.get("SELECT status FROM game_sessions WHERE id = ?", [lcSessionId]);
+  assert(s1 && s1.status === 'active', 'LIFECYCLE-01a', 'Step 1: Game session begins in "active" status');
+
+  // Step 2: CHECKPOINT_SAVED
+  const cpRes = await fetch(`${BASE_URL}/api/v1/progress/checkpoint`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${alphaToken}`,
+      'X-CSRF-Token': alphaCsrf,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      gameId: 'cyber-invaders',
+      level: 3,
+      score: 1200,
+      state: { wave: 3, lives: 3 }
+    })
+  });
+  const s2 = db.get("SELECT status FROM game_sessions WHERE id = ?", [lcSessionId]);
+  const cpDb = db.get("SELECT level, score FROM game_progress WHERE player_id = ? AND game_id = 'game-001'", [alphaId]);
+  assert(cpRes.status === 200 && s2.status === 'active' && cpDb.level >= 3, 'LIFECYCLE-01b', 'Step 2: Checkpoint saved without disrupting active session status');
+
+  // Step 3 & 4: COMPLETION_RECORDED -> SESSION_ENDED
+  const compRes = await fetch(`${BASE_URL}/api/v1/progress/complete`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${alphaToken}`,
+      'X-CSRF-Token': alphaCsrf,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      sessionId: lcSessionId,
+      score: 2500,
+      level: 4,
+      durationSeconds: 60
+    })
+  });
+  const compData = await compRes.json();
+  const s3 = db.get("SELECT status, ended_at, score FROM game_sessions WHERE id = ?", [lcSessionId]);
+  const histRecord = db.get("SELECT * FROM game_history WHERE session_id = ?", [lcSessionId]);
+  assert(compRes.status === 200 && compData.status === 'SUCCESS', 'LIFECYCLE-01c', 'Step 3: Completion successfully recorded in history');
+  assert(s3 && s3.status === 'completed' && s3.ended_at !== null && histRecord !== null, 'LIFECYCLE-01d', 'Step 4: Session status atomically transitions to "completed" with ended_at timestamp');
+
+  // LIFECYCLE-02: End-before-complete rejection
+  // Create another session and explicitly end it before completion
+  const abSessionId = `ses-abandoned-${Date.now()}`;
+  db.run(
+    `INSERT INTO game_sessions (id, game_id, player_id, mode, status, ended_at)
+     VALUES (?, 'game-001', ?, 'single_player', 'ended', CURRENT_TIMESTAMP)`,
+    [abSessionId, alphaId]
+  );
+  const abCompleteRes = await fetch(`${BASE_URL}/api/v1/progress/complete`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${alphaToken}`,
+      'X-CSRF-Token': alphaCsrf,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      sessionId: abSessionId,
+      score: 1000,
+      level: 2,
+      durationSeconds: 30
+    })
+  });
+  assert(abCompleteRes.status === 400, 'LIFECYCLE-02a', 'Requests submitted after a session has already ended are rejected with HTTP 400 Bad Request');
+
+  // LIFECYCLE-03: Transactional consistency / Rollback verification
+  // Verify that if an internal failure occurs during completion, no history or achievements are committed
+  const txFailSessionId = `ses-txfail-${Date.now()}`;
+  db.run(
+    `INSERT INTO game_sessions (id, game_id, player_id, mode, status)
+     VALUES (?, 'game-001', ?, 'single_player', 'active')`,
+    [txFailSessionId, alphaId]
+  );
+
+  const { getProgressService } = require('../server/src/modules/progress/progressService');
+  const progService = getProgressService();
+  let caughtTxError = false;
+  try {
+    progService.recordCompletedGame({
+      playerId: 'invalid-nonexistent-player-id-999',
+      gameId: 'game-001',
+      sessionId: txFailSessionId,
+      score: 500,
+      level: 1
+    });
+  } catch (err) {
+    caughtTxError = true;
+  }
+  const txSessionAfter = db.get("SELECT status FROM game_sessions WHERE id = ?", [txFailSessionId]);
+  const txHistAfter = db.get("SELECT * FROM game_history WHERE session_id = ?", [txFailSessionId]);
+  assert(caughtTxError && txSessionAfter.status === 'active' && !txHistAfter, 'LIFECYCLE-03a', 'Partial failures / invalid states rollback cleanly: no partial score or history written');
+
+  // TRUST-01: Negative test covering fabricated but plausible score (Task 1)
+  const fabSessionId = `ses-fab-${Date.now()}`;
+  db.run(
+    `INSERT INTO game_sessions (id, game_id, player_id, mode, status)
+     VALUES (?, 'game-001', ?, 'single_player', 'active')`,
+    [fabSessionId, alphaId]
+  );
+  const fabRes = await fetch(`${BASE_URL}/api/v1/progress/complete`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${alphaToken}`,
+      'X-CSRF-Token': alphaCsrf,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      sessionId: fabSessionId,
+      score: 4500, // Fabricated score
+      level: 5,
+      durationSeconds: 100 // 45 pts/sec (plausible velocity)
+    })
+  });
+  const fabData = await fabRes.json();
+  assert(fabRes.status === 200, 'TRUST-01a', 'Fabricated score with plausible velocity is accepted for telemetry recording');
+  assert(fabData.verificationStatus === 'PLAUSIBILITY_CHECK_PASSED', 'TRUST-01b', 'Plausible score classified as PLAUSIBILITY_CHECK_PASSED');
+  assert(fabData.verificationStatus !== 'AUTHORITATIVELY_VERIFIED', 'TRUST-01c', 'Client-reported outcome is NOT classified as AUTHORITATIVELY_VERIFIED');
+
+  // ACHIEVE-01: Achievement verification type is PROVISIONAL (Task 3)
+  const achRes = await fetch(`${BASE_URL}/api/v1/progress/achievements`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${alphaToken}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  const achData = await achRes.json();
+  const unlockedAch = achData.achievements.find(a => a.unlocked);
+  assert(unlockedAch && unlockedAch.verificationType === 'PROVISIONAL', 'ACHIEVE-01a', 'Earned achievements explicitly marked with PROVISIONAL verification_type');
 
   console.log('\n======================================================================');
   console.log(' RESULTS SUMMARY');
