@@ -1,0 +1,59 @@
+{
+  "sprint": "Sprint 04",
+  "type": "Chrome CDP Browser QA Verification",
+  "timestamp": "2026-10-25T04:57:08.375Z",
+  "viewportDesktop": "1280x880",
+  "viewportMobile": "375x812",
+  "scenarios": [
+    {
+      "id": "UI-LCH-01",
+      "name": "Catalog Game Details Before Launch",
+      "file": "01-game-catalog-before-launch.png"
+    },
+    {
+      "id": "UI-LCH-02",
+      "name": "Game Launch Loading State",
+      "file": "02-game-launch-loading-state.png"
+    },
+    {
+      "id": "UI-LCH-03",
+      "name": "Cyber Invaders Mission Ready Screen",
+      "file": "03-game-screen-idle-ready.png"
+    },
+    {
+      "id": "UI-LCH-04",
+      "name": "Active Running Gameplay with Lasers & Aliens",
+      "file": "04-running-gameplay-active.png"
+    },
+    {
+      "id": "UI-LCH-05",
+      "name": "Paused Tactical Simulation Overlay",
+      "file": "05-gameplay-paused-state.png"
+    },
+    {
+      "id": "UI-LCH-06",
+      "name": "Game Over Completion State with Final Score",
+      "file": "06-game-over-completion-state.png"
+    },
+    {
+      "id": "UI-LCH-07",
+      "name": "Restarted Session with Score Reset to 0 (AC-15.1, AC-15.3)",
+      "file": "07-restarted-gameplay-state.png"
+    },
+    {
+      "id": "UI-LCH-08",
+      "name": "Unauthorized VIP Launch Denial (AC-9.2)",
+      "file": "08-unauthorized-vip-launch-rejection.png"
+    },
+    {
+      "id": "UI-LCH-09",
+      "name": "Return to Catalog with Concluded Session (AC-13.3)",
+      "file": "09-return-to-catalog-session-ended.png"
+    },
+    {
+      "id": "UI-LCH-10",
+      "name": "Mobile Viewport with On-Screen Touch Controls (AC-11.2)",
+      "file": "10-mobile-responsive-gameplay.png"
+    }
+  ]
+}

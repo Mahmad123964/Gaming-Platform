@@ -50,6 +50,12 @@ export const App: React.FC = () => {
       message: 'Sprint 03 Content Administration online: Metadata CRUD, publication workflow, licensing gate, and audit logging.',
       type: 'green',
     },
+    {
+      id: 'init-5',
+      time: new Date().toLocaleTimeString(),
+      message: 'Sprint 04 Game Launching & First Playable online: Cyber Invaders Canvas 2D engine & solo sessions active.',
+      type: 'blue',
+    },
   ]);
 
   const addLog = useCallback((message: string, type: TerminalEntry['type'] = 'dim') => {
@@ -234,8 +240,8 @@ export const App: React.FC = () => {
             <strong>NexusPlay Online Gaming Platform</strong> — Built with React 19, TypeScript & Google Antigravity
           </div>
           <div className={styles.footerRight}>
-            <span>Active Sprint: <strong>03 (Content Administration)</strong></span>
-            <span>Architecture: <strong>ADR-0002 Verified</strong></span>
+            <span>Active Sprint: <strong>04 (Game Launching & First Playable)</strong></span>
+            <span>Architecture: <strong>ADR-0004 Verified</strong></span>
             <span>Target Capacity: <strong>10,000 CCU</strong></span>
           </div>
         </div>

@@ -6,6 +6,7 @@ interface GameDetailsModalProps {
   game: Game | null;
   isOpen: boolean;
   onClose: () => void;
+  onLaunch?: (gameIdOrSlug: string) => void;
   onLog?: (msg: string, type?: 'dim' | 'green' | 'blue' | 'yellow' | 'rose') => void;
 }
 
@@ -13,6 +14,7 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
   game,
   isOpen,
   onClose,
+  onLaunch,
   onLog
 }) => {
   useEffect(() => {
@@ -61,13 +63,16 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
   const isPremium = game.isPremium;
 
   const handleLaunchClick = () => {
-    if (isPremium) {
+    if (onLaunch) {
+      onLaunch(game.slug || game.id);
+      onClose();
+    } else if (isPremium) {
       if (onLog) {
         onLog(`Launch blocked: "${game.title}" requires an active Obsidian VIP membership (AC-8.2).`, 'yellow');
       }
     } else {
       if (onLog) {
-        onLog(`Game launch intent registered for "${game.title}" (${game.mode.label}). Playable container integration scheduled in upcoming Sprint.`, 'green');
+        onLog(`Game launch intent registered for "${game.title}" (${game.mode.label}).`, 'green');
       }
     }
   };

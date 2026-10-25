@@ -3,6 +3,7 @@ import styles from './GameCatalog.module.css';
 import { Game, GameCategory, CatalogResponse, CategoriesResponse } from '../../types/catalog';
 import { GameCard, GameCardSkeleton } from './GameCard';
 import { GameDetailsModal } from './GameDetailsModal';
+import { GamePlayerModal } from '../gamePlayer/GamePlayerModal';
 
 interface GameCatalogProps {
   onLog?: (msg: string, type?: 'dim' | 'green' | 'blue' | 'yellow' | 'rose') => void;
@@ -24,6 +25,9 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({ onLog }) => {
   // Modal State for Game Details (AC-8.1 - AC-8.3)
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
+
+  // Sprint 04: Active Playable Session Modal State (EP03-01, EP04-01)
+  const [activePlayingSlug, setActivePlayingSlug] = useState<string | null>(null);
 
   // Debounce search input (300ms)
   useEffect(() => {
@@ -282,8 +286,21 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({ onLog }) => {
           setIsDetailsOpen(false);
           setSelectedGame(null);
         }}
+        onLaunch={(slugOrId) => {
+          setIsDetailsOpen(false);
+          setActivePlayingSlug(slugOrId);
+        }}
         onLog={onLog}
       />
+
+      {/* Game Player Runtime Modal (Sprint 04: EP03-01, EP03-03, EP03-04, EP04-01, EP04-03) */}
+      {activePlayingSlug && (
+        <GamePlayerModal
+          gameIdOrSlug={activePlayingSlug}
+          onClose={() => setActivePlayingSlug(null)}
+          onLog={onLog}
+        />
+      )}
     </section>
   );
 };

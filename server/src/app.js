@@ -90,15 +90,31 @@ function createApp() {
   const { adminRouter } = require('./modules/contentAdmin');
   app.use('/api/v1/admin', adminRouter);
 
+  // Mount Game Launch & Single-Player Session routes (Sprint 04: EP03-01, EP03-03, EP03-04, EP04-01, EP04-03)
+  const { gameLaunchRouter, directLaunchGuard } = require('./modules/gameLaunch');
+  app.use('/api/v1', gameLaunchRouter);
+
+  // Direct game launch asset protection (EP03-04, AC-12.1)
+  // Direct navigation without a valid session launch ticket is rejected
+  app.get('/games/:slug/index.html', directLaunchGuard, (req, res) => {
+    res.status(200).json({
+      status: 'AUTHORIZED',
+      message: 'Launch ticket verified. Initializing game runtime container.',
+      ticket: req.launchTicketPayload,
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Detailed platform status
   app.get('/api/v1/status', (req, res) => {
     res.status(200).json({
       platform: 'Online Gaming Platform',
-      version: '0.4.0',
-      activeSprint: '03',
+      version: '0.5.0',
+      activeSprint: '04',
       phase: '1',
       environment: process.env.NODE_ENV || 'development',
       features: {
+        gameLaunch: 'active (Sprint 04: Game Launching, Single-Player Sessions, Device Compatibility, First Playable Engine)',
         contentAdministration: 'active (Sprint 03: Game Registration, Metadata Editing, Publication Workflow, Licensing Clearance, Audit Trail)',
         gameCatalog: 'active (Sprint 02: Browse, Search, Category Filter, Game Details)',
         authentication: 'active (Sprint 01: Registration, Login, Recovery, Rate Limiting)',

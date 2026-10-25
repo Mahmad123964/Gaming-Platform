@@ -171,6 +171,20 @@ class GameCatalogService {
           game.is_published, game.is_premium, game.min_players, game.max_players, game.supports_bots
         ]
       );
+
+      // Explicit licensing approval seed: approved for published games, pending for drafts
+      const licStatus = game.is_published === 1 ? 'approved' : 'pending';
+      const licApprovedBy = game.is_published === 1 ? 'NexusAdmin' : null;
+      const licNotes = game.is_published === 1 
+        ? 'Baseline distribution license approved for catalog launch'
+        : 'Pending distribution license verification and publisher agreement';
+      const licId = 'lic-' + game.id;
+
+      this.db.run(
+        `INSERT OR IGNORE INTO licensing_approvals (id, game_id, status, approved_by, approved_at, notes)
+         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?)`,
+        [licId, game.id, licStatus, licApprovedBy, licNotes]
+      );
     }
   }
 
@@ -185,6 +199,7 @@ class GameCatalogService {
   /**
    * Retrieve published games matching optional search, category, and pagination filters.
    * Excludes unpublished games unconditionally (AC-5.2, AC-6.3).
+   * Strictly requires explicit licensing approval (l.status = 'approved').
    */
   getPublishedGames(options = {}) {
     let {
@@ -201,7 +216,7 @@ class GameCatalogService {
 
     const conditions = [
       'g.is_published = 1',
-      "(l.status = 'approved' OR l.status IS NULL)"
+      "l.status = 'approved'"
     ];
     const params = [];
 
@@ -324,7 +339,7 @@ class GameCatalogService {
       FROM games g
       LEFT JOIN game_categories c ON g.category_id = c.id
       LEFT JOIN licensing_approvals l ON g.id = l.game_id
-      WHERE (g.id = ? OR g.slug = ?) AND g.is_published = 1 AND (l.status = 'approved' OR l.status IS NULL)
+      WHERE (g.id = ? OR g.slug = ?) AND g.is_published = 1 AND l.status = 'approved'
     `;
 
     const row = this.db.get(sql, [idOrSlug.trim(), idOrSlug.trim()]);
