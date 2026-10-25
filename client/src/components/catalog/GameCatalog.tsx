@@ -8,9 +8,10 @@ import { ProgressHubModal } from '../progress/ProgressHubModal';
 
 interface GameCatalogProps {
   onLog?: (msg: string, type?: 'dim' | 'green' | 'blue' | 'yellow' | 'rose') => void;
+  onOpenMultiplayer?: (gameSlug: string) => void;
 }
 
-export const GameCatalog: React.FC<GameCatalogProps> = ({ onLog }) => {
+export const GameCatalog: React.FC<GameCatalogProps> = ({ onLog, onOpenMultiplayer }) => {
   const [games, setGames] = useState<Game[]>([]);
   const [categories, setCategories] = useState<GameCategory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -319,6 +320,7 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({ onLog }) => {
           setResumePlaying(!!resume);
           setActivePlayingSlug(slugOrId);
         }}
+        onOpenMultiplayer={onOpenMultiplayer}
         onLog={onLog}
       />
 

@@ -1,0 +1,576 @@
+const crypto = require('node:crypto');
+const { getDb } = require('../../db');
+const { getLobbyService } = require('./lobbyService');
+
+class RealtimeSessionService {
+  constructor(options = {}) {
+    this.dbManager = options.dbManager || getDb();
+    this.db = this.dbManager.db;
+    this.lobbyService = options.lobbyService || getLobbyService(this.dbManager);
+
+    // In-memory real-time connection state
+    this.connections = new Map(); // socketId -> { ws, socketId, player, lobbyId, connectedAt, lastSeen }
+    this.rooms = new Map();       // lobbyId -> Set<socketId>
+    this.playerSockets = new Map(); // playerId -> Set<socketId>
+  }
+
+  /**
+   * Helper to parse cookie string from HTTP upgrade request
+   */
+  parseCookies(cookieHeader) {
+    const list = {};
+    if (!cookieHeader) return list;
+    cookieHeader.split(';').forEach(cookie => {
+      let [name, ...rest] = cookie.split('=');
+      name = name.trim();
+      if (!name) return;
+      const value = rest.join('=').trim();
+      list[name] = decodeURIComponent(value);
+    });
+    return list;
+  }
+
+  /**
+   * Authenticate player via session token in SQLite auth_sessions
+   */
+  authenticateToken(token) {
+    if (!token) return null;
+    try {
+      const { getAuthService } = require('../identity/authService');
+      const player = getAuthService().validateSession(token);
+      if (!player) return null;
+      return {
+        id: player.id,
+        email: player.email,
+        displayName: player.displayName,
+        role: player.role
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Handle incoming WebSocket connection from WebSocketServer
+   */
+  handleConnection(ws, req) {
+    const socketId = 'sock-' + crypto.randomUUID().slice(0, 8);
+    const cookies = this.parseCookies(req.headers?.cookie);
+    const sessionToken = cookies['nexusplay_session'] || cookies['auth_session'] || null;
+    const player = this.authenticateToken(sessionToken);
+
+    const clientState = {
+      ws,
+      socketId,
+      player,
+      lobbyId: null,
+      connectedAt: Date.now(),
+      lastSeen: Date.now()
+    };
+
+    this.connections.set(socketId, clientState);
+    if (player) {
+      if (!this.playerSockets.has(player.id)) {
+        this.playerSockets.set(player.id, new Set());
+      }
+      this.playerSockets.get(player.id).add(socketId);
+    }
+
+    // Send connection established handshake
+    this.sendToSocket(ws, {
+      type: 'CONNECTION_ESTABLISHED',
+      socketId,
+      authenticated: !!player,
+      player: player ? { id: player.id, displayName: player.displayName } : null,
+      timestamp: new Date().toISOString()
+    });
+
+    // Listen for incoming messages
+    ws.on('message', (raw) => {
+      this.handleMessage(socketId, raw);
+    });
+
+    // Handle connection close
+    ws.on('close', () => {
+      this.handleDisconnect(socketId);
+    });
+
+    ws.on('error', (err) => {
+      console.error(`[WS_ERROR] Socket ${socketId}:`, err.message);
+    });
+  }
+
+  /**
+   * Parse and route incoming client messages
+   */
+  handleMessage(socketId, raw) {
+    const client = this.connections.get(socketId);
+    if (!client) return;
+    client.lastSeen = Date.now();
+
+    let data;
+    try {
+      data = JSON.parse(raw.toString());
+    } catch (e) {
+      return this.sendToSocket(client.ws, {
+        type: 'ERROR',
+        code: 'INVALID_JSON',
+        message: 'Message payload must be valid JSON.'
+      });
+    }
+
+    if (!data || !data.type) {
+      return this.sendToSocket(client.ws, {
+        type: 'ERROR',
+        code: 'MISSING_TYPE',
+        message: 'Message must include a "type" field.'
+      });
+    }
+
+    switch (data.type) {
+      case 'PING':
+        this.sendToSocket(client.ws, { type: 'PONG', timestamp: Date.now() });
+        break;
+
+      case 'AUTH':
+        this.handleAuthMessage(client, data);
+        break;
+
+      case 'CREATE_LOBBY':
+        this.handleCreateLobby(client, data);
+        break;
+
+      case 'JOIN_LOBBY':
+        this.handleJoinLobby(client, data);
+        break;
+
+      case 'LEAVE_LOBBY':
+        this.handleLeaveLobby(client, data);
+        break;
+
+      case 'START_MATCH':
+        this.handleStartMatch(client, data);
+        break;
+
+      case 'GAME_MOVE':
+        this.handleGameMove(client, data);
+        break;
+
+      default:
+        this.sendToSocket(client.ws, {
+          type: 'ERROR',
+          code: 'UNKNOWN_MESSAGE_TYPE',
+          message: `Unknown message type: "${data.type}"`
+        });
+        break;
+    }
+  }
+
+  /**
+   * Explicit message authentication
+   */
+  handleAuthMessage(client, data) {
+    const token = data.token;
+    const player = this.authenticateToken(token);
+    if (!player) {
+      return this.sendToSocket(client.ws, {
+        type: 'AUTH_FAILED',
+        code: 'INVALID_TOKEN',
+        message: 'Authentication token is invalid, revoked, or expired.'
+      });
+    }
+
+    client.player = player;
+    if (!this.playerSockets.has(player.id)) {
+      this.playerSockets.set(player.id, new Set());
+    }
+    this.playerSockets.get(player.id).add(client.socketId);
+
+    this.sendToSocket(client.ws, {
+      type: 'AUTH_SUCCESS',
+      player: { id: player.id, displayName: player.displayName, role: player.role },
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  /**
+   * EP05-01 / AC-16.1: Create two-player private lobby
+   */
+  handleCreateLobby(client, data) {
+    if (!client.player) {
+      return this.sendToSocket(client.ws, {
+        type: 'LOBBY_ERROR',
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required to create a multiplayer lobby.'
+      });
+    }
+
+    try {
+      const lobby = this.lobbyService.createLobby({
+        gameIdOrSlug: data.gameId || data.gameSlug,
+        hostPlayerId: client.player.id
+      });
+
+      // Join client socket to the room channel
+      this.subscribeSocketToRoom(client, lobby.id);
+
+      this.sendToSocket(client.ws, {
+        type: 'LOBBY_CREATED',
+        lobby,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      this.sendToSocket(client.ws, {
+        type: 'LOBBY_ERROR',
+        code: err.code || 'CREATION_FAILED',
+        message: err.message,
+        eligibilityDetails: err.eligibilityDetails || null
+      });
+    }
+  }
+
+  /**
+   * EP05-02 / AC-17.1: Join lobby using invitation code
+   */
+  handleJoinLobby(client, data) {
+    if (!client.player) {
+      return this.sendToSocket(client.ws, {
+        type: 'LOBBY_ERROR',
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required to join a multiplayer lobby.'
+      });
+    }
+
+    try {
+      const lobby = this.lobbyService.joinLobby({
+        code: data.code,
+        playerId: client.player.id
+      });
+
+      // Subscribe socket to room
+      this.subscribeSocketToRoom(client, lobby.id);
+
+      // 1. Confirm join to joining player
+      this.sendToSocket(client.ws, {
+        type: 'LOBBY_JOINED',
+        lobby,
+        timestamp: new Date().toISOString()
+      });
+
+      // 2. Broadcast updated status to all participants in this room (EP05-03 / AC-18.2)
+      this.broadcastToRoom(lobby.id, {
+        type: 'LOBBY_STATE_CHANGED',
+        lobbyId: lobby.id,
+        status: lobby.status, // 'full'
+        playerCount: lobby.playerCount,
+        maxPlayers: lobby.maxPlayers,
+        isFull: lobby.isFull,
+        participants: lobby.participants,
+        timestamp: new Date().toISOString()
+      });
+
+      this.broadcastToRoom(lobby.id, {
+        type: 'LOBBY_MEMBER_JOINED',
+        lobbyId: lobby.id,
+        joinedPlayer: {
+          id: client.player.id,
+          displayName: client.player.displayName
+        },
+        participants: lobby.participants,
+        timestamp: new Date().toISOString()
+      }, client.socketId);
+
+    } catch (err) {
+      this.sendToSocket(client.ws, {
+        type: 'LOBBY_ERROR',
+        code: err.code || 'JOIN_FAILED',
+        message: err.message,
+        capacityDetails: err.capacityDetails || null
+      });
+    }
+  }
+
+  /**
+   * Leave lobby
+   */
+  handleLeaveLobby(client, data) {
+    const lobbyId = data.lobbyId || client.lobbyId;
+    if (!lobbyId || !client.player) return;
+
+    try {
+      const updatedLobby = this.lobbyService.leaveLobby({
+        lobbyId,
+        playerId: client.player.id
+      });
+
+      this.unsubscribeSocketFromRoom(client, lobbyId);
+
+      this.sendToSocket(client.ws, {
+        type: 'LOBBY_LEFT',
+        lobbyId,
+        timestamp: new Date().toISOString()
+      });
+
+      // Broadcast updated status to remaining room sockets
+      this.broadcastToRoom(lobbyId, {
+        type: 'LOBBY_STATE_CHANGED',
+        lobbyId,
+        status: updatedLobby.status, // e.g. 'waiting' if 1 player remains
+        playerCount: updatedLobby.playerCount,
+        maxPlayers: updatedLobby.maxPlayers,
+        isFull: updatedLobby.isFull,
+        participants: updatedLobby.participants,
+        timestamp: new Date().toISOString()
+      });
+
+      this.broadcastToRoom(lobbyId, {
+        type: 'LOBBY_MEMBER_LEFT',
+        lobbyId,
+        leftPlayer: {
+          id: client.player.id,
+          displayName: client.player.displayName
+        },
+        participants: updatedLobby.participants,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      this.sendToSocket(client.ws, {
+        type: 'LOBBY_ERROR',
+        code: err.code || 'LEAVE_FAILED',
+        message: err.message
+      });
+    }
+  }
+
+  /**
+   * EP05-03 / AC-18.3: Start match in a full lobby
+   */
+  handleStartMatch(client, data) {
+    if (!client.player) {
+      return this.sendToSocket(client.ws, {
+        type: 'LOBBY_ERROR',
+        code: 'UNAUTHORIZED',
+        message: 'Authentication required to start match.'
+      });
+    }
+
+    const lobbyId = data.lobbyId || client.lobbyId;
+    if (!lobbyId) {
+      return this.sendToSocket(client.ws, {
+        type: 'LOBBY_ERROR',
+        code: 'MISSING_LOBBY_ID',
+        message: 'Lobby ID is required to start match.'
+      });
+    }
+
+    try {
+      const match = this.lobbyService.startMatch({
+        lobbyId,
+        hostPlayerId: client.player.id
+      });
+
+      // Broadcast MATCH_STARTED and LOBBY_STATE_CHANGED ('active') to all room sockets
+      this.broadcastToRoom(lobbyId, {
+        type: 'MATCH_STARTED',
+        lobbyId,
+        sessionId: match.sessionId,
+        status: 'active',
+        game: match.game,
+        participants: match.participants,
+        turnPlayerId: match.hostPlayerId,
+        timestamp: new Date().toISOString()
+      });
+
+      this.broadcastToRoom(lobbyId, {
+        type: 'LOBBY_STATE_CHANGED',
+        lobbyId,
+        status: 'active',
+        playerCount: match.playerCount,
+        maxPlayers: match.maxPlayers,
+        isFull: true,
+        participants: match.participants,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (err) {
+      this.sendToSocket(client.ws, {
+        type: 'LOBBY_ERROR',
+        code: err.code || 'START_MATCH_FAILED',
+        message: err.message
+      });
+    }
+  }
+
+  /**
+   * Relay synchronized in-game move (e.g. Obsidian Chess turn)
+   */
+  handleGameMove(client, data) {
+    if (!client.player || !client.lobbyId) {
+      return this.sendToSocket(client.ws, {
+        type: 'GAME_ERROR',
+        code: 'UNAUTHORIZED',
+        message: 'Must be authenticated in an active lobby to submit moves.'
+      });
+    }
+
+    const lobbyId = client.lobbyId;
+    // Broadcast move to other player in the room
+    this.broadcastToRoom(lobbyId, {
+      type: 'GAME_STATE_UPDATE',
+      lobbyId,
+      senderPlayerId: client.player.id,
+      move: data.move,
+      boardState: data.boardState || null,
+      nextTurnPlayerId: data.nextTurnPlayerId || null,
+      timestamp: new Date().toISOString()
+    }, client.socketId);
+  }
+
+  /**
+   * Handle socket disconnection
+   */
+  handleDisconnect(socketId) {
+    const client = this.connections.get(socketId);
+    if (!client) return;
+
+    if (client.lobbyId) {
+      this.unsubscribeSocketFromRoom(client, client.lobbyId);
+      // Notify remaining players in room
+      this.broadcastToRoom(client.lobbyId, {
+        type: 'PEER_DISCONNECTED',
+        lobbyId: client.lobbyId,
+        disconnectedPlayerId: client.player ? client.player.id : null,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (client.player && this.playerSockets.has(client.player.id)) {
+      const set = this.playerSockets.get(client.player.id);
+      set.delete(socketId);
+      if (set.size === 0) {
+        this.playerSockets.delete(client.player.id);
+      }
+    }
+
+    this.connections.delete(socketId);
+  }
+
+  /**
+   * Subscribe all active sockets for a player to a room channel
+   */
+  subscribePlayerToRoom(playerId, lobbyId) {
+    if (!playerId || !lobbyId) return;
+    const socketIds = this.playerSockets.get(playerId);
+    if (!socketIds || socketIds.size === 0) return;
+    for (const sid of socketIds) {
+      const client = this.connections.get(sid);
+      if (client) {
+        this.subscribeSocketToRoom(client, lobbyId);
+      }
+    }
+  }
+
+  /**
+   * Subscribe socket to room channel
+   */
+  subscribeSocketToRoom(client, lobbyId) {
+    if (client.lobbyId && client.lobbyId !== lobbyId) {
+      this.unsubscribeSocketFromRoom(client, client.lobbyId);
+    }
+    client.lobbyId = lobbyId;
+    if (!this.rooms.has(lobbyId)) {
+      this.rooms.set(lobbyId, new Set());
+    }
+    this.rooms.get(lobbyId).add(client.socketId);
+  }
+
+  /**
+   * Unsubscribe socket from room channel
+   */
+  unsubscribeSocketFromRoom(client, lobbyId) {
+    client.lobbyId = null;
+    if (this.rooms.has(lobbyId)) {
+      const set = this.rooms.get(lobbyId);
+      set.delete(client.socketId);
+      if (set.size === 0) {
+        this.rooms.delete(lobbyId);
+      }
+    }
+  }
+
+  /**
+   * Broadcast message to all connected sockets in a specific room
+   * Enforces strict cross-room isolation boundary
+   */
+  broadcastToRoom(lobbyId, message, excludeSocketId = null) {
+    const socketIds = this.rooms.get(lobbyId);
+    if (!socketIds || socketIds.size === 0) return;
+
+    const payload = JSON.stringify(message);
+    for (const sid of socketIds) {
+      if (excludeSocketId && sid === excludeSocketId) continue;
+      const client = this.connections.get(sid);
+      if (client && client.ws && client.ws.readyState === 1 /* OPEN */) {
+        try {
+          client.ws.send(payload);
+        } catch (e) {
+          // ignore write errors on closing socket
+        }
+      }
+    }
+  }
+
+  /**
+   * Send JSON message to a single WebSocket client
+   */
+  sendToSocket(ws, message) {
+    if (ws && ws.readyState === 1 /* OPEN */) {
+      try {
+        ws.send(JSON.stringify(message));
+      } catch (e) {
+        // ignore
+      }
+    }
+  }
+
+  /**
+   * Revoke active WebSocket connections when player session is revoked
+   */
+  handleSessionRevocation(playerId) {
+    const socketIds = this.playerSockets.get(playerId);
+    if (!socketIds || socketIds.size === 0) return;
+
+    for (const sid of socketIds) {
+      const client = this.connections.get(sid);
+      if (client && client.ws) {
+        this.sendToSocket(client.ws, {
+          type: 'SESSION_REVOKED',
+          message: 'Your active session has been terminated or revoked.'
+        });
+        try {
+          client.ws.close(4001, 'SESSION_REVOKED');
+        } catch (e) {}
+      }
+    }
+  }
+
+  /**
+   * Get total active CCU
+   */
+  getConnectionCount() {
+    return this.connections.size;
+  }
+}
+
+let realtimeServiceInstance = null;
+function getRealtimeService(options) {
+  if (!realtimeServiceInstance || options) {
+    realtimeServiceInstance = new RealtimeSessionService(options);
+  }
+  return realtimeServiceInstance;
+}
+
+module.exports = {
+  RealtimeSessionService,
+  getRealtimeService
+};

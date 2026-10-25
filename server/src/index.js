@@ -21,7 +21,9 @@ const server = http.createServer(app);
 
 // WebSocket server setup for real-time multiplayer lobbies (EP-05/06)
 const { getMetricsService } = require('./modules/operations');
+const { getRealtimeService } = require('./modules/multiplayer');
 const metricsService = getMetricsService();
+const realtimeService = getRealtimeService();
 const wss = new WebSocketServer({ server, path: '/ws' });
 
 wss.on('connection', (ws, req) => {
@@ -30,23 +32,8 @@ wss.on('connection', (ws, req) => {
     console.log(`[WS] Client connected from ${req.socket.remoteAddress}`);
   }
 
-  ws.send(JSON.stringify({
-    type: 'CONNECTION_ESTABLISHED',
-    message: 'Connected to Online Gaming Platform Realtime Server',
-    environment: ENV,
-    timestamp: new Date().toISOString()
-  }));
-
-  ws.on('message', (data) => {
-    try {
-      const parsed = JSON.parse(data.toString());
-      if (parsed.type === 'PING') {
-        ws.send(JSON.stringify({ type: 'PONG', timestamp: Date.now() }));
-      }
-    } catch (e) {
-      // ignore
-    }
-  });
+  // Hand off socket to RealtimeSessionService
+  realtimeService.handleConnection(ws, req);
 
   ws.on('close', () => {
     metricsService.decrementWebSocketClientCount();

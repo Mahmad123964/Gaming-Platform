@@ -114,9 +114,27 @@ CREATE TABLE IF NOT EXISTS lobbies (
     host_player_id TEXT NOT NULL REFERENCES players(id),
     code TEXT UNIQUE NOT NULL,
     max_players INTEGER NOT NULL DEFAULT 2,
-    status TEXT NOT NULL DEFAULT 'waiting',
+    status TEXT NOT NULL DEFAULT 'waiting', -- 'waiting', 'full', 'active', 'ended'
+    expires_at DATETIME,
+    started_at DATETIME,
+    ended_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS lobby_participants (
+    id TEXT PRIMARY KEY,
+    lobby_id TEXT NOT NULL REFERENCES lobbies(id) ON DELETE CASCADE,
+    player_id TEXT NOT NULL REFERENCES players(id),
+    role TEXT NOT NULL DEFAULT 'guest', -- 'host', 'guest'
+    status TEXT NOT NULL DEFAULT 'connected', -- 'connected', 'disconnected', 'left'
+    joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(lobby_id, player_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_lobbies_code ON lobbies(code);
+CREATE INDEX IF NOT EXISTS idx_lobbies_status ON lobbies(status);
+CREATE INDEX IF NOT EXISTS idx_lobby_participants_lobby ON lobby_participants(lobby_id);
+CREATE INDEX IF NOT EXISTS idx_lobby_participants_player ON lobby_participants(player_id);
 
 CREATE TABLE IF NOT EXISTS game_progress (
     id TEXT PRIMARY KEY,

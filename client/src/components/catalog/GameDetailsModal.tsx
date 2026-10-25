@@ -7,6 +7,7 @@ interface GameDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLaunch?: (gameIdOrSlug: string, resume?: boolean) => void;
+  onOpenMultiplayer?: (gameSlug: string) => void;
   onLog?: (msg: string, type?: 'dim' | 'green' | 'blue' | 'yellow' | 'rose') => void;
 }
 
@@ -15,6 +16,7 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
   isOpen,
   onClose,
   onLaunch,
+  onOpenMultiplayer,
   onLog
 }) => {
   const [savedCheckpoint, setSavedCheckpoint] = useState<{ level: number; score: number } | null>(null);
@@ -201,6 +203,25 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
               </svg>
               {isPremium ? 'Upgrade to Launch' : (savedCheckpoint ? 'Restart Mission' : 'Launch Game')}
             </button>
+            {game.maxPlayers >= 2 && onOpenMultiplayer && (
+              <button
+                className={styles.launchBtn}
+                style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #00F0FF 100%)', border: 'none', color: '#0B0F19', fontWeight: 800 }}
+                onClick={() => {
+                  onClose();
+                  onOpenMultiplayer(game.slug);
+                }}
+                id="btn-open-multiplayer-lobby"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Host 2P Lobby (EP05-01)
+              </button>
+            )}
           </div>
         </div>
       </div>

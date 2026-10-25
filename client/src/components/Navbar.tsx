@@ -15,6 +15,7 @@ interface NavbarProps {
   onToggleAdminConsole?: () => void;
   onOpenCareerHub?: () => void;
   onOpenProfile?: () => void;
+  onOpenMultiplayer?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -30,6 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleAdminConsole,
   onOpenCareerHub,
   onOpenProfile,
+  onOpenMultiplayer,
 }) => {
   return (
     <header className={styles.navbar} id="mainNavbar">
@@ -115,6 +117,39 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
               <span>Career Hub</span>
+            </button>
+          )}
+
+          {/* SPRINT 08 MULTIPLAYER LOBBY ARENA SHORTCUT */}
+          {onOpenMultiplayer && (
+            <button
+              type="button"
+              className={styles.btnCareerHub || styles.btnAdminConsole}
+              onClick={onOpenMultiplayer}
+              id="nav-btn-multiplayer"
+              title="Join or Host a 2-Player Online Lobby (Sprint 08)"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(0, 240, 255, 0.12)',
+                border: '1px solid rgba(0, 240, 255, 0.4)',
+                color: '#00F0FF',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Multiplayer</span>
             </button>
           )}
 

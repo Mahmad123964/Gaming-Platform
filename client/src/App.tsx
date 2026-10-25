@@ -10,6 +10,7 @@ import { ContentAdminConsole } from './components/admin/ContentAdminConsole';
 import { OperationsDashboard } from './components/admin/OperationsDashboard';
 import { ProgressHubModal } from './components/progress/ProgressHubModal';
 import { ProfileModal } from './components/profile/ProfileModal';
+import { MultiplayerLobbyModal } from './components/multiplayer/MultiplayerLobbyModal';
 import { AuthModal, AuthMode, User } from './components/AuthModal';
 import { HealthData, TerminalEntry } from './types/telemetry';
 import { getCsrfToken } from './utils/csrf';
@@ -29,6 +30,8 @@ export const App: React.FC = () => {
   const [isAdminConsoleVisible, setIsAdminConsoleVisible] = useState<boolean>(true);
   const [isCareerHubOpen, setIsCareerHubOpen] = useState<boolean>(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
+  const [isMultiplayerOpen, setIsMultiplayerOpen] = useState<boolean>(false);
+  const [multiplayerGameSlug, setMultiplayerGameSlug] = useState<string | null>(null);
 
   const [logs, setLogs] = useState<TerminalEntry[]>([
     {
@@ -78,6 +81,12 @@ export const App: React.FC = () => {
       time: new Date().toLocaleTimeString(),
       message: 'Sprint 07 Monitoring, Alerting & Deployment Safety online: SRE dashboard, real-time alerts & rollback procedure active.',
       type: 'green',
+    },
+    {
+      id: 'init-9',
+      time: new Date().toLocaleTimeString(),
+      message: 'Sprint 08 Real-Time Multiplayer online: 2-player lobby lifecycle, 6-char codes & synchronized state active.',
+      type: 'blue',
     },
   ]);
 
@@ -233,6 +242,10 @@ export const App: React.FC = () => {
         onToggleAdminConsole={() => setIsAdminConsoleVisible(v => !v)}
         onOpenCareerHub={() => setIsCareerHubOpen(true)}
         onOpenProfile={() => setIsProfileModalOpen(true)}
+        onOpenMultiplayer={() => {
+          setMultiplayerGameSlug(null);
+          setIsMultiplayerOpen(true);
+        }}
       />
 
       <main className={styles.mainContent} id="mainContent">
@@ -257,7 +270,13 @@ export const App: React.FC = () => {
         )}
 
         {/* Sprint 02: Game Discovery & Catalog Component */}
-        <GameCatalog onLog={addLog} />
+        <GameCatalog
+          onLog={addLog}
+          onOpenMultiplayer={(slug) => {
+            setMultiplayerGameSlug(slug);
+            setIsMultiplayerOpen(true);
+          }}
+        />
 
         <TerminalConsole logs={logs} />
 
@@ -270,7 +289,7 @@ export const App: React.FC = () => {
             <strong>NexusPlay Online Gaming Platform</strong> — Built with React 19, TypeScript & Google Antigravity
           </div>
           <div className={styles.footerRight}>
-            <span>Active Sprint: <strong>07 (Monitoring, Alerting & Deployment Safety)</strong></span>
+            <span>Active Sprint: <strong>08 (Two-Player Multiplayer Sessions)</strong></span>
             <span>Architecture: <strong>ADR-0007 Verified</strong></span>
             <span>Target Capacity: <strong>10,000 CCU</strong></span>
           </div>
@@ -308,6 +327,19 @@ export const App: React.FC = () => {
           setCurrentUser((prev) => (prev ? { ...prev, displayName: updated.displayName } : null));
           addLog(`Player identity updated to: "${updated.displayName}"`, 'green');
         }}
+        onLog={addLog}
+      />
+
+      {/* Sprint 08 Two-Player Multiplayer Sessions (EP05-01, EP05-02, EP05-03) */}
+      <MultiplayerLobbyModal
+        isOpen={isMultiplayerOpen}
+        onClose={() => {
+          setIsMultiplayerOpen(false);
+          setMultiplayerGameSlug(null);
+        }}
+        currentUser={currentUser}
+        onOpenLogin={() => handleOpenAuth('login')}
+        preselectedGameSlug={multiplayerGameSlug}
         onLog={addLog}
       />
     </div>

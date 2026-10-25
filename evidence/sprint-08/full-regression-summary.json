@@ -1,0 +1,83 @@
+{
+  "timestamp": "2026-10-25T15:07:38.009Z",
+  "totalSuites": 9,
+  "suitesPassed": 9,
+  "suitesFailed": 0,
+  "totalChecks": 395,
+  "passedChecks": 395,
+  "failedChecks": 0,
+  "details": [
+    {
+      "suite": "Sprint 00 — Platform Smoke Test",
+      "script": "scripts/smoke-test.js",
+      "status": "PASSED",
+      "passed": 5,
+      "failed": 0,
+      "elapsedMs": 357
+    },
+    {
+      "suite": "Sprint 01 — Identity & Security (EP01-01 - EP01-04)",
+      "script": "scripts/test-sprint01-auth.js",
+      "status": "PASSED",
+      "passed": 49,
+      "failed": 0,
+      "elapsedMs": 8209
+    },
+    {
+      "suite": "Sprint 02 — Game Discovery & Catalog (EP02-01 - EP02-04)",
+      "script": "scripts/test-sprint02-catalog.js",
+      "status": "PASSED",
+      "passed": 31,
+      "failed": 0,
+      "elapsedMs": 2048
+    },
+    {
+      "suite": "Sprint 03 — Content Administration (EP03-01 - EP03-03)",
+      "script": "scripts/test-sprint03-admin.js",
+      "status": "PASSED",
+      "passed": 69,
+      "failed": 0,
+      "elapsedMs": 1265
+    },
+    {
+      "suite": "Sprint 04 — Game Launch & Runtime (EP04-01 - EP04-03)",
+      "script": "scripts/test-sprint04-launch.js",
+      "status": "PASSED",
+      "passed": 40,
+      "failed": 0,
+      "elapsedMs": 1127
+    },
+    {
+      "suite": "Sprint 05 — Progress, History & Badges (EP07-01 - EP07-04)",
+      "script": "scripts/test-sprint05-progress.js",
+      "status": "PASSED",
+      "passed": 60,
+      "failed": 0,
+      "elapsedMs": 1374
+    },
+    {
+      "suite": "Sprint 06 — Profiles & Audit Immutability (EP01-04, EP13-01)",
+      "script": "scripts/test-sprint06-profile-audit.js",
+      "status": "PASSED",
+      "passed": 30,
+      "failed": 0,
+      "elapsedMs": 982
+    },
+    {
+      "suite": "Sprint 07 — SRE Monitoring & Deployment Safety (EP12-01, EP12-02, EP13-02)",
+      "script": "scripts/test-sprint07-sre.js",
+      "status": "PASSED",
+      "passed": 70,
+      "failed": 0,
+      "elapsedMs": 1451
+    },
+    {
+      "suite": "Sprint 08 — Two-Player Multiplayer Sessions (EP05-01, EP05-02, EP05-03)",
+      "script": "scripts/test-sprint08-multiplayer.js",
+      "status": "PASSED",
+      "passed": 41,
+      "failed": 0,
+      "elapsedMs": 952
+    }
+  ]
+}

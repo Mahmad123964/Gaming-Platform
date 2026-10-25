@@ -49,6 +49,26 @@ class DatabaseManager {
     try {
       this.db.exec("INSERT OR IGNORE INTO player_profiles (id, player_id, display_name) SELECT 'prof-' || id, id, display_name FROM players;");
     } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE lobbies ADD COLUMN expires_at DATETIME;');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE lobbies ADD COLUMN started_at DATETIME;');
+    } catch (e) {}
+    try {
+      this.db.exec('ALTER TABLE lobbies ADD COLUMN ended_at DATETIME;');
+    } catch (e) {}
+    try {
+      this.db.exec(`CREATE TABLE IF NOT EXISTS lobby_participants (
+        id TEXT PRIMARY KEY,
+        lobby_id TEXT NOT NULL REFERENCES lobbies(id) ON DELETE CASCADE,
+        player_id TEXT NOT NULL REFERENCES players(id),
+        role TEXT NOT NULL DEFAULT 'guest',
+        status TEXT NOT NULL DEFAULT 'connected',
+        joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(lobby_id, player_id)
+      );`);
+    } catch (e) {}
   }
 
   transaction(fn) {

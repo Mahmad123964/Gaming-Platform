@@ -1,0 +1,255 @@
+{
+  "sprint": "Sprint 08 — Two-Player Multiplayer Lobbies & Real-Time Sessions",
+  "timestamp": "2026-10-25T15:07:55.743Z",
+  "totalChecks": 41,
+  "passed": 41,
+  "failed": 0,
+  "results": [
+    {
+      "id": "AC-16.1-01",
+      "name": "Lobby creation returns HTTP 201 Created for eligible game",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-16.1-02",
+      "name": "Joinable lobby payload includes unique lobby ID",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-16.1-03",
+      "name": "Invitation code is displayed and matches 6-character uppercase format",
+      "status": "PASSED",
+      "details": "Code: PC2Z47"
+    },
+    {
+      "id": "AC-16.1-04",
+      "name": "Lobby max_players is strictly constrained to 2 players",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-16.1-05",
+      "name": "Host player is automatically registered as first participant (1/2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-16.1-06",
+      "name": "Initial lobby status is set to \"waiting\" with unfilled slot (AC-18.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-16.2-01",
+      "name": "Lobby creation for solo-only game (Cyber Invaders) is rejected with HTTP 422",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-16.2-02",
+      "name": "Error code specifies GAME_NOT_ELIGIBLE_FOR_MULTIPLAYER",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-16.2-03",
+      "name": "Diagnostic error message indicates single-player constraint (max players: 1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-16.2-04",
+      "name": "Lobby creation for non-existent game returns HTTP 404",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-18.1-01",
+      "name": "Prior to opponent join, lobby status is \"waiting\"",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-18.1-02",
+      "name": "Unfilled slot is reflected in playerCount = 1 / maxPlayers = 2",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.1-01",
+      "name": "Join lobby with valid code returns HTTP 200 OK",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.1-02",
+      "name": "Case-insensitive invitation code successfully matches target lobby",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.1-03",
+      "name": "Guest player is registered in participants list with role \"guest\"",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-18.2-01",
+      "name": "When lobby reaches allowed capacity (2), status transitions to \"full\" (AC-18.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-18.2-02",
+      "name": "isFull flag evaluates to true upon reaching 2 participants",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-16.3-01",
+      "name": "Third player attempting to join 2-player lobby is rejected with HTTP 409 Conflict",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.3-01",
+      "name": "Error code specifies LOBBY_FULL",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.3-02",
+      "name": "Rejection details confirm maximum capacity reached (2/2 players)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.3-03",
+      "name": "Lobby membership remains strictly 2 players (unadmitted player excluded)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.2-01",
+      "name": "Non-existent invitation code is rejected with HTTP 404",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.2-02",
+      "name": "Error code specifies INVALID_INVITATION_CODE",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.2-03",
+      "name": "Expired invitation code is rejected with HTTP 410 Gone",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-17.2-04",
+      "name": "Error code specifies INVITATION_CODE_EXPIRED with 30-minute explanation",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-18.3-01",
+      "name": "Non-host guest cannot start the match (HTTP 403 Forbidden)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-18.3-02",
+      "name": "Host starting match returns HTTP 200 OK",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-18.3-03",
+      "name": "Lobby status transitions to \"active\" upon match start (AC-18.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-18.3-04",
+      "name": "Linked multiplayer game session ID is generated",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-18.3-05",
+      "name": "Public status query confirms lobby status is \"active\"",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-01",
+      "name": "WebSocket handshake completes and authenticates host via ambient cookie",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-02",
+      "name": "WebSocket handshake completes and authenticates guest via ambient cookie",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-03",
+      "name": "Unauthenticated WebSocket connection is accepted in unauthenticated/guest state",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-04",
+      "name": "Host receives LOBBY_CREATED event via WebSocket with status \"waiting\"",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-05",
+      "name": "Guest receives LOBBY_JOINED event via WebSocket",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-06",
+      "name": "Host receives real-time LOBBY_STATE_CHANGED broadcast with status \"full\"",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-07",
+      "name": "Host receives real-time LOBBY_MEMBER_JOINED broadcast identifying joined guest",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-08",
+      "name": "Both host and guest simultaneously receive MATCH_STARTED with status \"active\"",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-09",
+      "name": "Opponent receives synchronized GAME_STATE_UPDATE move without latency",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-10",
+      "name": "Cross-room isolation verified: Unrelated sockets receive zero leaked room events",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "WS-11",
+      "name": "Session revocation listener terminates active WebSocket connection on logout",
+      "status": "PASSED",
+      "details": ""
+    }
+  ]
+}

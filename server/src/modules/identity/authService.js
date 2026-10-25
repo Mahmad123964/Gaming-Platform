@@ -189,10 +189,19 @@ class AuthService {
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7).trim() : token.trim();
     const tokenHash = hashToken(cleanToken);
 
+    const session = this.db.get('SELECT player_id FROM auth_sessions WHERE token = ?', [tokenHash]);
+
     this.db.run(
       'UPDATE auth_sessions SET revoked = 1 WHERE token = ?',
       [tokenHash]
     );
+
+    if (session && session.player_id) {
+      try {
+        const { getRealtimeService } = require('../multiplayer');
+        getRealtimeService().handleSessionRevocation(session.player_id);
+      } catch (e) {}
+    }
 
     return {
       success: true,

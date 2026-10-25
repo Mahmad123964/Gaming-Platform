@@ -108,6 +108,10 @@ function createApp() {
   // Mount SRE Operations & Monitoring routes (Sprint 07: EP12-01, EP12-02, EP13-02)
   app.use('/api/v1/admin/operations', operationsRouter);
 
+  // Mount Multiplayer Lobbies & Sessions routes (Sprint 08: EP05-01, EP05-02, EP05-03)
+  const { lobbyRouter } = require('./modules/multiplayer');
+  app.use('/api/v1/lobbies', lobbyRouter);
+
   // Direct game launch asset protection (EP03-04, AC-12.1)
   // Direct navigation without a valid session launch ticket is rejected
   app.get('/games/:slug/index.html', directLaunchGuard, (req, res) => {
@@ -123,11 +127,12 @@ function createApp() {
   app.get('/api/v1/status', (req, res) => {
     res.status(200).json({
       platform: 'Online Gaming Platform',
-      version: '0.7.0',
-      activeSprint: '07',
-      phase: '2',
+      version: '0.8.0',
+      activeSprint: '08',
+      phase: '3',
       environment: process.env.NODE_ENV || 'development',
       features: {
+        multiplayer: 'active (Sprint 08: Two-Player Lobbies, Invitation Join, Real-Time Status State Machine, Capacity Enforcement)',
         operationsMonitoring: 'active (Sprint 07: SRE Dashboard, Real-time Alerting, Deployment Rollback, Metric Sliding Windows)',
         playerProfilesAndAudit: 'active (Sprint 06: Player Profile Management, Avatars, Bio, DB-Engine Audit Immutability, Credential Redaction)',
         progressAndHistory: 'active (Sprint 05: Game Progress, Recent Session History, Milestone Achievements, Resumption)',
@@ -135,7 +140,6 @@ function createApp() {
         contentAdministration: 'active (Sprint 03: Game Registration, Metadata Editing, Publication Workflow, Licensing Clearance, Audit Trail)',
         gameCatalog: 'active (Sprint 02: Browse, Search, Category Filter, Game Details)',
         authentication: 'active (Sprint 01: Registration, Login, Recovery, Rate Limiting)',
-        multiplayer: 'pending (Sprint 08)',
         payments: 'pending (Sprint 12)',
         stagingPipeline: 'active (Sprint 00)'
       },
