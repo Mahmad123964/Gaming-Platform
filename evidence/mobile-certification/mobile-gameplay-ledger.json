@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-10-26T09:33:36.166Z",
+  "timestamp": "2026-10-26T12:45:22.594Z",
   "viewport": "375x667",
-  "totalGames": 10,
-  "passedTotal": 10,
+  "totalGames": 25,
+  "passedTotal": 25,
   "results": [
     {
       "id": "MOB-01",
@@ -23,7 +23,7 @@
       "horizontalOverflow": false,
       "interactionNote": "Dispatched touch pulse fire & touch right pointer events",
       "screenshot": "mobile-cyber-invaders.png",
-      "screenshotBytes": 116572
+      "screenshotBytes": 118152
     },
     {
       "id": "MOB-02",
@@ -44,7 +44,7 @@
       "horizontalOverflow": false,
       "interactionNote": "Tapped on-screen D-pad buttons (Down, Right)",
       "screenshot": "mobile-2048-classic.png",
-      "screenshotBytes": 101333
+      "screenshotBytes": 102217
     },
     {
       "id": "MOB-03",
@@ -65,7 +65,7 @@
       "horizontalOverflow": false,
       "interactionNote": "Tapped mobile touch D-Pad (Down -> Left)",
       "screenshot": "mobile-snake-arcade.png",
-      "screenshotBytes": 105490
+      "screenshotBytes": 104949
     },
     {
       "id": "MOB-04",
@@ -86,7 +86,7 @@
       "horizontalOverflow": false,
       "interactionNote": "Tapped mobile paddle buttons (Left, Right)",
       "screenshot": "mobile-brick-breaker.png",
-      "screenshotBytes": 121157
+      "screenshotBytes": 121783
     },
     {
       "id": "MOB-05",
@@ -107,7 +107,7 @@
       "horizontalOverflow": false,
       "interactionNote": "Tapped center cell (index 4)",
       "screenshot": "mobile-tic-tac-toe-pro.png",
-      "screenshotBytes": 107886
+      "screenshotBytes": 107257
     },
     {
       "id": "MOB-06",
@@ -128,7 +128,7 @@
       "horizontalOverflow": false,
       "interactionNote": "Tapped Cyan checker piece at row 5",
       "screenshot": "mobile-classic-checkers.png",
-      "screenshotBytes": 178920
+      "screenshotBytes": 178986
     },
     {
       "id": "MOB-07",
@@ -149,7 +149,7 @@
       "horizontalOverflow": false,
       "interactionNote": "Tapped Stockpile button to draw waste card",
       "screenshot": "mobile-solitaire-royale.png",
-      "screenshotBytes": 198617
+      "screenshotBytes": 197846
     },
     {
       "id": "MOB-08",
@@ -170,7 +170,7 @@
       "horizontalOverflow": false,
       "interactionNote": "Tapped mobile steer left button",
       "screenshot": "mobile-neon-racer.png",
-      "screenshotBytes": 100102
+      "screenshotBytes": 98811
     },
     {
       "id": "MOB-09",
@@ -191,7 +191,7 @@
       "horizontalOverflow": false,
       "interactionNote": "Tapped mobile Rotate & Soft Drop controls",
       "screenshot": "mobile-block-puzzle.png",
-      "screenshotBytes": 93722
+      "screenshotBytes": 93710
     },
     {
       "id": "MOB-10",
@@ -212,7 +212,322 @@
       "horizontalOverflow": false,
       "interactionNote": "Fired bubble via pointer tap on upper canvas",
       "screenshot": "mobile-bubble-shooter.png",
-      "screenshotBytes": 190140
+      "screenshotBytes": 184309
+    },
+    {
+      "id": "MOB-11",
+      "slug": "arcade-cricket",
+      "title": "Arcade Cricket",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "cricket-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 48,
+        "top": 860,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen Loft / Drive swing button",
+      "screenshot": "mobile-arcade-cricket.png",
+      "screenshotBytes": 89598
+    },
+    {
+      "id": "MOB-12",
+      "slug": "flappy-neon",
+      "title": "Flappy Neon",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "flappy-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 48,
+        "top": 814,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen Flap Wings button",
+      "screenshot": "mobile-flappy-neon.png",
+      "screenshotBytes": 84060
+    },
+    {
+      "id": "MOB-13",
+      "slug": "galactic-dodge",
+      "title": "Galactic Dodge",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "galactic-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 48,
+        "top": 868,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen Fire Pulse blaster button",
+      "screenshot": "mobile-galactic-dodge.png",
+      "screenshotBytes": 103672
+    },
+    {
+      "id": "MOB-14",
+      "slug": "memory-match",
+      "title": "Memory Match",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "grid-memory-cards",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "top": 317,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen memory cards",
+      "screenshot": "mobile-memory-match.png",
+      "screenshotBytes": 120628
+    },
+    {
+      "id": "MOB-15",
+      "slug": "minesweeper-retro",
+      "title": "Minesweeper Retro",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "grid-minesweeper",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "top": 317,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped center cell and flag toggle",
+      "screenshot": "mobile-minesweeper-retro.png",
+      "screenshotBytes": 109702
+    },
+    {
+      "id": "MOB-16",
+      "slug": "sudoku-classic",
+      "title": "Sudoku Classic",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "sudoku-number-pad",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 96,
+        "top": 628,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped cell and virtual number pad button",
+      "screenshot": "mobile-sudoku-classic.png",
+      "screenshotBytes": 114531
+    },
+    {
+      "id": "MOB-17",
+      "slug": "slide-puzzle-15",
+      "title": "Slide Puzzle 15",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "grid-slide-puzzle",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "top": 349,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped numbered tile to slide",
+      "screenshot": "mobile-slide-puzzle-15.png",
+      "screenshotBytes": 164434
+    },
+    {
+      "id": "MOB-18",
+      "slug": "connect-four",
+      "title": "Connect Four",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "c4-column-buttons",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 32,
+        "top": 329,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped column 3 drop button",
+      "screenshot": "mobile-connect-four.png",
+      "screenshotBytes": 139220
+    },
+    {
+      "id": "MOB-19",
+      "slug": "reversi-othello",
+      "title": "Reversi Othello",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "board-reversi-grid",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "top": 357,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped reversi board grid cell",
+      "screenshot": "mobile-reversi-othello.png",
+      "screenshotBytes": 126211
+    },
+    {
+      "id": "MOB-20",
+      "slug": "tower-defense-lite",
+      "title": "Tower Defense Lite",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "td-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 46,
+        "top": 907,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped deploy turret quick button",
+      "screenshot": "mobile-tower-defense-lite.png",
+      "screenshotBytes": 112554
+    },
+    {
+      "id": "MOB-21",
+      "slug": "endless-neon-runner",
+      "title": "Endless Neon Runner",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "runner-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 48,
+        "top": 902,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen Jump / Double Jump button",
+      "screenshot": "mobile-endless-neon-runner.png",
+      "screenshotBytes": 97583
+    },
+    {
+      "id": "MOB-22",
+      "slug": "retro-pong",
+      "title": "Retro Pong",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "pong-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 46,
+        "top": 814,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen paddle left steer button",
+      "screenshot": "mobile-retro-pong.png",
+      "screenshotBytes": 80734
+    },
+    {
+      "id": "MOB-23",
+      "slug": "whack-a-mole",
+      "title": "Whack-A-Mole",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "grid-mole-burrows",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "top": 317,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen center burrow hole",
+      "screenshot": "mobile-whack-a-mole.png",
+      "screenshotBytes": 161090
+    },
+    {
+      "id": "MOB-24",
+      "slug": "simon-memory",
+      "title": "Simon Memory",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "pad-simon-container",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "top": 317,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen green synthesizer pad",
+      "screenshot": "mobile-simon-memory.png",
+      "screenshotBytes": 145297
+    },
+    {
+      "id": "MOB-25",
+      "slug": "word-grid",
+      "title": "Word Grid",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "word-action-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 44,
+        "top": 655,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped letter cells and word submit button",
+      "screenshot": "mobile-word-grid.png",
+      "screenshotBytes": 158412
     }
   ]
 }

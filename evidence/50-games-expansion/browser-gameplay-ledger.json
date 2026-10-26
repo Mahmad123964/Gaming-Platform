@@ -1,0 +1,676 @@
+{
+  "milestone": "3.3",
+  "tier": "TIER_B_CHROME_CDP_BROWSER",
+  "totalScenarios": 51,
+  "passedScenarios": 51,
+  "failedScenarios": 0,
+  "successRate": "100.0%",
+  "timestamp": "2026-10-26T13:31:34.118Z",
+  "chromeVersion": "Google Chrome 120+ Headless",
+  "viewportDesktop": "1280x900",
+  "scenarios": [
+    {
+      "id": "SCENARIO-00",
+      "slug": "catalog-overview",
+      "title": "50-Game Catalog Overview",
+      "status": "PASS",
+      "modalOpen": false,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Rendered 83 game cards in public catalog"
+      },
+      "screenshot": "00-catalog-overview.png"
+    },
+    {
+      "id": "SCENARIO-01",
+      "slug": "cyber-invaders",
+      "title": "Cyber Invaders",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched laser fire"
+      },
+      "screenshot": "01-cyber-invaders-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-02",
+      "slug": "2048-classic",
+      "title": "2048 Classic",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched directional tiles"
+      },
+      "screenshot": "02-2048-classic-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-03",
+      "slug": "snake-arcade",
+      "title": "Snake Arcade",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Turned snake up"
+      },
+      "screenshot": "03-snake-arcade-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-04",
+      "slug": "brick-breaker",
+      "title": "Brick Breaker",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Launched breaker ball"
+      },
+      "screenshot": "04-brick-breaker-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-05",
+      "slug": "tic-tac-toe-pro",
+      "title": "Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Placed X at cell 0"
+      },
+      "screenshot": "05-tic-tac-toe-pro-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-06",
+      "slug": "classic-checkers",
+      "title": "Classic Checkers",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Selected checker piece"
+      },
+      "screenshot": "06-classic-checkers-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-07",
+      "slug": "solitaire-royale",
+      "title": "Solitaire Royale",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Stock deck dealt"
+      },
+      "screenshot": "07-solitaire-royale-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-08",
+      "slug": "neon-racer",
+      "title": "Neon Racer",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Steered kart left"
+      },
+      "screenshot": "08-neon-racer-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-09",
+      "slug": "block-puzzle",
+      "title": "Block Puzzle",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Selected block piece"
+      },
+      "screenshot": "09-block-puzzle-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-10",
+      "slug": "bubble-shooter",
+      "title": "Bubble Shooter",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Aimed and launched bubble"
+      },
+      "screenshot": "10-bubble-shooter-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-11",
+      "slug": "arcade-cricket",
+      "title": "Arcade Cricket",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched cricket stroke"
+      },
+      "screenshot": "11-arcade-cricket-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-12",
+      "slug": "flappy-neon",
+      "title": "Flappy Neon",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Flapped neon bird"
+      },
+      "screenshot": "12-flappy-neon-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-13",
+      "slug": "galactic-dodge",
+      "title": "Galactic Dodge",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dodged left"
+      },
+      "screenshot": "13-galactic-dodge-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-14",
+      "slug": "memory-match",
+      "title": "Memory Match",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Flipped memory card 0"
+      },
+      "screenshot": "14-memory-match-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-15",
+      "slug": "minesweeper-retro",
+      "title": "Minesweeper Retro",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Revealed cell 0-0"
+      },
+      "screenshot": "15-minesweeper-retro-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-16",
+      "slug": "sudoku-classic",
+      "title": "Sudoku Classic",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Entered clue in cell 0-0"
+      },
+      "screenshot": "16-sudoku-classic-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-17",
+      "slug": "slide-puzzle-15",
+      "title": "Slide Puzzle 15",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Slid tile"
+      },
+      "screenshot": "17-slide-puzzle-15-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-18",
+      "slug": "connect-four",
+      "title": "Connect Four",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dropped disc in col 3"
+      },
+      "screenshot": "18-connect-four-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-19",
+      "slug": "reversi-othello",
+      "title": "Reversi Othello",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Executed valid reversi flip"
+      },
+      "screenshot": "19-reversi-othello-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-20",
+      "slug": "tower-defense-lite",
+      "title": "Tower Defense Lite",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Placed defense turret"
+      },
+      "screenshot": "20-tower-defense-lite-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-21",
+      "slug": "endless-neon-runner",
+      "title": "Endless Neon Runner",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Jumped runner"
+      },
+      "screenshot": "21-endless-neon-runner-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-22",
+      "slug": "retro-pong",
+      "title": "Retro Pong",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Moved pong paddle up"
+      },
+      "screenshot": "22-retro-pong-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-23",
+      "slug": "whack-a-mole",
+      "title": "Whack-A-Mole",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Whacked mole hole 4"
+      },
+      "screenshot": "23-whack-a-mole-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-24",
+      "slug": "simon-memory",
+      "title": "Simon Memory",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Activated Simon tone 0"
+      },
+      "screenshot": "24-simon-memory-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-25",
+      "slug": "word-grid",
+      "title": "Word Grid",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Selected letter 0-0"
+      },
+      "screenshot": "25-word-grid-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-26",
+      "slug": "cricket-bowling-pro",
+      "title": "Cricket Bowling Pro",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Delivered seam ball"
+      },
+      "screenshot": "26-cricket-bowling-pro-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-27",
+      "slug": "table-tennis-rally",
+      "title": "Table Tennis Rally",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Executed smash stroke"
+      },
+      "screenshot": "27-table-tennis-rally-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-28",
+      "slug": "soccer-free-kick",
+      "title": "Soccer Free Kick",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Kicked curling ball"
+      },
+      "screenshot": "28-soccer-free-kick-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-29",
+      "slug": "basketball-shootout",
+      "title": "Basketball Shootout",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Shot ball with power meter"
+      },
+      "screenshot": "29-basketball-shootout-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-30",
+      "slug": "cyber-sprint-runner",
+      "title": "Cyber Sprint Runner",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Jumped laser barrier"
+      },
+      "screenshot": "30-cyber-sprint-runner-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-31",
+      "slug": "turbo-kart-2d",
+      "title": "Turbo Kart 2D",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Accelerated turbo kart"
+      },
+      "screenshot": "31-turbo-kart-2d-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-32",
+      "slug": "gravity-runner",
+      "title": "Gravity Runner",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Inverted gravity to ceiling"
+      },
+      "screenshot": "32-gravity-runner-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-33",
+      "slug": "sunset-drift",
+      "title": "Sunset Drift",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Engaged nitro turbo boost"
+      },
+      "screenshot": "33-sunset-drift-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-34",
+      "slug": "asteroid-belt-pilot",
+      "title": "Asteroid Belt Pilot",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Fired blaster at asteroid"
+      },
+      "screenshot": "34-asteroid-belt-pilot-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-35",
+      "slug": "space-defense-laser",
+      "title": "Space Defense Laser",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Fired 360 turret raycast"
+      },
+      "screenshot": "35-space-defense-laser-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-36",
+      "slug": "pixel-dungeon-rogue",
+      "title": "Pixel Dungeon Rogue",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Moved rogue north"
+      },
+      "screenshot": "36-pixel-dungeon-rogue-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-37",
+      "slug": "alien-pop-defense",
+      "title": "Alien Pop Defense",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Launched mid silo flak interceptor"
+      },
+      "screenshot": "37-alien-pop-defense-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-38",
+      "slug": "neon-pac-maze",
+      "title": "Neon Pac-Maze",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched Pac-Up orthogonal turn"
+      },
+      "screenshot": "38-neon-pac-maze-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-39",
+      "slug": "nonogram-picross",
+      "title": "Nonogram Picross",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Filled cell 0-0"
+      },
+      "screenshot": "39-nonogram-picross-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-40",
+      "slug": "number-sequence-merge",
+      "title": "Number Sequence Merge",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dropped number block in column 2"
+      },
+      "screenshot": "40-number-sequence-merge-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-41",
+      "slug": "lights-out-neon",
+      "title": "Lights Out Neon",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Toggled center light 1-1"
+      },
+      "screenshot": "41-lights-out-neon-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-42",
+      "slug": "tangram-shape-fit",
+      "title": "Tangram Shape Fit",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Rotated polygon tan by 90 deg"
+      },
+      "screenshot": "42-tangram-shape-fit-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-43",
+      "slug": "laser-mirror-relay",
+      "title": "Laser Mirror Relay",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Pulsed optical beam"
+      },
+      "screenshot": "43-laser-mirror-relay-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-44",
+      "slug": "pipe-connect-hydro",
+      "title": "Pipe Connect Hydro",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Tested hydro fluid flow"
+      },
+      "screenshot": "44-pipe-connect-hydro-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-45",
+      "slug": "chess-micro-tactics",
+      "title": "Chess Micro Tactics",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Selected central pawn"
+      },
+      "screenshot": "45-chess-micro-tactics-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-46",
+      "slug": "sea-battle-naval",
+      "title": "Sea Battle Naval",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched radar strike at (1,1)"
+      },
+      "screenshot": "46-sea-battle-naval-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-47",
+      "slug": "hex-conquest",
+      "title": "Hex Conquest",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Selected Hex territory 0"
+      },
+      "screenshot": "47-hex-conquest-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-48",
+      "slug": "dots-and-boxes",
+      "title": "Dots and Boxes",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Placed horizontal edge (0,0)"
+      },
+      "screenshot": "48-dots-and-boxes-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-49",
+      "slug": "anagram-solver-blitz",
+      "title": "Anagram Solver Blitz",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Selected rack anagram tile 0"
+      },
+      "screenshot": "49-anagram-solver-blitz-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-50",
+      "slug": "math-blitz-arcade",
+      "title": "Math Blitz Arcade",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Selected math multiple choice answer"
+      },
+      "screenshot": "50-math-blitz-arcade-gameplay.png"
+    }
+  ]
+}

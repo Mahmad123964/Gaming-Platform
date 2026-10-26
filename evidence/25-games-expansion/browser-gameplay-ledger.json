@@ -5,7 +5,7 @@
   "passedScenarios": 26,
   "failedScenarios": 0,
   "successRate": "100.0%",
-  "timestamp": "2026-10-26T09:41:20.668Z",
+  "timestamp": "2026-10-26T12:47:57.587Z",
   "chromeVersion": "Google Chrome 120+ Headless",
   "viewportDesktop": "1280x900",
   "viewportMobile": "375x667",
@@ -214,7 +214,7 @@
       "elemExists": true,
       "restartResult": true,
       "interaction": {
-        "action": "Selected grid cell and assigned digit 1 from numpad"
+        "action": "Selected grid cell and assigned digit from numpad"
       },
       "screenshot": "16-sudoku-classic-gameplay.png"
     },

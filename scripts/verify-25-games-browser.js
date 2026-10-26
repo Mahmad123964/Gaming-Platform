@@ -304,7 +304,7 @@ const ALL_25_GAMES = [
     targetElem: 'game-arcade-cricket',
     interact: async (client) => {
       await client.eval(`
-        const swingBtn = document.getElementById('btn-cricket-swing');
+        const swingBtn = document.getElementById('btn-cricket-loft') || document.getElementById('btn-cricket-swing');
         if (swingBtn) swingBtn.click();
         else window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', key: ' ', bubbles: true }));
       `);
@@ -319,7 +319,7 @@ const ALL_25_GAMES = [
     targetElem: 'game-flappy-neon',
     interact: async (client) => {
       await client.eval(`
-        const flapBtn = document.getElementById('btn-flappy-flap');
+        const flapBtn = document.getElementById('btn-flappy-jump') || document.getElementById('btn-flappy-flap');
         if (flapBtn) flapBtn.click();
         else window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', key: ' ', bubbles: true }));
       `);
@@ -334,7 +334,7 @@ const ALL_25_GAMES = [
     targetElem: 'game-galactic-dodge',
     interact: async (client) => {
       await client.eval(`
-        const fireBtn = document.getElementById('btn-dodge-fire');
+        const fireBtn = document.getElementById('btn-galactic-fire') || document.getElementById('btn-dodge-fire');
         if (fireBtn) fireBtn.click();
         window.dispatchEvent(new KeyboardEvent('keydown', { code: 'ArrowRight', key: 'ArrowRight', bubbles: true }));
         window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', key: ' ', bubbles: true }));
@@ -350,8 +350,8 @@ const ALL_25_GAMES = [
     targetElem: 'game-memory-match',
     interact: async (client) => {
       await client.eval(`
-        const c0 = document.getElementById('card-0');
-        const c1 = document.getElementById('card-1');
+        const c0 = document.getElementById('card-memory-0') || document.getElementById('card-0');
+        const c1 = document.getElementById('card-memory-1') || document.getElementById('card-1');
         if (c0) c0.click();
         setTimeout(() => { if (c1) c1.click(); }, 200);
       `);
@@ -366,7 +366,7 @@ const ALL_25_GAMES = [
     targetElem: 'game-minesweeper-retro',
     interact: async (client) => {
       await client.eval(`
-        const c33 = document.getElementById('cell-3-3') || document.getElementById('cell-4-4');
+        const c33 = document.getElementById('cell-mine-3-3') || document.getElementById('cell-3-3') || document.getElementById('cell-mine-4-4');
         if (c33) c33.click();
       `);
       await sleep(400);
@@ -380,13 +380,13 @@ const ALL_25_GAMES = [
     targetElem: 'game-sudoku-classic',
     interact: async (client) => {
       await client.eval(`
-        const c = document.getElementById('cell-0-0');
+        const c = document.getElementById('cell-sudoku-0-2') || document.getElementById('cell-0-0');
         if (c) c.click();
-        const num1 = document.getElementById('btn-numpad-1');
+        const num1 = document.getElementById('btn-numpad-1') || document.getElementById('btn-numpad-4');
         if (num1) num1.click();
       `);
       await sleep(400);
-      return { action: 'Selected grid cell and assigned digit 1 from numpad' };
+      return { action: 'Selected grid cell and assigned digit from numpad' };
     }
   },
   {
@@ -396,7 +396,7 @@ const ALL_25_GAMES = [
     targetElem: 'game-slide-puzzle-15',
     interact: async (client) => {
       await client.eval(`
-        const tiles = document.querySelectorAll('[id^="tile-"]');
+        const tiles = document.querySelectorAll('[id^="tile-slide-"], [id^="tile-"]');
         if (tiles.length > 0) tiles[0].click();
       `);
       await sleep(400);
@@ -410,7 +410,7 @@ const ALL_25_GAMES = [
     targetElem: 'game-connect-four',
     interact: async (client) => {
       await client.eval(`
-        const col3 = document.getElementById('btn-c4-col-3');
+        const col3 = document.getElementById('btn-c4-drop-3') || document.getElementById('btn-c4-col-3');
         if (col3) col3.click();
       `);
       await sleep(500);
@@ -424,7 +424,7 @@ const ALL_25_GAMES = [
     targetElem: 'game-reversi-othello',
     interact: async (client) => {
       await client.eval(`
-        const legalSq = document.querySelector('[class*="legalSquare"]') || document.getElementById('square-2-3');
+        const legalSq = document.querySelector('[class*="legalIndicator"]') || document.getElementById('cell-reversi-2-3');
         if (legalSq) legalSq.click();
       `);
       await sleep(500);
@@ -467,9 +467,9 @@ const ALL_25_GAMES = [
     targetElem: 'game-retro-pong',
     interact: async (client) => {
       await client.eval(`
-        const upBtn = document.getElementById('btn-pong-up');
-        if (upBtn) upBtn.click();
-        window.dispatchEvent(new KeyboardEvent('keydown', { code: 'ArrowUp', key: 'ArrowUp', bubbles: true }));
+        const leftBtn = document.getElementById('btn-pong-left') || document.getElementById('btn-pong-up');
+        if (leftBtn) leftBtn.click();
+        window.dispatchEvent(new KeyboardEvent('keydown', { code: 'ArrowLeft', key: 'ArrowLeft', bubbles: true }));
       `);
       await sleep(400);
       return { action: 'Steered cyber tennis paddle to deflect ball' };
@@ -482,7 +482,7 @@ const ALL_25_GAMES = [
     targetElem: 'game-whack-a-mole',
     interact: async (client) => {
       await client.eval(`
-        const b = document.getElementById('burrow-4') || document.getElementById('burrow-0');
+        const b = document.getElementById('hole-mole-4') || document.getElementById('burrow-4') || document.getElementById('hole-mole-0');
         if (b) b.click();
       `);
       await sleep(400);
@@ -510,8 +510,8 @@ const ALL_25_GAMES = [
     targetElem: 'game-word-grid',
     interact: async (client) => {
       await client.eval(`
-        const l00 = document.getElementById('letter-0-0');
-        const l01 = document.getElementById('letter-0-1');
+        const l00 = document.getElementById('cell-letter-0-0') || document.getElementById('letter-0-0');
+        const l01 = document.getElementById('cell-letter-0-1') || document.getElementById('letter-0-1');
         const sub = document.getElementById('btn-word-submit');
         if (l00) l00.click();
         if (l01) l01.click();

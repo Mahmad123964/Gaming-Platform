@@ -281,6 +281,226 @@ const MOBILE_GAMES = [
       await sleep(500);
       return 'Fired bubble via pointer tap on upper canvas';
     }
+  },
+  {
+    idx: '11',
+    slug: 'arcade-cricket',
+    title: 'Arcade Cricket',
+    touchControlsId: 'cricket-mobile-controls',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const loft = document.getElementById('btn-cricket-loft');
+        if (loft) loft.click();
+      `);
+      await sleep(500);
+      return 'Tapped on-screen Loft / Drive swing button';
+    }
+  },
+  {
+    idx: '12',
+    slug: 'flappy-neon',
+    title: 'Flappy Neon',
+    touchControlsId: 'flappy-mobile-controls',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const flap = document.getElementById('btn-flappy-jump');
+        if (flap) flap.click();
+      `);
+      await sleep(500);
+      return 'Tapped on-screen Flap Wings button';
+    }
+  },
+  {
+    idx: '13',
+    slug: 'galactic-dodge',
+    title: 'Galactic Dodge',
+    touchControlsId: 'galactic-mobile-controls',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const fire = document.getElementById('btn-galactic-fire');
+        if (fire) fire.click();
+      `);
+      await sleep(500);
+      return 'Tapped on-screen Fire Pulse blaster button';
+    }
+  },
+  {
+    idx: '14',
+    slug: 'memory-match',
+    title: 'Memory Match',
+    touchControlsId: 'grid-memory-cards',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const c0 = document.getElementById('card-memory-0');
+        const c1 = document.getElementById('card-memory-1');
+        if (c0) c0.click();
+        setTimeout(() => { if (c1) c1.click(); }, 200);
+      `);
+      await sleep(500);
+      return 'Tapped on-screen memory cards';
+    }
+  },
+  {
+    idx: '15',
+    slug: 'minesweeper-retro',
+    title: 'Minesweeper Retro',
+    touchControlsId: 'grid-minesweeper',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const c = document.getElementById('cell-mine-3-3');
+        if (c) c.click();
+        const flag = document.getElementById('btn-mine-flag-toggle');
+        if (flag) flag.click();
+      `);
+      await sleep(500);
+      return 'Tapped center cell and flag toggle';
+    }
+  },
+  {
+    idx: '16',
+    slug: 'sudoku-classic',
+    title: 'Sudoku Classic',
+    touchControlsId: 'sudoku-number-pad',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const c = document.getElementById('cell-sudoku-0-2') || document.getElementById('cell-sudoku-0-0');
+        if (c) c.click();
+        const btn = document.getElementById('btn-numpad-1') || document.getElementById('btn-numpad-4');
+        if (btn) btn.click();
+      `);
+      await sleep(500);
+      return 'Tapped cell and virtual number pad button';
+    }
+  },
+  {
+    idx: '17',
+    slug: 'slide-puzzle-15',
+    title: 'Slide Puzzle 15',
+    touchControlsId: 'grid-slide-puzzle',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const tiles = document.querySelectorAll('[id^="tile-slide-"]');
+        if (tiles.length > 0) tiles[0].click();
+      `);
+      await sleep(500);
+      return 'Tapped numbered tile to slide';
+    }
+  },
+  {
+    idx: '18',
+    slug: 'connect-four',
+    title: 'Connect Four',
+    touchControlsId: 'c4-column-buttons',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const col3 = document.getElementById('btn-c4-drop-3');
+        if (col3) col3.click();
+      `);
+      await sleep(500);
+      return 'Tapped column 3 drop button';
+    }
+  },
+  {
+    idx: '19',
+    slug: 'reversi-othello',
+    title: 'Reversi Othello',
+    touchControlsId: 'board-reversi-grid',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const sq = document.getElementById('cell-reversi-2-3');
+        if (sq) sq.click();
+      `);
+      await sleep(500);
+      return 'Tapped reversi board grid cell';
+    }
+  },
+  {
+    idx: '20',
+    slug: 'tower-defense-lite',
+    title: 'Tower Defense Lite',
+    touchControlsId: 'td-mobile-controls',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const deploy = document.getElementById('btn-td-deploy-turret');
+        if (deploy) deploy.click();
+      `);
+      await sleep(500);
+      return 'Tapped deploy turret quick button';
+    }
+  },
+  {
+    idx: '21',
+    slug: 'endless-neon-runner',
+    title: 'Endless Neon Runner',
+    touchControlsId: 'runner-mobile-controls',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const jump = document.getElementById('btn-runner-jump');
+        if (jump) jump.click();
+      `);
+      await sleep(500);
+      return 'Tapped on-screen Jump / Double Jump button';
+    }
+  },
+  {
+    idx: '22',
+    slug: 'retro-pong',
+    title: 'Retro Pong',
+    touchControlsId: 'pong-mobile-controls',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const left = document.getElementById('btn-pong-left');
+        if (left) left.click();
+      `);
+      await sleep(500);
+      return 'Tapped on-screen paddle left steer button';
+    }
+  },
+  {
+    idx: '23',
+    slug: 'whack-a-mole',
+    title: 'Whack-A-Mole',
+    touchControlsId: 'grid-mole-burrows',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const hole = document.getElementById('hole-mole-4');
+        if (hole) hole.click();
+      `);
+      await sleep(500);
+      return 'Tapped on-screen center burrow hole';
+    }
+  },
+  {
+    idx: '24',
+    slug: 'simon-memory',
+    title: 'Simon Memory',
+    touchControlsId: 'pad-simon-container',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const p0 = document.getElementById('btn-simon-0');
+        if (p0) p0.click();
+      `);
+      await sleep(500);
+      return 'Tapped on-screen green synthesizer pad';
+    }
+  },
+  {
+    idx: '25',
+    slug: 'word-grid',
+    title: 'Word Grid',
+    touchControlsId: 'word-action-controls',
+    testInteraction: async (client) => {
+      await client.eval(`
+        const l0 = document.getElementById('cell-letter-0-0');
+        const l1 = document.getElementById('cell-letter-0-1');
+        const sub = document.getElementById('btn-word-submit');
+        if (l0) l0.click();
+        if (l1) l1.click();
+        if (sub) sub.click();
+      `);
+      await sleep(500);
+      return 'Tapped letter cells and word submit button';
+    }
   }
 ];
 
@@ -342,18 +562,56 @@ async function runMobileCertification() {
 
     for (let i = 0; i < MOBILE_GAMES.length; i++) {
       const g = MOBILE_GAMES[i];
-      console.log(`\n[Mobile Test ${g.idx}/10] Testing ${g.title} (${g.slug})...`);
+      console.log(`\n[Mobile Test ${g.idx}/${MOBILE_GAMES.length}] Testing ${g.title} (${g.slug})...`);
+
+      // 0. Ensure catalog is clean (no stale modals open)
+      await client.eval(`
+        const pm = document.getElementById('game-player-modal');
+        if (pm) {
+          const eb = document.getElementById('btn-exit-game');
+          if (eb) eb.click();
+        }
+        const dm = document.getElementById('game-details-modal');
+        if (dm) {
+          const cb = document.getElementById('btn-close-details');
+          if (cb) cb.click();
+        }
+      `);
+      for (let w = 0; w < 25; w++) {
+        const anyModal = await client.eval(`return Boolean(document.getElementById('game-player-modal') || document.getElementById('game-details-modal'));`);
+        if (!anyModal) break;
+        await sleep(150);
+      }
+
+      // Clear search input if present
+      await client.eval(`
+        const clearBtn = document.getElementById('btn-clear-search');
+        if (clearBtn) clearBtn.click();
+        const input = document.getElementById('game-search-input');
+        if (input && input.value) {
+          const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+          if (nativeSetter) nativeSetter.call(input, '');
+          else input.value = '';
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      `);
+      await sleep(350);
 
       // 1. Locate and click card in catalog DOM
-      let cardClicked = await client.eval(`
-        const card = document.getElementById('game-card-${g.slug}');
-        if (card) {
-          card.scrollIntoView({ behavior: 'instant', block: 'center' });
-          card.click();
-          return true;
-        }
-        return false;
-      `);
+      let cardClicked = false;
+      for (let a = 0; a < 10; a++) {
+        cardClicked = await client.eval(`
+          const card = document.getElementById('game-card-${g.slug}');
+          if (card) {
+            card.scrollIntoView({ behavior: 'instant', block: 'center' });
+            card.click();
+            return true;
+          }
+          return false;
+        `);
+        if (cardClicked) break;
+        await sleep(200);
+      }
 
       if (!cardClicked) {
         await client.eval(`
@@ -365,29 +623,42 @@ async function runMobileCertification() {
             input.dispatchEvent(new Event('input', { bubbles: true }));
           }
         `);
-        await sleep(700);
-        cardClicked = await client.eval(`
-          const card = document.getElementById('game-card-${g.slug}');
-          if (card) {
-            card.scrollIntoView({ behavior: 'instant', block: 'center' });
-            card.click();
+        await sleep(600);
+        for (let a = 0; a < 15; a++) {
+          cardClicked = await client.eval(`
+            const card = document.getElementById('game-card-${g.slug}');
+            if (card) {
+              card.scrollIntoView({ behavior: 'instant', block: 'center' });
+              card.click();
+              return true;
+            }
+            return false;
+          `);
+          if (cardClicked) break;
+          await sleep(200);
+        }
+      }
+      await sleep(500);
+
+      // 2. Await details modal and click launch button
+      let launchClicked = false;
+      for (let a = 0; a < 20; a++) {
+        launchClicked = await client.eval(`
+          const launchBtn = document.getElementById('btn-launch-game');
+          if (launchBtn) {
+            launchBtn.click();
             return true;
           }
           return false;
         `);
+        if (launchClicked) break;
+        await sleep(200);
       }
-      await sleep(600);
-
-      // 2. Click launch button
-      await client.eval(`
-        const launchBtn = document.getElementById('btn-launch-game');
-        if (launchBtn) launchBtn.click();
-      `);
 
       // 3. Await modal open & touch controls hydration
       let modalOpen = false;
       let touchMetrics = { found: false };
-      for (let attempt = 0; attempt < 25; attempt++) {
+      for (let attempt = 0; attempt < 35; attempt++) {
         const status = await client.eval(`
           const modal = document.getElementById('game-player-modal');
           const el = document.getElementById('${g.touchControlsId}');
@@ -454,7 +725,7 @@ async function runMobileCertification() {
         const exitBtn = document.getElementById('btn-exit-game') || document.getElementById('btn-close-game-modal');
         if (exitBtn) exitBtn.click();
       `);
-      for (let attempt = 0; attempt < 15; attempt++) {
+      for (let attempt = 0; attempt < 25; attempt++) {
         const stillOpen = await client.eval(`return !!document.getElementById('game-player-modal');`);
         if (!stillOpen) break;
         await sleep(150);
@@ -462,6 +733,8 @@ async function runMobileCertification() {
 
       // Clear search
       await client.eval(`
+        const clearBtn = document.getElementById('btn-clear-search');
+        if (clearBtn) clearBtn.click();
         const searchInput = document.getElementById('game-search-input');
         if (searchInput && searchInput.value) {
           const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
@@ -497,7 +770,7 @@ async function runMobileCertification() {
     chromeProc.kill('SIGTERM');
 
     if (passedTotal === results.length) {
-      console.log('SUCCESS: All 10 games fully certified for mobile touch gameplay!');
+      console.log(`SUCCESS: All ${results.length} games fully certified for mobile touch gameplay!`);
       process.exit(0);
     } else {
       console.error('FAILURE: Mobile usability defects detected.');

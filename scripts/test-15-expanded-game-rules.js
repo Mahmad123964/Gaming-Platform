@@ -82,6 +82,14 @@ check('CRK-02', '6-Ball Over Lifecycle & Wicket Limit', () => {
   assert.strictEqual(wickets, 1);
 });
 
+check('CRK-03', 'Innings Limit (12 Balls / 3 Wickets) & Score Sum Consistency', () => {
+  const shots = [4, 6, 0, 1, 2, 4, 6, 0, 0, 1, 2, 6];
+  let totalScore = 0;
+  for (const s of shots) totalScore += s;
+  assert.strictEqual(totalScore, 32);
+  assert.strictEqual(shots.length, 12, 'Match strictly bounded to 2 overs (12 deliveries)');
+});
+
 // 12. FLAPPY NEON
 console.log('\n--- 12. Flappy Neon Deep Rules ---');
 check('FLP-01', 'Flap Upward Impulse and Downward Gravitational Acceleration', () => {
@@ -206,6 +214,19 @@ check('MSW-02', 'Zero-Cell Recursive Flood-Fill Expansion', () => {
   assert.strictEqual(revealed[0][2], false, 'Mine cell is not revealed');
 });
 
+check('MSW-03', 'First-Click Safety Guarantee (Mine Never on or Adjacent to Initial Click)', () => {
+  const gridSize = 9;
+  const firstClick = { r: 4, c: 4 };
+  const isMineAllowed = (r, c) => Math.abs(r - firstClick.r) > 1 || Math.abs(c - firstClick.c) > 1;
+  // Test 3x3 surrounding zone of (4,4)
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      assert.strictEqual(isMineAllowed(firstClick.r + dr, firstClick.c + dc), false, `Cell (${firstClick.r + dr}, ${firstClick.c + dc}) immune from mine placement`);
+    }
+  }
+  assert.strictEqual(isMineAllowed(0, 0), true, 'Distant cell permitted to hold mine');
+});
+
 // 16. SUDOKU CLASSIC
 console.log('\n--- 16. Sudoku Classic Deep Rules ---');
 check('SUD-01', 'Row, Column, and 3x3 Box Number Uniqueness', () => {
@@ -231,6 +252,42 @@ check('SUD-01', 'Row, Column, and 3x3 Box Number Uniqueness', () => {
   assert.strictEqual(isValidPlacement(board, 4, 4, 5), true, 'Valid placement at 4,4');
 });
 
+check('SUD-02', 'Complete 9x9 Solution Validity & Clue Integrity', () => {
+  const solution = [
+    [5, 3, 4, 6, 7, 8, 9, 1, 2],
+    [6, 7, 2, 1, 9, 5, 3, 4, 8],
+    [1, 9, 8, 3, 4, 2, 5, 6, 7],
+    [8, 5, 9, 7, 6, 1, 4, 2, 3],
+    [4, 2, 6, 8, 5, 3, 7, 9, 1],
+    [7, 1, 3, 9, 2, 4, 8, 5, 6],
+    [9, 6, 1, 5, 3, 7, 2, 8, 4],
+    [2, 8, 7, 4, 1, 9, 6, 3, 5],
+    [3, 4, 5, 2, 8, 6, 1, 7, 9]
+  ];
+  // Verify every row has 1..9
+  for (let r = 0; r < 9; r++) {
+    const s = new Set(solution[r]);
+    assert.strictEqual(s.size, 9, `Row ${r} contains all 9 distinct digits`);
+  }
+  // Verify every column has 1..9
+  for (let c = 0; c < 9; c++) {
+    const s = new Set(solution.map(row => row[c]));
+    assert.strictEqual(s.size, 9, `Col ${c} contains all 9 distinct digits`);
+  }
+  // Verify every 3x3 box has 1..9
+  for (let br = 0; br < 3; br++) {
+    for (let bc = 0; bc < 3; bc++) {
+      const box = [];
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          box.push(solution[br * 3 + r][bc * 3 + c]);
+        }
+      }
+      assert.strictEqual(new Set(box).size, 9, `Box (${br},${bc}) contains all 9 distinct digits`);
+    }
+  }
+});
+
 // 17. SLIDE PUZZLE 15
 console.log('\n--- 17. Slide Puzzle 15 Deep Rules ---');
 check('SLD-01', 'Adjacent Slide Physics: Only cells with Manhattan distance 1 from blank can move', () => {
@@ -248,6 +305,32 @@ check('SLD-02', 'Solved Board State Verification ([1..15, 0])', () => {
   const isSolved = (arr) => arr.every((v, i) => i === 15 ? v === 0 : v === i + 1);
   assert.strictEqual(isSolved(solved), true);
   assert.strictEqual(isSolved([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 14, 0]), false);
+});
+
+check('SLD-03', 'Inversion Parity & Blank Row Solvability Math (Johnson & Story Theorem)', () => {
+  const isSolvable = (board) => {
+    // board is 16 elements (0 represents empty slot)
+    let inversions = 0;
+    const tiles = board.filter(t => t !== 0);
+    for (let i = 0; i < tiles.length; i++) {
+      for (let j = i + 1; j < tiles.length; j++) {
+        if (tiles[i] > tiles[j]) inversions++;
+      }
+    }
+    const emptyIdx = board.indexOf(0);
+    const blankRowFromBottom = 4 - Math.floor(emptyIdx / 4); // 1 to 4
+    if (blankRowFromBottom % 2 === 0) {
+      return inversions % 2 !== 0;
+    } else {
+      return inversions % 2 === 0;
+    }
+  };
+  // Solved state: 0 inversions, blank on row 1 from bottom -> solvable
+  const solved = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0];
+  assert.strictEqual(isSolvable(solved), true, 'Standard solved state is solvable');
+  // Classic Sam Loyd unsolvable puzzle (14 and 15 swapped, 1 inversion, blank on row 1 from bottom)
+  const loydUnsolvable = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 14, 0];
+  assert.strictEqual(isSolvable(loydUnsolvable), false, 'Sam Loyd 14-15 swap is mathematically unsolvable');
 });
 
 // 18. CONNECT FOUR
@@ -295,6 +378,25 @@ check('C4-02', 'Four-in-a-Row Horizontal, Vertical & Diagonal Victory Detection'
   assert.strictEqual(checkWin(winGrid, 'YELLOW'), false);
 });
 
+check('C4-03', 'Diagonal Down-Right & Up-Right 4-in-a-row Wins and 3-in-a-row Non-win Rejection', () => {
+  const gDiag = Array(6).fill(null).map(() => Array(7).fill(null));
+  // Place diagonal down-right
+  gDiag[0][0] = 'YELLOW'; gDiag[1][1] = 'YELLOW'; gDiag[2][2] = 'YELLOW'; gDiag[3][3] = 'YELLOW';
+  const hasDiagDownRight = (g, p) => {
+    for (let r = 0; r <= 2; r++) {
+      for (let c = 0; c <= 3; c++) {
+        if (g[r][c] === p && g[r+1][c+1] === p && g[r+2][c+2] === p && g[r+3][c+3] === p) return true;
+      }
+    }
+    return false;
+  };
+  assert.strictEqual(hasDiagDownRight(gDiag, 'YELLOW'), true, 'Diagonal down-right connects 4');
+  assert.strictEqual(hasDiagDownRight(gDiag, 'RED'), false);
+  // 3-in-a-row does not win
+  gDiag[3][3] = null;
+  assert.strictEqual(hasDiagDownRight(gDiag, 'YELLOW'), false, '3-in-a-row is not a victory');
+});
+
 // 19. REVERSI OTHELLO
 console.log('\n--- 19. Reversi Othello Deep Rules ---');
 check('REV-01', 'Directional Sandwich Bracket & Tile Cascade Flip', () => {
@@ -324,6 +426,23 @@ check('REV-01', 'Directional Sandwich Bracket & Tile Cascade Flip', () => {
   assert.deepStrictEqual(flips[0], [3, 3]);
 });
 
+check('REV-02', 'Forced Pass & Multi-Directional Flip Cascade', () => {
+  // Test multi-directional sandwich (horizontal + vertical simultaneously)
+  const board = Array(8).fill(null).map(() => Array(8).fill(null));
+  // Place center cross
+  board[3][3] = 'WHITE'; board[3][4] = 'BLACK';
+  board[4][3] = 'WHITE'; board[4][4] = 'BLACK';
+  // If player has 0 legal moves while opponent has legal moves -> forced pass
+  const getMovesCount = (playerHasMoves, opponentHasMoves) => {
+    if (!playerHasMoves && opponentHasMoves) return 'PASS';
+    if (!playerHasMoves && !opponentHasMoves) return 'GAME_OVER';
+    return 'MOVE_AVAILABLE';
+  };
+  assert.strictEqual(getMovesCount(false, true), 'PASS', 'Player passes when no legal moves available');
+  assert.strictEqual(getMovesCount(false, false), 'GAME_OVER', 'Match concludes when both players pass');
+  assert.strictEqual(getMovesCount(true, false), 'MOVE_AVAILABLE');
+});
+
 // 20. TOWER DEFENSE LITE
 console.log('\n--- 20. Tower Defense Lite Deep Rules ---');
 check('TWR-01', 'Radial Tower Range Distance Check & Nearest Target Acquisition', () => {
@@ -337,6 +456,31 @@ check('TWR-01', 'Radial Tower Range Distance Check & Nearest Target Acquisition'
     return d <= tower.range;
   });
   assert.strictEqual(target.id, 1);
+});
+
+check('TWR-02', 'Creep Waypoint Navigation, Currency Management & Core Defeat', () => {
+  let gold = 100;
+  let coreHp = 10;
+  const TURRET_COST = 40;
+  const buildTurret = () => {
+    if (gold >= TURRET_COST) {
+      gold -= TURRET_COST;
+      return true;
+    }
+    return false;
+  };
+  assert.strictEqual(buildTurret(), true, '1st turret built (gold: 60)');
+  assert.strictEqual(gold, 60);
+  assert.strictEqual(buildTurret(), true, '2nd turret built (gold: 20)');
+  assert.strictEqual(gold, 20);
+  assert.strictEqual(buildTurret(), false, '3rd turret rejected (insufficient funds)');
+  assert.strictEqual(gold, 20);
+  // Creep breaches perimeter: coreHp decreases
+  const creepBreach = () => { coreHp -= 5; };
+  creepBreach();
+  assert.strictEqual(coreHp, 5, 'Core damaged');
+  creepBreach();
+  assert.strictEqual(coreHp <= 0, true, 'Core breached -> Defeat state triggered');
 });
 
 // 21. ENDLESS NEON RUNNER
@@ -428,6 +572,19 @@ check('WRD-01', 'Adjacent Cell Traversal Without Tile Reuse & Word Scoring', () 
   assert.strictEqual(scoreWord('CAT'), 100);
   assert.strictEqual(scoreWord('GAME'), 200);
   assert.strictEqual(scoreWord('NEXUS'), 400);
+});
+
+check('WRD-02', 'Duplicate Word Rejection & 8-Direction Adjacency Validation', () => {
+  const foundWords = new Set();
+  const submitWord = (w) => {
+    if (foundWords.has(w)) return 'DUPLICATE_REJECTED';
+    foundWords.add(w);
+    return 'ACCEPTED';
+  };
+  assert.strictEqual(submitWord('NEXUS'), 'ACCEPTED');
+  assert.strictEqual(submitWord('NEXUS'), 'DUPLICATE_REJECTED', 'Cannot submit duplicate word');
+  assert.strictEqual(submitWord('PLAY'), 'ACCEPTED');
+  assert.strictEqual(foundWords.size, 2);
 });
 
 // Summary

@@ -1,0 +1,959 @@
+{
+  "milestone": "3.3",
+  "timestamp": "2026-10-26T13:39:40.442Z",
+  "viewport": "375x667",
+  "totalGames": 50,
+  "passedTotal": 50,
+  "results": [
+    {
+      "id": "MOB-01",
+      "slug": "cyber-invaders",
+      "title": "Cyber Invaders",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "game-touch-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 64,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Dispatched touch pulse fire",
+      "screenshot": "mobile-cyber-invaders.png",
+      "screenshotBytes": 118659
+    },
+    {
+      "id": "MOB-02",
+      "slug": "2048-classic",
+      "title": "2048 Classic",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-dpad-down",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 52,
+        "height": 44,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen D-pad buttons",
+      "screenshot": "mobile-2048-classic.png",
+      "screenshotBytes": 101813
+    },
+    {
+      "id": "MOB-03",
+      "slug": "snake-arcade",
+      "title": "Snake Arcade",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "snake-mobile-dpad",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 140,
+        "height": 92,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped mobile touch D-Pad",
+      "screenshot": "mobile-snake-arcade.png",
+      "screenshotBytes": 104370
+    },
+    {
+      "id": "MOB-04",
+      "slug": "brick-breaker",
+      "title": "Brick Breaker",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "breaker-mobile-buttons",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 180,
+        "height": 44,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped mobile paddle buttons",
+      "screenshot": "mobile-brick-breaker.png",
+      "screenshotBytes": 121251
+    },
+    {
+      "id": "MOB-05",
+      "slug": "tic-tac-toe-pro",
+      "title": "Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "cell-ttt-4",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 84,
+        "height": 84,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped center cell (index 4)",
+      "screenshot": "mobile-tic-tac-toe-pro.png",
+      "screenshotBytes": 205855
+    },
+    {
+      "id": "MOB-06",
+      "slug": "classic-checkers",
+      "title": "Classic Checkers",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "board-checkers-grid",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped Cyan checker piece",
+      "screenshot": "mobile-classic-checkers.png",
+      "screenshotBytes": 178369
+    },
+    {
+      "id": "MOB-07",
+      "slug": "solitaire-royale",
+      "title": "Solitaire Royale",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "stockpile-btn",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 60,
+        "height": 84,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped Stockpile button",
+      "screenshot": "mobile-solitaire-royale.png",
+      "screenshotBytes": 197432
+    },
+    {
+      "id": "MOB-08",
+      "slug": "neon-racer",
+      "title": "Neon Racer",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "neon-mobile-buttons",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 200,
+        "height": 46,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped mobile steer left",
+      "screenshot": "mobile-neon-racer.png",
+      "screenshotBytes": 98573
+    },
+    {
+      "id": "MOB-09",
+      "slug": "block-puzzle",
+      "title": "Block Puzzle",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "block-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 300,
+        "height": 44,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped mobile Rotate controls",
+      "screenshot": "mobile-block-puzzle.png",
+      "screenshotBytes": 92641
+    },
+    {
+      "id": "MOB-10",
+      "slug": "bubble-shooter",
+      "title": "Bubble Shooter",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "wrapper-bubble-shooter",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 396,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Fired bubble via pointer tap",
+      "screenshot": "mobile-bubble-shooter.png",
+      "screenshotBytes": 188206
+    },
+    {
+      "id": "MOB-11",
+      "slug": "arcade-cricket",
+      "title": "Arcade Cricket",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "cricket-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 48,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen swing button",
+      "screenshot": "mobile-arcade-cricket.png",
+      "screenshotBytes": 89536
+    },
+    {
+      "id": "MOB-12",
+      "slug": "flappy-neon",
+      "title": "Flappy Neon",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "flappy-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 48,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped Flap Wings button",
+      "screenshot": "mobile-flappy-neon.png",
+      "screenshotBytes": 84678
+    },
+    {
+      "id": "MOB-13",
+      "slug": "galactic-dodge",
+      "title": "Galactic Dodge",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "galactic-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 48,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped Fire Pulse blaster",
+      "screenshot": "mobile-galactic-dodge.png",
+      "screenshotBytes": 101168
+    },
+    {
+      "id": "MOB-14",
+      "slug": "memory-match",
+      "title": "Memory Match",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "grid-memory-cards",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped memory card",
+      "screenshot": "mobile-memory-match.png",
+      "screenshotBytes": 119607
+    },
+    {
+      "id": "MOB-15",
+      "slug": "minesweeper-retro",
+      "title": "Minesweeper Retro",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "grid-minesweeper",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped center cell",
+      "screenshot": "mobile-minesweeper-retro.png",
+      "screenshotBytes": 109802
+    },
+    {
+      "id": "MOB-16",
+      "slug": "sudoku-classic",
+      "title": "Sudoku Classic",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "sudoku-number-pad",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 96,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped virtual number pad",
+      "screenshot": "mobile-sudoku-classic.png",
+      "screenshotBytes": 114289
+    },
+    {
+      "id": "MOB-17",
+      "slug": "slide-puzzle-15",
+      "title": "Slide Puzzle 15",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "grid-slide-puzzle",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped numbered tile to slide",
+      "screenshot": "mobile-slide-puzzle-15.png",
+      "screenshotBytes": 159538
+    },
+    {
+      "id": "MOB-18",
+      "slug": "connect-four",
+      "title": "Connect Four",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "c4-column-buttons",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 32,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped column 3 drop button",
+      "screenshot": "mobile-connect-four.png",
+      "screenshotBytes": 134881
+    },
+    {
+      "id": "MOB-19",
+      "slug": "reversi-othello",
+      "title": "Reversi Othello",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "board-reversi-grid",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped reversi board grid cell",
+      "screenshot": "mobile-reversi-othello.png",
+      "screenshotBytes": 115696
+    },
+    {
+      "id": "MOB-20",
+      "slug": "tower-defense-lite",
+      "title": "Tower Defense Lite",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "td-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 46,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped deploy turret button",
+      "screenshot": "mobile-tower-defense-lite.png",
+      "screenshotBytes": 112840
+    },
+    {
+      "id": "MOB-21",
+      "slug": "endless-neon-runner",
+      "title": "Endless Neon Runner",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "runner-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 48,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen Jump button",
+      "screenshot": "mobile-endless-neon-runner.png",
+      "screenshotBytes": 94700
+    },
+    {
+      "id": "MOB-22",
+      "slug": "retro-pong",
+      "title": "Retro Pong",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "pong-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 46,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen paddle button",
+      "screenshot": "mobile-retro-pong.png",
+      "screenshotBytes": 114989
+    },
+    {
+      "id": "MOB-23",
+      "slug": "whack-a-mole",
+      "title": "Whack-A-Mole",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "grid-mole-burrows",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped center burrow hole",
+      "screenshot": "mobile-whack-a-mole.png",
+      "screenshotBytes": 169140
+    },
+    {
+      "id": "MOB-24",
+      "slug": "simon-memory",
+      "title": "Simon Memory",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "pad-simon-container",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped synthesizer pad",
+      "screenshot": "mobile-simon-memory.png",
+      "screenshotBytes": 146849
+    },
+    {
+      "id": "MOB-25",
+      "slug": "word-grid",
+      "title": "Word Grid",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "word-action-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 301,
+        "height": 44,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped letter cell",
+      "screenshot": "mobile-word-grid.png",
+      "screenshotBytes": 162713
+    },
+    {
+      "id": "MOB-26",
+      "slug": "cricket-bowling-pro",
+      "title": "Cricket Bowling Pro",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-cricket-deliver",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 71,
+        "height": 19,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped deliver seam ball",
+      "screenshot": "mobile-cricket-bowling-pro.png",
+      "screenshotBytes": 96845
+    },
+    {
+      "id": "MOB-27",
+      "slug": "table-tennis-rally",
+      "title": "Table Tennis Rally",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-tennis-smash",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 68,
+        "height": 21,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped tennis smash",
+      "screenshot": "mobile-table-tennis-rally.png",
+      "screenshotBytes": 60373
+    },
+    {
+      "id": "MOB-28",
+      "slug": "soccer-free-kick",
+      "title": "Soccer Free Kick",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-soccer-shoot",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 55,
+        "height": 36,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped soccer shoot",
+      "screenshot": "mobile-soccer-free-kick.png",
+      "screenshotBytes": 82247
+    },
+    {
+      "id": "MOB-29",
+      "slug": "basketball-shootout",
+      "title": "Basketball Shootout",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-basket-shoot",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 210,
+        "height": 21,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped basketball shoot",
+      "screenshot": "mobile-basketball-shootout.png",
+      "screenshotBytes": 73614
+    },
+    {
+      "id": "MOB-30",
+      "slug": "cyber-sprint-runner",
+      "title": "Cyber Sprint Runner",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-sprint-jump",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 54,
+        "height": 19,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped sprint jump",
+      "screenshot": "mobile-cyber-sprint-runner.png",
+      "screenshotBytes": 64289
+    },
+    {
+      "id": "MOB-31",
+      "slug": "turbo-kart-2d",
+      "title": "Turbo Kart 2D",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-kart-gas",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 88,
+        "height": 19,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped kart gas pedal",
+      "screenshot": "mobile-turbo-kart-2d.png",
+      "screenshotBytes": 95751
+    },
+    {
+      "id": "MOB-32",
+      "slug": "gravity-runner",
+      "title": "Gravity Runner",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-gravity-invert",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 225,
+        "height": 21,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped gravity invert button",
+      "screenshot": "mobile-gravity-runner.png",
+      "screenshotBytes": 60539
+    },
+    {
+      "id": "MOB-33",
+      "slug": "sunset-drift",
+      "title": "Sunset Drift",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-drift-turbo",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 92,
+        "height": 21,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped drift turbo",
+      "screenshot": "mobile-sunset-drift.png",
+      "screenshotBytes": 83299
+    },
+    {
+      "id": "MOB-34",
+      "slug": "asteroid-belt-pilot",
+      "title": "Asteroid Belt Pilot",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-pilot-fire",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 75,
+        "height": 36,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped pilot blaster",
+      "screenshot": "mobile-asteroid-belt-pilot.png",
+      "screenshotBytes": 87215
+    },
+    {
+      "id": "MOB-35",
+      "slug": "space-defense-laser",
+      "title": "Space Defense Laser",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-space-fire-beam",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 117,
+        "height": 36,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped turret fire beam",
+      "screenshot": "mobile-space-defense-laser.png",
+      "screenshotBytes": 91022
+    },
+    {
+      "id": "MOB-36",
+      "slug": "pixel-dungeon-rogue",
+      "title": "Pixel Dungeon Rogue",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-rogue-up",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 49,
+        "height": 42,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped rogue move up",
+      "screenshot": "mobile-pixel-dungeon-rogue.png",
+      "screenshotBytes": 92031
+    },
+    {
+      "id": "MOB-37",
+      "slug": "alien-pop-defense",
+      "title": "Alien Pop Defense",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-pop-silo-mid",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 91,
+        "height": 36,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped pop silo mid",
+      "screenshot": "mobile-alien-pop-defense.png",
+      "screenshotBytes": 68314
+    },
+    {
+      "id": "MOB-38",
+      "slug": "neon-pac-maze",
+      "title": "Neon Pac-Maze",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-pac-up",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 33,
+        "height": 35,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped Pac-Up turn",
+      "screenshot": "mobile-neon-pac-maze.png",
+      "screenshotBytes": 85842
+    },
+    {
+      "id": "MOB-39",
+      "slug": "nonogram-picross",
+      "title": "Nonogram Picross",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-nono-toggle-mode",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 265,
+        "height": 21,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped nono mode toggle",
+      "screenshot": "mobile-nonogram-picross.png",
+      "screenshotBytes": 75987
+    },
+    {
+      "id": "MOB-40",
+      "slug": "number-sequence-merge",
+      "title": "Number Sequence Merge",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-seq-col-2",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 50,
+        "height": 33,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped drop column 2",
+      "screenshot": "mobile-number-sequence-merge.png",
+      "screenshotBytes": 67336
+    },
+    {
+      "id": "MOB-41",
+      "slug": "lights-out-neon",
+      "title": "Lights Out Neon",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "cell-light-1-1",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 48,
+        "height": 48,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped light cell 1-1",
+      "screenshot": "mobile-lights-out-neon.png",
+      "screenshotBytes": 178114
+    },
+    {
+      "id": "MOB-42",
+      "slug": "tangram-shape-fit",
+      "title": "Tangram Shape Fit",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-tangram-rotate",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 118,
+        "height": 30,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped tangram rotate",
+      "screenshot": "mobile-tangram-shape-fit.png",
+      "screenshotBytes": 117305
+    },
+    {
+      "id": "MOB-43",
+      "slug": "laser-mirror-relay",
+      "title": "Laser Mirror Relay",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-laser-pulse",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 162,
+        "height": 21,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped optical laser pulse",
+      "screenshot": "mobile-laser-mirror-relay.png",
+      "screenshotBytes": 86136
+    },
+    {
+      "id": "MOB-44",
+      "slug": "pipe-connect-hydro",
+      "title": "Pipe Connect Hydro",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-pipe-flow-test",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 201,
+        "height": 21,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped pipe flow test",
+      "screenshot": "mobile-pipe-connect-hydro.png",
+      "screenshotBytes": 84159
+    },
+    {
+      "id": "MOB-45",
+      "slug": "chess-micro-tactics",
+      "title": "Chess Micro Tactics",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "cell-chess-3-2",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 58,
+        "height": 58,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped chess central square",
+      "screenshot": "mobile-chess-micro-tactics.png",
+      "screenshotBytes": 117656
+    },
+    {
+      "id": "MOB-46",
+      "slug": "sea-battle-naval",
+      "title": "Sea Battle Naval",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "cell-naval-1-1",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 42,
+        "height": 42,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped naval radar cell",
+      "screenshot": "mobile-sea-battle-naval.png",
+      "screenshotBytes": 79310
+    },
+    {
+      "id": "MOB-47",
+      "slug": "hex-conquest",
+      "title": "Hex Conquest",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-hex-territory-0",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 86,
+        "height": 75,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped hex territory 0",
+      "screenshot": "mobile-hex-conquest.png",
+      "screenshotBytes": 188259
+    },
+    {
+      "id": "MOB-48",
+      "slug": "dots-and-boxes",
+      "title": "Dots and Boxes",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "edge-h-0-0",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 80,
+        "height": 8,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped dot edge (0,0)",
+      "screenshot": "mobile-dots-and-boxes.png",
+      "screenshotBytes": 83642
+    },
+    {
+      "id": "MOB-49",
+      "slug": "anagram-solver-blitz",
+      "title": "Anagram Solver Blitz",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-anagram-submit",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 111,
+        "height": 23,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped anagram submit",
+      "screenshot": "mobile-anagram-solver-blitz.png",
+      "screenshotBytes": 98426
+    },
+    {
+      "id": "MOB-50",
+      "slug": "math-blitz-arcade",
+      "title": "Math Blitz Arcade",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-math-ans-0",
+      "touchFound": true,
+      "touchMetrics": {
+        "found": true,
+        "width": 34,
+        "height": 68,
+        "visible": true
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped math answer button 0",
+      "screenshot": "mobile-math-blitz-arcade.png",
+      "screenshotBytes": 116681
+    }
+  ]
+}

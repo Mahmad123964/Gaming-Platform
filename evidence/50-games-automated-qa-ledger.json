@@ -1,0 +1,2304 @@
+{
+  "timestamp": "2026-10-26T13:21:29.299Z",
+  "totalAssertions": 255,
+  "passedCount": 255,
+  "failedCount": 0,
+  "passRate": "100.0%",
+  "testResults": [
+    {
+      "id": "CAT-PUB-01",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Cyber Invaders",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-001, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.606Z"
+    },
+    {
+      "id": "CAT-PUB-02",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: 2048 Classic",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-2048, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.608Z"
+    },
+    {
+      "id": "CAT-PUB-03",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Snake Arcade",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-snake, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.609Z"
+    },
+    {
+      "id": "CAT-PUB-04",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Brick Breaker",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-breaker, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.610Z"
+    },
+    {
+      "id": "CAT-PUB-05",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-tictactoe, Category: Card & Board)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.610Z"
+    },
+    {
+      "id": "CAT-PUB-06",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Classic Checkers",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-checkers, Category: Card & Board)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.610Z"
+    },
+    {
+      "id": "CAT-PUB-07",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Solitaire Royale",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-008, Category: Card & Board)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.611Z"
+    },
+    {
+      "id": "CAT-PUB-08",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Neon Racer",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-neon-racer, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.611Z"
+    },
+    {
+      "id": "CAT-PUB-09",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Block Puzzle",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-block-puzzle, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.611Z"
+    },
+    {
+      "id": "CAT-PUB-10",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Bubble Shooter",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-bubble-shooter, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.611Z"
+    },
+    {
+      "id": "CAT-PUB-11",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Arcade Cricket",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-cricket, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.611Z"
+    },
+    {
+      "id": "CAT-PUB-12",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Flappy Neon",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-flappy, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.611Z"
+    },
+    {
+      "id": "CAT-PUB-13",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Galactic Dodge",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-dodge, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.612Z"
+    },
+    {
+      "id": "CAT-PUB-14",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Memory Match",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-memory, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.612Z"
+    },
+    {
+      "id": "CAT-PUB-15",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Minesweeper Retro",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-mines, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.612Z"
+    },
+    {
+      "id": "CAT-PUB-16",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Sudoku Classic",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-sudoku, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.612Z"
+    },
+    {
+      "id": "CAT-PUB-17",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-slide, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.612Z"
+    },
+    {
+      "id": "CAT-PUB-18",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Connect Four",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-connect4, Category: Card & Board)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.612Z"
+    },
+    {
+      "id": "CAT-PUB-19",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Reversi Othello",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-reversi, Category: Card & Board)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.612Z"
+    },
+    {
+      "id": "CAT-PUB-20",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Tower Defense Lite",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-tower, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.613Z"
+    },
+    {
+      "id": "CAT-PUB-21",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Endless Neon Runner",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-runner, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.613Z"
+    },
+    {
+      "id": "CAT-PUB-22",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Retro Pong",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-pong, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.613Z"
+    },
+    {
+      "id": "CAT-PUB-23",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Whack-A-Mole",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-mole, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.613Z"
+    },
+    {
+      "id": "CAT-PUB-24",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Simon Memory",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-simon, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.613Z"
+    },
+    {
+      "id": "CAT-PUB-25",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Word Grid",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-word, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.613Z"
+    },
+    {
+      "id": "CAT-PUB-26",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Cricket Bowling Pro",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-bowling-pro, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.614Z"
+    },
+    {
+      "id": "CAT-PUB-27",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Table Tennis Rally",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-tennis-rally, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.614Z"
+    },
+    {
+      "id": "CAT-PUB-28",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Soccer Free Kick",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-soccer-kick, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.614Z"
+    },
+    {
+      "id": "CAT-PUB-29",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Basketball Shootout",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-basketball, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.614Z"
+    },
+    {
+      "id": "CAT-PUB-30",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Cyber Sprint Runner",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-sprint-runner, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.614Z"
+    },
+    {
+      "id": "CAT-PUB-31",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Turbo Kart 2D",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-kart-2d, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.614Z"
+    },
+    {
+      "id": "CAT-PUB-32",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Gravity Runner",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-gravity-runner, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.614Z"
+    },
+    {
+      "id": "CAT-PUB-33",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Sunset Drift",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-sunset-drift, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.615Z"
+    },
+    {
+      "id": "CAT-PUB-34",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Asteroid Belt Pilot",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-asteroid-pilot, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.615Z"
+    },
+    {
+      "id": "CAT-PUB-35",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Space Defense Laser",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-space-defense, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.615Z"
+    },
+    {
+      "id": "CAT-PUB-36",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Pixel Dungeon Rogue",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-dungeon-rogue, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.615Z"
+    },
+    {
+      "id": "CAT-PUB-37",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Alien Pop Defense",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-alien-pop, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.615Z"
+    },
+    {
+      "id": "CAT-PUB-38",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Neon Pac-Maze",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-pac-maze, Category: Arcade)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.615Z"
+    },
+    {
+      "id": "CAT-PUB-39",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Nonogram Picross",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-picross, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.616Z"
+    },
+    {
+      "id": "CAT-PUB-40",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Number Sequence Merge",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-sequence-merge, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.616Z"
+    },
+    {
+      "id": "CAT-PUB-41",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Lights Out Neon",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-lights-out, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.616Z"
+    },
+    {
+      "id": "CAT-PUB-42",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Tangram Shape Fit",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-tangram, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.616Z"
+    },
+    {
+      "id": "CAT-PUB-43",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Laser Mirror Relay",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-laser-relay, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.616Z"
+    },
+    {
+      "id": "CAT-PUB-44",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Pipe Connect Hydro",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-pipe-connect, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.616Z"
+    },
+    {
+      "id": "CAT-PUB-45",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Chess Micro Tactics",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-chess-micro, Category: Card & Board)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.616Z"
+    },
+    {
+      "id": "CAT-PUB-46",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Sea Battle Naval",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-sea-battle, Category: Card & Board)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.617Z"
+    },
+    {
+      "id": "CAT-PUB-47",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Hex Conquest",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-hex-conquest, Category: Card & Board)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.617Z"
+    },
+    {
+      "id": "CAT-PUB-48",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Dots and Boxes",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-dots-boxes, Category: Card & Board)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.617Z"
+    },
+    {
+      "id": "CAT-PUB-49",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Anagram Solver Blitz",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-anagram-blitz, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.617Z"
+    },
+    {
+      "id": "CAT-PUB-50",
+      "ac": "AC-5.1",
+      "name": "Catalog Discovery: Math Blitz Arcade",
+      "status": "PASS",
+      "details": "Published in catalog (ID: game-math-blitz, Category: Puzzle)",
+      "durationMs": 82,
+      "timestamp": "2026-10-26T13:21:27.618Z"
+    },
+    {
+      "id": "STATUS-CHK-01",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Cyber Invaders",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 11,
+      "timestamp": "2026-10-26T13:21:27.630Z"
+    },
+    {
+      "id": "STATUS-CHK-02",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: 2048 Classic",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:27.638Z"
+    },
+    {
+      "id": "STATUS-CHK-03",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Snake Arcade",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 10,
+      "timestamp": "2026-10-26T13:21:27.650Z"
+    },
+    {
+      "id": "STATUS-CHK-04",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Brick Breaker",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 10,
+      "timestamp": "2026-10-26T13:21:27.661Z"
+    },
+    {
+      "id": "STATUS-CHK-05",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 13,
+      "timestamp": "2026-10-26T13:21:27.675Z"
+    },
+    {
+      "id": "STATUS-CHK-06",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Classic Checkers",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:27.682Z"
+    },
+    {
+      "id": "STATUS-CHK-07",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Solitaire Royale",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:27.688Z"
+    },
+    {
+      "id": "STATUS-CHK-08",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Neon Racer",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:27.695Z"
+    },
+    {
+      "id": "STATUS-CHK-09",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Block Puzzle",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:27.700Z"
+    },
+    {
+      "id": "STATUS-CHK-10",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Bubble Shooter",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.704Z"
+    },
+    {
+      "id": "STATUS-CHK-11",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Arcade Cricket",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.708Z"
+    },
+    {
+      "id": "STATUS-CHK-12",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Flappy Neon",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.713Z"
+    },
+    {
+      "id": "STATUS-CHK-13",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Galactic Dodge",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.717Z"
+    },
+    {
+      "id": "STATUS-CHK-14",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Memory Match",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.721Z"
+    },
+    {
+      "id": "STATUS-CHK-15",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Minesweeper Retro",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.724Z"
+    },
+    {
+      "id": "STATUS-CHK-16",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Sudoku Classic",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:27.729Z"
+    },
+    {
+      "id": "STATUS-CHK-17",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.732Z"
+    },
+    {
+      "id": "STATUS-CHK-18",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Connect Four",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.737Z"
+    },
+    {
+      "id": "STATUS-CHK-19",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Reversi Othello",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.741Z"
+    },
+    {
+      "id": "STATUS-CHK-20",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Tower Defense Lite",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.744Z"
+    },
+    {
+      "id": "STATUS-CHK-21",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Endless Neon Runner",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.749Z"
+    },
+    {
+      "id": "STATUS-CHK-22",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Retro Pong",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.752Z"
+    },
+    {
+      "id": "STATUS-CHK-23",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Whack-A-Mole",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.757Z"
+    },
+    {
+      "id": "STATUS-CHK-24",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Simon Memory",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.761Z"
+    },
+    {
+      "id": "STATUS-CHK-25",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Word Grid",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.765Z"
+    },
+    {
+      "id": "STATUS-CHK-26",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Cricket Bowling Pro",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.768Z"
+    },
+    {
+      "id": "STATUS-CHK-27",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Table Tennis Rally",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.771Z"
+    },
+    {
+      "id": "STATUS-CHK-28",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Soccer Free Kick",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.775Z"
+    },
+    {
+      "id": "STATUS-CHK-29",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Basketball Shootout",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.780Z"
+    },
+    {
+      "id": "STATUS-CHK-30",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Cyber Sprint Runner",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.784Z"
+    },
+    {
+      "id": "STATUS-CHK-31",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Turbo Kart 2D",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.787Z"
+    },
+    {
+      "id": "STATUS-CHK-32",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Gravity Runner",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.791Z"
+    },
+    {
+      "id": "STATUS-CHK-33",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Sunset Drift",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:27.796Z"
+    },
+    {
+      "id": "STATUS-CHK-34",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Asteroid Belt Pilot",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.800Z"
+    },
+    {
+      "id": "STATUS-CHK-35",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Space Defense Laser",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.803Z"
+    },
+    {
+      "id": "STATUS-CHK-36",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Pixel Dungeon Rogue",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.807Z"
+    },
+    {
+      "id": "STATUS-CHK-37",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Alien Pop Defense",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:27.812Z"
+    },
+    {
+      "id": "STATUS-CHK-38",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Neon Pac-Maze",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.816Z"
+    },
+    {
+      "id": "STATUS-CHK-39",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Nonogram Picross",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.819Z"
+    },
+    {
+      "id": "STATUS-CHK-40",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Number Sequence Merge",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:27.824Z"
+    },
+    {
+      "id": "STATUS-CHK-41",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Lights Out Neon",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.828Z"
+    },
+    {
+      "id": "STATUS-CHK-42",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Tangram Shape Fit",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.832Z"
+    },
+    {
+      "id": "STATUS-CHK-43",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Laser Mirror Relay",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.835Z"
+    },
+    {
+      "id": "STATUS-CHK-44",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Pipe Connect Hydro",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.839Z"
+    },
+    {
+      "id": "STATUS-CHK-45",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Chess Micro Tactics",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:27.844Z"
+    },
+    {
+      "id": "STATUS-CHK-46",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Sea Battle Naval",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.849Z"
+    },
+    {
+      "id": "STATUS-CHK-47",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Hex Conquest",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.852Z"
+    },
+    {
+      "id": "STATUS-CHK-48",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Dots and Boxes",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.856Z"
+    },
+    {
+      "id": "STATUS-CHK-49",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Anagram Solver Blitz",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:27.859Z"
+    },
+    {
+      "id": "STATUS-CHK-50",
+      "ac": "AC-8.1",
+      "name": "Pre-Flight Status: Math Blitz Arcade",
+      "status": "PASS",
+      "details": "Eligible: true, Premium: false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:27.864Z"
+    },
+    {
+      "id": "TICKET-HMAC-01",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Cyber Invaders",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-908517...)",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:27.874Z"
+    },
+    {
+      "id": "TICKET-HMAC-02",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: 2048 Classic",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-fd779e...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:27.883Z"
+    },
+    {
+      "id": "TICKET-HMAC-03",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Snake Arcade",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-ead7aa...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:27.891Z"
+    },
+    {
+      "id": "TICKET-HMAC-04",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Brick Breaker",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-4700a0...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:27.902Z"
+    },
+    {
+      "id": "TICKET-HMAC-05",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-0f1c3c...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:27.911Z"
+    },
+    {
+      "id": "TICKET-HMAC-06",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Classic Checkers",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-c8c7ef...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:27.919Z"
+    },
+    {
+      "id": "TICKET-HMAC-07",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Solitaire Royale",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-7c6656...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:27.927Z"
+    },
+    {
+      "id": "TICKET-HMAC-08",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Neon Racer",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-ccb946...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:27.935Z"
+    },
+    {
+      "id": "TICKET-HMAC-09",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Block Puzzle",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-b45c6c...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:27.943Z"
+    },
+    {
+      "id": "TICKET-HMAC-10",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Bubble Shooter",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-cb9077...)",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:27.951Z"
+    },
+    {
+      "id": "TICKET-HMAC-11",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Arcade Cricket",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-776b3c...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:27.960Z"
+    },
+    {
+      "id": "TICKET-HMAC-12",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Flappy Neon",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-faeafb...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:27.969Z"
+    },
+    {
+      "id": "TICKET-HMAC-13",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Galactic Dodge",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-013c68...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:27.977Z"
+    },
+    {
+      "id": "TICKET-HMAC-14",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Memory Match",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-6f3395...)",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:27.986Z"
+    },
+    {
+      "id": "TICKET-HMAC-15",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Minesweeper Retro",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-1347e7...)",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:27.994Z"
+    },
+    {
+      "id": "TICKET-HMAC-16",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Sudoku Classic",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-5ef40c...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.002Z"
+    },
+    {
+      "id": "TICKET-HMAC-17",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-e6276a...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.011Z"
+    },
+    {
+      "id": "TICKET-HMAC-18",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Connect Four",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-cb84a6...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.019Z"
+    },
+    {
+      "id": "TICKET-HMAC-19",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Reversi Othello",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-fc9fc2...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.028Z"
+    },
+    {
+      "id": "TICKET-HMAC-20",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Tower Defense Lite",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-922271...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.036Z"
+    },
+    {
+      "id": "TICKET-HMAC-21",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Endless Neon Runner",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-85a0a8...)",
+      "durationMs": 10,
+      "timestamp": "2026-10-26T13:21:28.046Z"
+    },
+    {
+      "id": "TICKET-HMAC-22",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Retro Pong",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-6d2e34...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.056Z"
+    },
+    {
+      "id": "TICKET-HMAC-23",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Whack-A-Mole",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-5ecb24...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.066Z"
+    },
+    {
+      "id": "TICKET-HMAC-24",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Simon Memory",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-1e71c0...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.074Z"
+    },
+    {
+      "id": "TICKET-HMAC-25",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Word Grid",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-b68884...)",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:28.081Z"
+    },
+    {
+      "id": "TICKET-HMAC-26",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Cricket Bowling Pro",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-0dd14e...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.089Z"
+    },
+    {
+      "id": "TICKET-HMAC-27",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Table Tennis Rally",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-ccde4b...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.098Z"
+    },
+    {
+      "id": "TICKET-HMAC-28",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Soccer Free Kick",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-278edc...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.106Z"
+    },
+    {
+      "id": "TICKET-HMAC-29",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Basketball Shootout",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-74cfe4...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.115Z"
+    },
+    {
+      "id": "TICKET-HMAC-30",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Cyber Sprint Runner",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-3ae4bf...)",
+      "durationMs": 12,
+      "timestamp": "2026-10-26T13:21:28.128Z"
+    },
+    {
+      "id": "TICKET-HMAC-31",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Turbo Kart 2D",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-0d8edf...)",
+      "durationMs": 11,
+      "timestamp": "2026-10-26T13:21:28.139Z"
+    },
+    {
+      "id": "TICKET-HMAC-32",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Gravity Runner",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-ee1a5c...)",
+      "durationMs": 11,
+      "timestamp": "2026-10-26T13:21:28.151Z"
+    },
+    {
+      "id": "TICKET-HMAC-33",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Sunset Drift",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-784d40...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.161Z"
+    },
+    {
+      "id": "TICKET-HMAC-34",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Asteroid Belt Pilot",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-21e986...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.171Z"
+    },
+    {
+      "id": "TICKET-HMAC-35",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Space Defense Laser",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-d32cd6...)",
+      "durationMs": 10,
+      "timestamp": "2026-10-26T13:21:28.182Z"
+    },
+    {
+      "id": "TICKET-HMAC-36",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Pixel Dungeon Rogue",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-1d04c2...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.191Z"
+    },
+    {
+      "id": "TICKET-HMAC-37",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Alien Pop Defense",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-54eea9...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.201Z"
+    },
+    {
+      "id": "TICKET-HMAC-38",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Neon Pac-Maze",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-d236e5...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.210Z"
+    },
+    {
+      "id": "TICKET-HMAC-39",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Nonogram Picross",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-b6ca14...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.219Z"
+    },
+    {
+      "id": "TICKET-HMAC-40",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Number Sequence Merge",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-d80bec...)",
+      "durationMs": 10,
+      "timestamp": "2026-10-26T13:21:28.230Z"
+    },
+    {
+      "id": "TICKET-HMAC-41",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Lights Out Neon",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-9bccd4...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.239Z"
+    },
+    {
+      "id": "TICKET-HMAC-42",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Tangram Shape Fit",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-f97ca6...)",
+      "durationMs": 12,
+      "timestamp": "2026-10-26T13:21:28.251Z"
+    },
+    {
+      "id": "TICKET-HMAC-43",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Laser Mirror Relay",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-c8ac4a...)",
+      "durationMs": 11,
+      "timestamp": "2026-10-26T13:21:28.262Z"
+    },
+    {
+      "id": "TICKET-HMAC-44",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Pipe Connect Hydro",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-c31731...)",
+      "durationMs": 11,
+      "timestamp": "2026-10-26T13:21:28.274Z"
+    },
+    {
+      "id": "TICKET-HMAC-45",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Chess Micro Tactics",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-5c148e...)",
+      "durationMs": 10,
+      "timestamp": "2026-10-26T13:21:28.284Z"
+    },
+    {
+      "id": "TICKET-HMAC-46",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Sea Battle Naval",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-42d059...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.294Z"
+    },
+    {
+      "id": "TICKET-HMAC-47",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Hex Conquest",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-d74067...)",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.303Z"
+    },
+    {
+      "id": "TICKET-HMAC-48",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Dots and Boxes",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-b30a8f...)",
+      "durationMs": 10,
+      "timestamp": "2026-10-26T13:21:28.313Z"
+    },
+    {
+      "id": "TICKET-HMAC-49",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Anagram Solver Blitz",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-dbb994...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.322Z"
+    },
+    {
+      "id": "TICKET-HMAC-50",
+      "ac": "AC-12.1",
+      "name": "HMAC Ticket Issuance: Math Blitz Arcade",
+      "status": "PASS",
+      "details": "Valid Ticket Issued (Session: ses-d633d5...)",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.333Z"
+    },
+    {
+      "id": "SCORE-MUT-01",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Cyber Invaders",
+      "status": "PASS",
+      "details": "Score updated to 150 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.338Z"
+    },
+    {
+      "id": "SCORE-MUT-02",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: 2048 Classic",
+      "status": "PASS",
+      "details": "Score updated to 160 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.344Z"
+    },
+    {
+      "id": "SCORE-MUT-03",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Snake Arcade",
+      "status": "PASS",
+      "details": "Score updated to 170 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.350Z"
+    },
+    {
+      "id": "SCORE-MUT-04",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Brick Breaker",
+      "status": "PASS",
+      "details": "Score updated to 180 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.355Z"
+    },
+    {
+      "id": "SCORE-MUT-05",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "Score updated to 190 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.361Z"
+    },
+    {
+      "id": "SCORE-MUT-06",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Classic Checkers",
+      "status": "PASS",
+      "details": "Score updated to 200 PTS",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.367Z"
+    },
+    {
+      "id": "SCORE-MUT-07",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Solitaire Royale",
+      "status": "PASS",
+      "details": "Score updated to 210 PTS",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:28.374Z"
+    },
+    {
+      "id": "SCORE-MUT-08",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Neon Racer",
+      "status": "PASS",
+      "details": "Score updated to 220 PTS",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:21:28.382Z"
+    },
+    {
+      "id": "SCORE-MUT-09",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Block Puzzle",
+      "status": "PASS",
+      "details": "Score updated to 230 PTS",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.388Z"
+    },
+    {
+      "id": "SCORE-MUT-10",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Bubble Shooter",
+      "status": "PASS",
+      "details": "Score updated to 240 PTS",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.394Z"
+    },
+    {
+      "id": "SCORE-MUT-11",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Arcade Cricket",
+      "status": "PASS",
+      "details": "Score updated to 250 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.399Z"
+    },
+    {
+      "id": "SCORE-MUT-12",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Flappy Neon",
+      "status": "PASS",
+      "details": "Score updated to 260 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.403Z"
+    },
+    {
+      "id": "SCORE-MUT-13",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Galactic Dodge",
+      "status": "PASS",
+      "details": "Score updated to 270 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.408Z"
+    },
+    {
+      "id": "SCORE-MUT-14",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Memory Match",
+      "status": "PASS",
+      "details": "Score updated to 280 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.412Z"
+    },
+    {
+      "id": "SCORE-MUT-15",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Minesweeper Retro",
+      "status": "PASS",
+      "details": "Score updated to 290 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.417Z"
+    },
+    {
+      "id": "SCORE-MUT-16",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Sudoku Classic",
+      "status": "PASS",
+      "details": "Score updated to 300 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.421Z"
+    },
+    {
+      "id": "SCORE-MUT-17",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "Score updated to 310 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.426Z"
+    },
+    {
+      "id": "SCORE-MUT-18",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Connect Four",
+      "status": "PASS",
+      "details": "Score updated to 320 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.431Z"
+    },
+    {
+      "id": "SCORE-MUT-19",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Reversi Othello",
+      "status": "PASS",
+      "details": "Score updated to 330 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.436Z"
+    },
+    {
+      "id": "SCORE-MUT-20",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Tower Defense Lite",
+      "status": "PASS",
+      "details": "Score updated to 340 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.440Z"
+    },
+    {
+      "id": "SCORE-MUT-21",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Endless Neon Runner",
+      "status": "PASS",
+      "details": "Score updated to 350 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.446Z"
+    },
+    {
+      "id": "SCORE-MUT-22",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Retro Pong",
+      "status": "PASS",
+      "details": "Score updated to 360 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.451Z"
+    },
+    {
+      "id": "SCORE-MUT-23",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Whack-A-Mole",
+      "status": "PASS",
+      "details": "Score updated to 370 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.456Z"
+    },
+    {
+      "id": "SCORE-MUT-24",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Simon Memory",
+      "status": "PASS",
+      "details": "Score updated to 380 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.461Z"
+    },
+    {
+      "id": "SCORE-MUT-25",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Word Grid",
+      "status": "PASS",
+      "details": "Score updated to 390 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.466Z"
+    },
+    {
+      "id": "SCORE-MUT-26",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Cricket Bowling Pro",
+      "status": "PASS",
+      "details": "Score updated to 400 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.471Z"
+    },
+    {
+      "id": "SCORE-MUT-27",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Table Tennis Rally",
+      "status": "PASS",
+      "details": "Score updated to 410 PTS",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.477Z"
+    },
+    {
+      "id": "SCORE-MUT-28",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Soccer Free Kick",
+      "status": "PASS",
+      "details": "Score updated to 420 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.481Z"
+    },
+    {
+      "id": "SCORE-MUT-29",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Basketball Shootout",
+      "status": "PASS",
+      "details": "Score updated to 430 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.485Z"
+    },
+    {
+      "id": "SCORE-MUT-30",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Cyber Sprint Runner",
+      "status": "PASS",
+      "details": "Score updated to 440 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.489Z"
+    },
+    {
+      "id": "SCORE-MUT-31",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Turbo Kart 2D",
+      "status": "PASS",
+      "details": "Score updated to 450 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.495Z"
+    },
+    {
+      "id": "SCORE-MUT-32",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Gravity Runner",
+      "status": "PASS",
+      "details": "Score updated to 460 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.499Z"
+    },
+    {
+      "id": "SCORE-MUT-33",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Sunset Drift",
+      "status": "PASS",
+      "details": "Score updated to 470 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.504Z"
+    },
+    {
+      "id": "SCORE-MUT-34",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Asteroid Belt Pilot",
+      "status": "PASS",
+      "details": "Score updated to 480 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.509Z"
+    },
+    {
+      "id": "SCORE-MUT-35",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Space Defense Laser",
+      "status": "PASS",
+      "details": "Score updated to 490 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.515Z"
+    },
+    {
+      "id": "SCORE-MUT-36",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Pixel Dungeon Rogue",
+      "status": "PASS",
+      "details": "Score updated to 500 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.520Z"
+    },
+    {
+      "id": "SCORE-MUT-37",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Alien Pop Defense",
+      "status": "PASS",
+      "details": "Score updated to 510 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.525Z"
+    },
+    {
+      "id": "SCORE-MUT-38",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Neon Pac-Maze",
+      "status": "PASS",
+      "details": "Score updated to 520 PTS",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.531Z"
+    },
+    {
+      "id": "SCORE-MUT-39",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Nonogram Picross",
+      "status": "PASS",
+      "details": "Score updated to 530 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.536Z"
+    },
+    {
+      "id": "SCORE-MUT-40",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Number Sequence Merge",
+      "status": "PASS",
+      "details": "Score updated to 540 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.541Z"
+    },
+    {
+      "id": "SCORE-MUT-41",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Lights Out Neon",
+      "status": "PASS",
+      "details": "Score updated to 550 PTS",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:28.548Z"
+    },
+    {
+      "id": "SCORE-MUT-42",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Tangram Shape Fit",
+      "status": "PASS",
+      "details": "Score updated to 560 PTS",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.554Z"
+    },
+    {
+      "id": "SCORE-MUT-43",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Laser Mirror Relay",
+      "status": "PASS",
+      "details": "Score updated to 570 PTS",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.563Z"
+    },
+    {
+      "id": "SCORE-MUT-44",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Pipe Connect Hydro",
+      "status": "PASS",
+      "details": "Score updated to 580 PTS",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.569Z"
+    },
+    {
+      "id": "SCORE-MUT-45",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Chess Micro Tactics",
+      "status": "PASS",
+      "details": "Score updated to 590 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.574Z"
+    },
+    {
+      "id": "SCORE-MUT-46",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Sea Battle Naval",
+      "status": "PASS",
+      "details": "Score updated to 600 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.579Z"
+    },
+    {
+      "id": "SCORE-MUT-47",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Hex Conquest",
+      "status": "PASS",
+      "details": "Score updated to 610 PTS",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:28.587Z"
+    },
+    {
+      "id": "SCORE-MUT-48",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Dots and Boxes",
+      "status": "PASS",
+      "details": "Score updated to 620 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.592Z"
+    },
+    {
+      "id": "SCORE-MUT-49",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Anagram Solver Blitz",
+      "status": "PASS",
+      "details": "Score updated to 630 PTS",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.597Z"
+    },
+    {
+      "id": "SCORE-MUT-50",
+      "ac": "AC-13.1",
+      "name": "Score Telemetry: Math Blitz Arcade",
+      "status": "PASS",
+      "details": "Score updated to 640 PTS",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.601Z"
+    },
+    {
+      "id": "RESTART-ZER-01",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Cyber Invaders",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.606Z"
+    },
+    {
+      "id": "RESTART-ZER-02",
+      "ac": "AC-15.1",
+      "name": "Session Restart: 2048 Classic",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.615Z"
+    },
+    {
+      "id": "RESTART-ZER-03",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Snake Arcade",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.624Z"
+    },
+    {
+      "id": "RESTART-ZER-04",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Brick Breaker",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.633Z"
+    },
+    {
+      "id": "RESTART-ZER-05",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.641Z"
+    },
+    {
+      "id": "RESTART-ZER-06",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Classic Checkers",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.658Z"
+    },
+    {
+      "id": "RESTART-ZER-07",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Solitaire Royale",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.669Z"
+    },
+    {
+      "id": "RESTART-ZER-08",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Neon Racer",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.679Z"
+    },
+    {
+      "id": "RESTART-ZER-09",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Block Puzzle",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.688Z"
+    },
+    {
+      "id": "RESTART-ZER-10",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Bubble Shooter",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.698Z"
+    },
+    {
+      "id": "RESTART-ZER-11",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Arcade Cricket",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.707Z"
+    },
+    {
+      "id": "RESTART-ZER-12",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Flappy Neon",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.719Z"
+    },
+    {
+      "id": "RESTART-ZER-13",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Galactic Dodge",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.729Z"
+    },
+    {
+      "id": "RESTART-ZER-14",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Memory Match",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.739Z"
+    },
+    {
+      "id": "RESTART-ZER-15",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Minesweeper Retro",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.749Z"
+    },
+    {
+      "id": "RESTART-ZER-16",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Sudoku Classic",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.759Z"
+    },
+    {
+      "id": "RESTART-ZER-17",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.772Z"
+    },
+    {
+      "id": "RESTART-ZER-18",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Connect Four",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.782Z"
+    },
+    {
+      "id": "RESTART-ZER-19",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Reversi Othello",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.791Z"
+    },
+    {
+      "id": "RESTART-ZER-20",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Tower Defense Lite",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.800Z"
+    },
+    {
+      "id": "RESTART-ZER-21",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Endless Neon Runner",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.809Z"
+    },
+    {
+      "id": "RESTART-ZER-22",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Retro Pong",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:28.817Z"
+    },
+    {
+      "id": "RESTART-ZER-23",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Whack-A-Mole",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.827Z"
+    },
+    {
+      "id": "RESTART-ZER-24",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Simon Memory",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.836Z"
+    },
+    {
+      "id": "RESTART-ZER-25",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Word Grid",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.847Z"
+    },
+    {
+      "id": "RESTART-ZER-26",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Cricket Bowling Pro",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.855Z"
+    },
+    {
+      "id": "RESTART-ZER-27",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Table Tennis Rally",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.865Z"
+    },
+    {
+      "id": "RESTART-ZER-28",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Soccer Free Kick",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:28.874Z"
+    },
+    {
+      "id": "RESTART-ZER-29",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Basketball Shootout",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.883Z"
+    },
+    {
+      "id": "RESTART-ZER-30",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Cyber Sprint Runner",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.893Z"
+    },
+    {
+      "id": "RESTART-ZER-31",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Turbo Kart 2D",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:28.906Z"
+    },
+    {
+      "id": "RESTART-ZER-32",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Gravity Runner",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.920Z"
+    },
+    {
+      "id": "RESTART-ZER-33",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Sunset Drift",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T13:21:28.932Z"
+    },
+    {
+      "id": "RESTART-ZER-34",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Asteroid Belt Pilot",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T13:21:28.946Z"
+    },
+    {
+      "id": "RESTART-ZER-35",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Space Defense Laser",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:28.959Z"
+    },
+    {
+      "id": "RESTART-ZER-36",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Pixel Dungeon Rogue",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.972Z"
+    },
+    {
+      "id": "RESTART-ZER-37",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Alien Pop Defense",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.984Z"
+    },
+    {
+      "id": "RESTART-ZER-38",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Neon Pac-Maze",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:28.993Z"
+    },
+    {
+      "id": "RESTART-ZER-39",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Nonogram Picross",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:29.001Z"
+    },
+    {
+      "id": "RESTART-ZER-40",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Number Sequence Merge",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:29.010Z"
+    },
+    {
+      "id": "RESTART-ZER-41",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Lights Out Neon",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:29.018Z"
+    },
+    {
+      "id": "RESTART-ZER-42",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Tangram Shape Fit",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:29.026Z"
+    },
+    {
+      "id": "RESTART-ZER-43",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Laser Mirror Relay",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:29.036Z"
+    },
+    {
+      "id": "RESTART-ZER-44",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Pipe Connect Hydro",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:29.046Z"
+    },
+    {
+      "id": "RESTART-ZER-45",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Chess Micro Tactics",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:29.054Z"
+    },
+    {
+      "id": "RESTART-ZER-46",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Sea Battle Naval",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:29.063Z"
+    },
+    {
+      "id": "RESTART-ZER-47",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Hex Conquest",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:29.071Z"
+    },
+    {
+      "id": "RESTART-ZER-48",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Dots and Boxes",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T13:21:29.081Z"
+    },
+    {
+      "id": "RESTART-ZER-49",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Anagram Solver Blitz",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:29.089Z"
+    },
+    {
+      "id": "RESTART-ZER-50",
+      "ac": "AC-15.1",
+      "name": "Session Restart: Math Blitz Arcade",
+      "status": "PASS",
+      "details": "Restart confirmed, score zeroed to 0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T13:21:29.100Z"
+    },
+    {
+      "id": "SEC-GATE-01",
+      "ac": "SEC-01",
+      "name": "Live Payments HTTP 501 Lockdown",
+      "status": "PASS",
+      "details": "Status: 501 error=PAYMENT_GATEWAY_NOT_CONFIGURED",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T13:21:29.288Z"
+    },
+    {
+      "id": "SEC-GATE-02",
+      "ac": "SEC-02",
+      "name": "Unlicensed Game Launch Rejection",
+      "status": "PASS",
+      "details": "Status: 404",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T13:21:29.293Z"
+    },
+    {
+      "id": "SEC-GATE-03",
+      "ac": "SEC-03",
+      "name": "Tampered HMAC Ticket Rejection",
+      "status": "PASS",
+      "details": "Tampered signature verified: false",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T13:21:29.293Z"
+    },
+    {
+      "id": "SEC-GATE-04",
+      "ac": "SEC-04",
+      "name": "Brute Force Rate Limiter Protection",
+      "status": "PASS",
+      "details": "Rate limiter triggered: true",
+      "durationMs": 50,
+      "timestamp": "2026-10-26T13:21:29.296Z"
+    },
+    {
+      "id": "SEC-GATE-05",
+      "ac": "SEC-05",
+      "name": "Adapter Sandbox & Whitelist Compliance",
+      "status": "PASS",
+      "details": "Strict domain whitelisting active",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T13:21:29.297Z"
+    }
+  ]
+}
