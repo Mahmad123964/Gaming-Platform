@@ -135,6 +135,13 @@ gameLaunchRouter.post('/sessions/:sessionId/progress', (req, res) => {
     const sessionService = getSessionService();
     const { score = 0, state = {} } = req.body;
     const session = sessionService.updateSessionProgress(req.params.sessionId, { score, state });
+    if (!session) {
+      return res.status(404).json({
+        error: 'SESSION_NOT_FOUND',
+        message: `Session '${req.params.sessionId}' not found or inactive.`,
+        timestamp: new Date().toISOString()
+      });
+    }
     res.status(200).json({ session });
   } catch (err) {
     res.status(err.status || 500).json({

@@ -72,7 +72,7 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({
       if (debouncedSearch.trim()) params.append('q', debouncedSearch.trim());
       if (selectedCategory && selectedCategory !== 'all') params.append('category', selectedCategory);
       if (sortOption) params.append('sort', sortOption);
-      params.append('limit', '24');
+      params.append('limit', '50');
 
       const res = await fetch(`/api/v1/catalog/games?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -346,6 +346,7 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({
       {/* Game Player Runtime Modal (Sprint 04 & 05: EP03-01, EP03-03, EP04-01, EP07-01, EP07-02) */}
       {activePlayingSlug && (
         <GamePlayerModal
+          key={activePlayingSlug}
           gameIdOrSlug={activePlayingSlug}
           resume={resumePlaying}
           onClose={() => {

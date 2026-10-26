@@ -216,7 +216,7 @@ class GameCatalogService {
 
     const conditions = [
       'g.is_published = 1',
-      "l.status IN ('approved', 'LICENSE_APPROVED', 'PUBLISHED', 'INTEGRATION_READY')"
+      "l.status IN ('approved', 'APPROVED', 'LICENSE_APPROVED', 'PUBLISHED', 'INTEGRATION_READY')"
     ];
     const params = [];
 
@@ -381,7 +381,7 @@ class GameCatalogService {
       FROM games g
       LEFT JOIN game_categories c ON g.category_id = c.id
       LEFT JOIN licensing_approvals l ON g.id = l.game_id
-      WHERE (g.id = ? OR g.slug = ?) AND g.is_published = 1 AND l.status IN ('approved', 'LICENSE_APPROVED', 'PUBLISHED', 'INTEGRATION_READY')
+      WHERE (g.id = ? OR g.slug = ?) AND g.is_published = 1 AND l.status IN ('approved', 'APPROVED', 'LICENSE_APPROVED', 'PUBLISHED', 'INTEGRATION_READY')
     `;
 
     const row = this.db.get(sql, [idOrSlug.trim(), idOrSlug.trim()]);

@@ -1,0 +1,209 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  color: #F8FAFC;
+  user-select: none;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+}
+
+.titleArea h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #10B981;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  font-weight: 700;
+}
+
+.titleArea span {
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+.statsArea {
+  display: flex;
+  gap: 12px;
+}
+
+.statBox {
+  background: rgba(30, 41, 59, 0.8);
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 55px;
+}
+
+.statLabel {
+  font-size: 0.65rem;
+  color: #64748B;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.statValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #00F0FF;
+}
+
+.feltArea {
+  width: 100%;
+  min-height: 480px;
+  background: radial-gradient(circle at 50% 30%, #064E3B 0%, #022C22 100%);
+  border: 2px solid rgba(16, 185, 129, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 0 24px rgba(6, 78, 59, 0.4);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.stockAndWaste {
+  display: flex;
+  gap: 10px;
+}
+
+.foundations {
+  display: flex;
+  gap: 10px;
+}
+
+.cardSlot {
+  width: 60px;
+  height: 84px;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.card {
+  width: 60px;
+  height: 84px;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: #0F172A;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4px 6px;
+  font-weight: 800;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  user-select: none;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 240, 255, 0.4);
+}
+
+.cardBack {
+  background: repeating-linear-gradient(
+    45deg,
+    #1E293B,
+    #1E293B 6px,
+    #0F172A 6px,
+    #0F172A 12px
+  );
+  border: 2px solid #38BDF8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.cardRed {
+  color: #DC2626;
+}
+
+.cardBlack {
+  color: #0F172A;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.cardSuitBig {
+  font-size: 1.5rem;
+  align-self: center;
+  line-height: 1;
+}
+
+.tableauArea {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  width: 100%;
+  min-height: 320px;
+}
+
+.tableauColumn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 300px;
+}
+
+.tableauCardWrapper {
+  position: absolute;
+  width: 60px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.restartButton {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.restartButton:hover {
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
+}

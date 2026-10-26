@@ -101,20 +101,42 @@ When an administrator modifies a licensing record to `LICENSE_REJECTED`, `LICENS
 
 ---
 
-## 4. Comprehensive Licensing Matrix — Candidate Titles
+## 4. Comprehensive Licensing Matrix — Active Catalog & Expansion Titles
 
-| Game Title | Original Publisher / Dev | Intellectual Property Status | Distribution Model | Permitted Channel | NexusPlay Hosting Right | Action State |
-|:---|:---|:---|:---|:---|:---:|:---:|
-| **2048 Classic** | Gabriele Cirulli | Open Source (MIT License) | `FREE` | Native Browser & Mobile | **YES** (Permitted by MIT License) | `PLAY_NOW` |
-| **Obsidian Chess** | In-House / Open Engine | Proprietary / Stockfish GPLv3 | `FREE` | Native Browser | **YES** (In-House Copyright) | `PLAY_NOW` |
-| **Cyber Invaders** | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser | **YES** (Owned by NexusPlay) | `PLAY_NOW` |
-| **Quantum Grid** | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser | **YES** (Owned by NexusPlay) | `PLAY_NOW` |
-| **Neon Horizon** | NexusPlay Studio | Proprietary In-House | `PAID_ONE_TIME` | Native Browser | **YES** (Owned by NexusPlay) | `PURCHASE` |
-| **Chrono Tactics** | NexusPlay Studio | Proprietary In-House | `PAID_ONE_TIME` | Native Browser | **YES** (Owned by NexusPlay) | `PURCHASE` |
-| **Subway Surfers** | SYBO Games / Kiloo | Closed Proprietary | `EXTERNAL_STORE` | Poki Official Web Build | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` |
-| **Temple Run** | Imangi Studios | Closed Proprietary Mobile | `EXTERNAL_STORE` | Google Play / App Store | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` |
-| **WCC2 (Cricket)** | Nextwave Multimedia | Closed Proprietary Mobile | `EXTERNAL_STORE` | Google Play Store | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` |
-| **Real Cricket 24** | Nautilus Mobile | Closed Proprietary Mobile | `EXTERNAL_STORE` | Google Play Store | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` |
-| **Grand Theft Auto V**| Take-Two / Rockstar | Closed AAA PC/Console | `EXTERNAL_STORE` | Steam / Epic Games | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` |
-| **Call of Duty Warzone**| Activision / Microsoft | Closed AAA PC/Console | `EXTERNAL_STORE` | Battle.net / Steam | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` |
-| **Cosmic Odyssey** | Third-Party Studio | Commercial In Review | `UNAVAILABLE_PENDING_LICENSE`| None (Staging Preview) | **NO** (Launch Blocked) | `COMING_SOON` |
+### 4.1 Tier 1: Verified Playable Games (10 Fully Licensed & Certified Titles)
+
+| Game Title | Slug | Original Publisher / Dev | Intellectual Property Status | Distribution Model | Permitted Channel | NexusPlay Hosting Right | Action State | Verification Status |
+|:---|:---|:---|:---|:---|:---|:---:|:---:|:---:|
+| **Cyber Invaders** | `cyber-invaders` | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **2048 Classic** | `2048-classic` | Gabriele Cirulli | Open Source (MIT License) | `FREE` | Native Browser & Mobile Web | **YES** (Permitted by MIT License) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Snake Arcade** | `snake-arcade` | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Brick Breaker** | `brick-breaker` | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Tic-Tac-Toe Pro** | `tic-tac-toe-pro` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Classic Checkers** | `classic-checkers` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Solitaire Royale** | `solitaire-royale` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Neon Racer** | `neon-racer` | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Block Puzzle** | `block-puzzle` | NexusPlay Studio | Clean-Room Polyomino Mechanic | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Bubble Shooter** | `bubble-shooter` | NexusPlay Studio | Clean-Room Cluster Mechanic | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+
+### 4.2 Tier 2: Paid Commercial Titles (Entitlement & Membership Gated)
+
+| Game Title | Slug | Original Publisher / Dev | Intellectual Property Status | Distribution Model | Permitted Channel | NexusPlay Hosting Right | Action State | Verification Status |
+|:---|:---|:---|:---|:---|:---|:---:|:---:|:---:|
+| **Neon Horizon** | `neon-horizon` | NexusPlay Studio | Proprietary In-House | `PAID_ONE_TIME` | Native Browser | **YES** (Owned by NexusPlay) | `PURCHASE` | Regional Pricing Active |
+| **Chrono Tactics** | `chrono-tactics` | NexusPlay Studio | Proprietary In-House | `PAID_ONE_TIME` | Native Browser | **YES** (Owned by NexusPlay) | `PURCHASE` | Regional Pricing Active |
+
+### 4.3 Tier 3: External Storefront Referrals (Strict No-Hosting Policy)
+
+| Game Title | Slug | Original Publisher / Dev | Intellectual Property Status | Distribution Model | Permitted Channel | NexusPlay Hosting Right | Action State | Referral Destination |
+|:---|:---|:---|:---|:---|:---|:---:|:---:|:---|
+| **Subway Surfers** | `subway-surfers` | SYBO Games / Kiloo | Closed Proprietary Mobile | `EXTERNAL_STORE` | Poki Official Web Build | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` | Poki Authorized Page |
+| **Temple Run** | `temple-run` | Imangi Studios | Closed Proprietary Mobile | `EXTERNAL_STORE` | Google Play / App Store | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` | Google Play Store |
+| **WCC2 (Cricket)** | `world-cricket-championship-2` | Nextwave Multimedia | Closed Proprietary Mobile | `EXTERNAL_STORE` | Google Play Store | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` | Google Play Store |
+| **Grand Theft Auto V** | `grand-theft-auto-v` | Take-Two / Rockstar | Closed AAA PC/Console | `EXTERNAL_STORE` | Steam / Epic Games | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` | Steam Official Store |
+| **Call of Duty: Warzone** | `call-of-duty-warzone` | Activision / Microsoft | Closed AAA PC/Console | `EXTERNAL_STORE` | Battle.net / Steam | **NO** (Referral Link Only) | `OPEN_OFFICIAL_STORE` | Battle.net / Steam |
+
+### 4.4 Tier 4: Partner Distributor Adapter (Architecture Staged, Zero Unlicensed Publishing)
+
+| Integration Partner | Adapter Status | Iframe Sandbox Policy | Allowed Host Whitelist | Contractual Clearance | Public Publishing Status |
+|:---|:---:|:---|:---|:---:|:---:|
+| **GameDistribution** | **STAGED_READY** | `allow-scripts allow-same-origin allow-popups allow-forms` | `html5.gamedistribution.com`, `html5games.com` | Publisher Term Sheet in Review | **HELD_UNPUBLISHED** (Awaiting Signature) |

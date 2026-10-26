@@ -2,6 +2,14 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './GamePlayerModal.module.css';
 import { CyberInvadersCanvas, CyberInvadersRef } from './CyberInvadersCanvas';
 import { Classic2048, Classic2048Ref } from './Classic2048';
+import { SnakeArcade, SnakeArcadeRef } from './SnakeArcade';
+import { BrickBreaker, BrickBreakerRef } from './BrickBreaker';
+import { TicTacToePro, TicTacToeProRef } from './TicTacToePro';
+import { ClassicCheckers, ClassicCheckersRef } from './ClassicCheckers';
+import { SolitaireRoyale, SolitaireRoyaleRef } from './SolitaireRoyale';
+import { NeonHorizonRacer, NeonHorizonRacerRef } from './NeonHorizonRacer';
+import { BlockPuzzle, BlockPuzzleRef } from './BlockPuzzle';
+import { BubbleShooter, BubbleShooterRef } from './BubbleShooter';
 
 interface GamePlayerModalProps {
   gameIdOrSlug: string;
@@ -59,6 +67,14 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
 
   const canvasRef = useRef<CyberInvadersRef | null>(null);
   const c2048Ref = useRef<Classic2048Ref | null>(null);
+  const snakeRef = useRef<SnakeArcadeRef | null>(null);
+  const breakerRef = useRef<BrickBreakerRef | null>(null);
+  const tttRef = useRef<TicTacToeProRef | null>(null);
+  const checkersRef = useRef<ClassicCheckersRef | null>(null);
+  const solitaireRef = useRef<SolitaireRoyaleRef | null>(null);
+  const racerRef = useRef<NeonHorizonRacerRef | null>(null);
+  const blockRef = useRef<BlockPuzzleRef | null>(null);
+  const bubbleRef = useRef<BubbleShooterRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const sessionStartTimeRef = useRef<number>(Date.now());
 
@@ -67,6 +83,8 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
     let mounted = true;
     setLoading(true);
     setError(null);
+    setLaunchData(null);
+    setScore(0);
     sessionStartTimeRef.current = Date.now();
 
     // Evaluate client capabilities
@@ -146,13 +164,16 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
 
       if (res.ok) {
         setScore(0);
-        if (launchData.game.slug === '2048-classic' || launchData.game.slug === '2048') {
-          if (c2048Ref.current) {
-            c2048Ref.current.restart();
-          }
-        } else if (canvasRef.current) {
-          canvasRef.current.restart();
-        }
+        c2048Ref.current?.restart();
+        snakeRef.current?.restart();
+        breakerRef.current?.restart();
+        tttRef.current?.restart();
+        checkersRef.current?.restart();
+        solitaireRef.current?.restart();
+        racerRef.current?.restart();
+        blockRef.current?.restart();
+        bubbleRef.current?.restart();
+        canvasRef.current?.restart();
         if (onLog) {
           onLog(`Session restarted: Score reset to 0, wave 1 reinitialized (AC-15.1, AC-15.3).`, 'blue');
         }
@@ -296,6 +317,34 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
           </div>
 
           <div className={styles.headerActions}>
+            <button
+              type="button"
+              className={styles.toolButton}
+              onClick={handleRestart}
+              id="btn-restart-game"
+              title="Restart Game Session"
+              aria-label="Restart Game Session"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 14px',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                background: 'rgba(255, 255, 255, 0.08)',
+                borderRadius: '6px',
+                color: '#E2E8F0',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                cursor: 'pointer',
+                marginRight: '8px'
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+              Restart
+            </button>
             <button
               className={styles.exitButton}
               onClick={handleExitAndReturn}
@@ -503,6 +552,62 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
                   initialScore={launchData?.resumption?.score || 0}
                   onScoreUpdate={(s) => setScore(s)}
                   onGameOver={(finalScore, maxTile) => handleGameOver(finalScore, maxTile)}
+                />
+              ) : (launchData.game.slug === 'snake-arcade' || launchData.game.slug === 'snake') ? (
+                <SnakeArcade
+                  ref={snakeRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'brick-breaker' || launchData.game.slug === 'neon-breaker') ? (
+                <BrickBreaker
+                  ref={breakerRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'tic-tac-toe-pro' || launchData.game.slug === 'tic-tac-toe') ? (
+                <TicTacToePro
+                  ref={tttRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(winner) => handleGameOver(winner === 'X' ? 100 : 0, 1)}
+                />
+              ) : (launchData.game.slug === 'classic-checkers' || launchData.game.slug === 'checkers') ? (
+                <ClassicCheckers
+                  ref={checkersRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(winner) => handleGameOver(winner === 'CYAN' ? 200 : 0, 1)}
+                />
+              ) : (launchData.game.slug === 'solitaire-royale' || launchData.game.slug === 'solitaire') ? (
+                <SolitaireRoyale
+                  ref={solitaireRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'neon-horizon') ? (
+                <NeonHorizonRacer
+                  ref={racerRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'block-puzzle' || launchData.game.slug === 'quantum-grid') ? (
+                <BlockPuzzle
+                  ref={blockRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'bubble-shooter') ? (
+                <BubbleShooter
+                  ref={bubbleRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
                 />
               ) : launchData.game.integrationType === 'AUTHORIZED_IFRAME' ? (
                 <div style={{ width: '100%', height: '540px', position: 'relative' }} id="authorized-iframe-container">

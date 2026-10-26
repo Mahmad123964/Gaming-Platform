@@ -1,0 +1,157 @@
+{
+  "timestamp": "2026-10-26T06:26:19.193Z",
+  "browser": "Google Chrome (chrome.exe)",
+  "totalScenarios": 11,
+  "passedCount": 11,
+  "scenarios": [
+    {
+      "id": "SCENARIO-01",
+      "slug": "cyber-invaders",
+      "title": "Cyber Invaders",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched Space & ArrowRight lasers"
+      },
+      "screenshot": "01-cyber-invaders-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-02",
+      "slug": "2048-classic",
+      "title": "2048 Classic",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched directional shifts",
+        "score": 0
+      },
+      "screenshot": "02-2048-classic-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-03",
+      "slug": "snake-arcade",
+      "title": "Snake Arcade",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched Snake turn UP"
+      },
+      "screenshot": "03-snake-arcade-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-04",
+      "slug": "brick-breaker",
+      "title": "Brick Breaker",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched paddle movement and ball launch"
+      },
+      "screenshot": "04-brick-breaker-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-05",
+      "slug": "tic-tac-toe-pro",
+      "title": "Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Played 2 moves against Minimax AI",
+        "cells": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      "screenshot": "05-tic-tac-toe-pro-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-06",
+      "slug": "classic-checkers",
+      "title": "Classic Checkers",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dispatched draughts pawn step"
+      },
+      "screenshot": "06-classic-checkers-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-07",
+      "slug": "solitaire-royale",
+      "title": "Solitaire Royale",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Dealt cards from stock to waste pile"
+      },
+      "screenshot": "07-solitaire-royale-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-08",
+      "slug": "neon-racer",
+      "title": "Neon Racer",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Steered cyber racer between lanes"
+      },
+      "screenshot": "08-neon-racer-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-09",
+      "slug": "block-puzzle",
+      "title": "Block Puzzle",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Rotated tetromino and hard dropped piece"
+      },
+      "screenshot": "09-block-puzzle-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-10",
+      "slug": "bubble-shooter",
+      "title": "Bubble Shooter",
+      "status": "PASS",
+      "modalOpen": true,
+      "elemExists": true,
+      "restartResult": true,
+      "interaction": {
+        "action": "Aimed needle and launched bubble cluster"
+      },
+      "screenshot": "10-bubble-shooter-gameplay.png"
+    },
+    {
+      "id": "SCENARIO-11",
+      "slug": "mobile-viewport",
+      "title": "Mobile Responsive Touch Layout (375x667)",
+      "status": "PASS",
+      "screenshot": "11-mobile-responsive-gameplay.png"
+    }
+  ]
+}
