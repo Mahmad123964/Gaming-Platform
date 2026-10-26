@@ -1,0 +1,34 @@
+{
+  "rollbackId": "rbk-1793003750397",
+  "timestamp": "2026-10-26T08:35:50.397Z",
+  "environment": "staging",
+  "targetCommitSha": "5e122fbea243b2e370c834727bee32b7f40ca5e5",
+  "targetVersion": "v0.7.0",
+  "targetDeploymentId": "dep-lkg-verified",
+  "restoredArtifactHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44",
+  "expectedArtifactHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44",
+  "artifactHashVerified": true,
+  "physicalFilesRestored": true,
+  "dataIntegrityVerified": true,
+  "dbStats": {
+    "playerCount": 738,
+    "gameCount": 89,
+    "auditCount": 2880
+  },
+  "simulatedFailure": false,
+  "runbook": "/docs/runbooks/Staging-Deployment-and-Rollback-Runbook.md",
+  "durationMs": 81,
+  "status": "SUCCESS",
+  "healthVerification": {
+    "status": "healthy",
+    "database": "connected",
+    "environment": "staging",
+    "uptimeSeconds": 8476,
+    "memory": {
+      "rssMB": 31,
+      "heapUsedMB": 13
+    },
+    "timestamp": "2026-10-26T08:35:50.470Z"
+  },
+  "staticAssetStatusCode": 200
+}

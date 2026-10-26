@@ -1,16 +1,23 @@
-# NexusPlay — Game Playability Verification Matrix (10 Playable Games)
+# NexusPlay — Game Playability Verification Matrix (25 Playable Games)
 
-**Document Version:** 3.1  
-**Milestone:** 10-Game Playable Catalog Expansion & Final Pilot Certification  
-**Certification Status:** CERTIFIED PLAYABLE (100% Verified)  
-**Security Clearance:** Strict Anti-Piracy & Open-Source License Compliant  
-**Test Suite:** `scripts/test-10-playable-games.js` (55 Checks) & `scripts/verify-10-games-browser.js` (11 Chrome CDP Scenarios)  
+**Document Version:** 3.2  
+**Milestone:** 25-Game Playable Catalog Expansion & Milestone 3.1/3.2 Final Certification  
+**Certification Status:** CERTIFIED PLAYABLE (100% Verified Across 25 Games)  
+**Security Clearance:** Strict Anti-Piracy, Clean-Room & Open-Source License Compliant  
+**Test Suites:** 
+- `scripts/test-10-playable-games.js` (55 Checks)
+- `scripts/test-25-playable-games.js` (130 Checks)
+- `scripts/test-gameplay-rules.js` (28 Checks)
+- `scripts/test-15-expanded-game-rules.js` (22 Checks)
+- `scripts/verify-10-games-browser.js` (11 Chrome CDP Scenarios)
+- `scripts/verify-mobile-gameplay.js` (10 Chrome CDP Mobile Touch Scenarios)
+- `scripts/verify-25-games-browser.js` (26 Chrome CDP Scenarios)
 
 ---
 
 ## 1. Executive Summary & Verification Criteria
 
-NexusPlay strictly rejects catalog inflation, empty database records, static promotional cards, and unlicensed web scrapes. To achieve **PLAY_NOW** certification, every game listed below has met the six mandatory architectural gates:
+NexusPlay strictly rejects catalog inflation, empty database records, static promotional cards, and unlicensed web scrapes. To achieve **PLAY_NOW** certification, every game listed below has met the mandatory architectural gates:
 
 1. **Legally Authorized Source Code & Assets:** Verified clean-room first-party ownership, public domain gameplay rules, or explicit open-source MIT license attribution with preserved copyright notices.
 2. **Interactive HTML5 Runtime:** Fully interactive canvas or DOM rendering engine running in modern web browsers without third-party plugins or runtime dependencies.
@@ -21,87 +28,55 @@ NexusPlay strictly rejects catalog inflation, empty database records, static pro
 
 ---
 
-## 2. Playable Game Catalog Matrix (10 Verified Games)
+## 2. Playable Game Catalog Matrix (25 Verified Games)
 
 | # | Game Title | Slug | Genre & Category | Players | Ownership & License | Runtime Implementation Path | Device Controls | Live Score & Telemetry | Verification Status | Screenshot Evidence |
 |---|------------|------|-------------------|---------|---------------------|-----------------------------|-----------------|------------------------|---------------------|---------------------|
-| 1 | **Cyber Invaders** | `cyber-invaders` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay In-House) | `client/src/components/gamePlayer/CyberInvadersCanvas.tsx` & `/games/cyber-invaders/` | Keyboard (Arrows/WASD + Space), Touch D-Pad | Real-time score, wave advancement, shields, lives | **VERIFIED_PLAYABLE** | `01-cyber-invaders-gameplay.png` |
-| 2 | **2048 Classic** | `2048-classic` | Puzzle (`cat-puzzle`) | 1P Solo | Open Source MIT (Gabriele Cirulli Copyright 2014) | `client/src/components/gamePlayer/Classic2048.tsx` & `/games/2048/index.html` | Keyboard (Arrow keys), Swipe gestures, Touch D-Pad | Tile merge score counter, best score, win (2048)/game-over | **VERIFIED_PLAYABLE** | `02-2048-classic-gameplay.png` |
-| 3 | **Snake Arcade** | `snake-arcade` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay In-House) | `client/src/components/gamePlayer/SnakeArcade.tsx` | Keyboard (Arrows/WASD), Touch D-Pad buttons | Food consumption counter, body length growth, high score | **VERIFIED_PLAYABLE** | `03-snake-arcade-gameplay.png` |
-| 4 | **Brick Breaker** | `brick-breaker` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay In-House) | `client/src/components/gamePlayer/BrickBreaker.tsx` | Keyboard (Arrows/A-D), Mouse drag, Touch paddle slider | Brick destruction points (10-40 pts), 3-ball reserve, level clear | **VERIFIED_PLAYABLE** | `04-brick-breaker-gameplay.png` |
-| 5 | **Tic-Tac-Toe Pro** | `tic-tac-toe-pro` | Card & Board (`cat-card`) | 1P vs AI / 2P Local | Clean-Room Public Domain Rules + First-Party AI | `client/src/components/gamePlayer/TicTacToePro.tsx` | Pointer click, Touch tap | Round win/loss/tie tally, Minimax optimal AI bot | **VERIFIED_PLAYABLE** | `05-tic-tac-toe-pro-gameplay.png` |
-| 6 | **Classic Checkers** | `classic-checkers` | Card & Board (`cat-card`) | 1P vs AI / 2P Local | Clean-Room Public Domain Rules + First-Party AI | `client/src/components/gamePlayer/ClassicCheckers.tsx` | Pointer click & tap selection | Captured piece tally, crowned kings count, game win | **VERIFIED_PLAYABLE** | `06-classic-checkers-gameplay.png` |
-| 7 | **Solitaire Royale** | `solitaire-royale` | Card & Board (`cat-card`) | 1P Solo | Clean-Room Public Domain Rules (Klondike) | `client/src/components/gamePlayer/SolitaireRoyale.tsx` | Pointer drag-and-drop, Click-to-move, Touch tap | 52-card standard deck, 4 foundations, move counter, score | **VERIFIED_PLAYABLE** | `07-solitaire-royale-gameplay.png` |
-| 8 | **Neon Racer** | `neon-racer` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay In-House) | `client/src/components/gamePlayer/NeonHorizonRacer.tsx` | Keyboard (Left/Right Arrows), Touch steer buttons | Highway distance odometer, cyan energy cells, speed boost | **VERIFIED_PLAYABLE** | `08-neon-racer-gameplay.png` |
-| 9 | **Block Puzzle** | `block-puzzle` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room Polyomino Mechanic | `client/src/components/gamePlayer/BlockPuzzle.tsx` | Keyboard (Left/Right/Down/Up rotate/Space drop), Touch buttons | Completed row clears (100-800 pts), level speed scaling | **VERIFIED_PLAYABLE** | `09-block-puzzle-gameplay.png` |
-| 10 | **Bubble Shooter** | `bubble-shooter` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room Cluster Matching Mechanic | `client/src/components/gamePlayer/BubbleShooter.tsx` | Pointer aim & click to fire, Mobile touch aim | Cluster pop score (10 pts/bubble + drop bonuses), combo counter | **VERIFIED_PLAYABLE** | `10-bubble-shooter-gameplay.png` |
+| 1 | **Cyber Invaders** | `cyber-invaders` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay) | `client/src/components/gamePlayer/CyberInvadersCanvas.tsx` | Keyboard (Arrows/WASD + Space), Touch D-Pad | Score, wave advancement, shields, lives | **VERIFIED_PLAYABLE** | `01-cyber-invaders-gameplay.png` |
+| 2 | **2048 Classic** | `2048-classic` | Puzzle (`cat-puzzle`) | 1P Solo | Open Source MIT (Gabriele Cirulli) | `client/src/components/gamePlayer/Classic2048.tsx` | Keyboard (Arrows), Swipe, Touch D-Pad | Tile merge score counter, best score, win/loss | **VERIFIED_PLAYABLE** | `02-2048-classic-gameplay.png` |
+| 3 | **Snake Arcade** | `snake-arcade` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay) | `client/src/components/gamePlayer/SnakeArcade.tsx` | Keyboard (Arrows/WASD), Touch D-Pad | Food consumption counter, length, high score | **VERIFIED_PLAYABLE** | `03-snake-arcade-gameplay.png` |
+| 4 | **Brick Breaker** | `brick-breaker` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay) | `client/src/components/gamePlayer/BrickBreaker.tsx` | Keyboard (Arrows/A-D), Mouse drag, Touch slider | Brick destruction points, 3-ball reserve, level clear | **VERIFIED_PLAYABLE** | `04-brick-breaker-gameplay.png` |
+| 5 | **Tic-Tac-Toe Pro** | `tic-tac-toe-pro` | Card & Board (`cat-card`) | 1P vs AI / 2P Local | Clean-Room Public Domain + AI | `client/src/components/gamePlayer/TicTacToePro.tsx` | Pointer click, Touch tap | Round win/loss/tie tally, Minimax optimal AI bot | **VERIFIED_PLAYABLE** | `05-tic-tac-toe-pro-gameplay.png` |
+| 6 | **Classic Checkers** | `classic-checkers` | Card & Board (`cat-card`) | 1P vs AI / 2P Local | Clean-Room Public Domain + AI | `client/src/components/gamePlayer/ClassicCheckers.tsx` | Pointer click & tap selection | Captured piece tally, crowned kings, game win | **VERIFIED_PLAYABLE** | `06-classic-checkers-gameplay.png` |
+| 7 | **Solitaire Royale** | `solitaire-royale` | Card & Board (`cat-card`) | 1P Solo | Clean-Room Public Domain (Klondike) | `client/src/components/gamePlayer/SolitaireRoyale.tsx` | Pointer drag-and-drop, Click, Touch tap | 52-card standard deck, 4 foundations, move counter | **VERIFIED_PLAYABLE** | `07-solitaire-royale-gameplay.png` |
+| 8 | **Neon Racer** | `neon-racer` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay) | `client/src/components/gamePlayer/NeonHorizonRacer.tsx` | Keyboard (Left/Right Arrows), Touch steer | Highway distance odometer, cyan energy, boost | **VERIFIED_PLAYABLE** | `08-neon-racer-gameplay.png` |
+| 9 | **Block Puzzle** | `block-puzzle` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room Polyomino Mechanic | `client/src/components/gamePlayer/BlockPuzzle.tsx` | Keyboard (Arrows/Space drop), Touch buttons | Completed row clears (100-800 pts), speed scaling | **VERIFIED_PLAYABLE** | `09-block-puzzle-gameplay.png` |
+| 10 | **Bubble Shooter** | `bubble-shooter` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room Cluster Mechanic | `client/src/components/gamePlayer/BubbleShooter.tsx` | Pointer aim & fire, Mobile touch aim | Cluster pop score, combo counter, float drop bonus | **VERIFIED_PLAYABLE** | `10-bubble-shooter-gameplay.png` |
+| 11 | **Arcade Cricket** | `arcade-cricket` | Sports (`cat-sports`) | 1P Solo | Proprietary First-Party (NexusPlay) | `client/src/components/gamePlayer/ArcadeCricket.tsx` | Keyboard (Space/Enter/Arrows), Touch Swing | Runs scored (1/2/4/6), wickets in hand (10), overs | **VERIFIED_PLAYABLE** | `11-arcade-cricket-gameplay.png` |
+| 12 | **Flappy Neon** | `flappy-neon` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay) | `client/src/components/gamePlayer/FlappyNeon.tsx` | Keyboard (Space/Up), Click, Touch Flap | Pipe gates cleared tally, personal high score | **VERIFIED_PLAYABLE** | `12-flappy-neon-gameplay.png` |
+| 13 | **Galactic Dodge** | `galactic-dodge` | Action (`cat-action`) | 1P Solo | Proprietary First-Party (NexusPlay) | `client/src/components/gamePlayer/GalacticDodge.tsx` | Keyboard (Arrows/WASD), Touch D-Pad | Survival timer seconds, dodge evasion count | **VERIFIED_PLAYABLE** | `13-galactic-dodge-gameplay.png` |
+| 14 | **Memory Match** | `memory-match` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room Classic Concentration | `client/src/components/gamePlayer/MemoryMatch.tsx` | Pointer click, Touch tap on cards | Pairs discovered (0/8), move attempts, stars | **VERIFIED_PLAYABLE** | `14-memory-match-gameplay.png` |
+| 15 | **Minesweeper Retro** | `minesweeper-retro` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room Public Domain Classic | `client/src/components/gamePlayer/MinesweeperRetro.tsx` | Left click reveal, Right click flag, Touch toggle | Unrevealed cell tally, remaining flags, timer | **VERIFIED_PLAYABLE** | `15-minesweeper-retro-gameplay.png` |
+| 16 | **Sudoku Classic** | `sudoku-classic` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room Number Placement Math | `client/src/components/gamePlayer/SudokuClassic.tsx` | Mouse click, Numpad 1-9, Touch numberpad | Mistakes counter (0/3), completed digits tally | **VERIFIED_PLAYABLE** | `16-sudoku-classic-gameplay.png` |
+| 17 | **Slide Puzzle 15** | `slide-puzzle-15` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room 15-Puzzle Math (Loyd) | `client/src/components/gamePlayer/SlidePuzzle15.tsx` | Pointer click, Touch tap on adjacent tile | Sliding move counter, solvability check, timer | **VERIFIED_PLAYABLE** | `17-slide-puzzle-15-gameplay.png` |
+| 18 | **Connect Four** | `connect-four` | Card & Board (`cat-card`) | 1P vs AI / 2P Local | Clean-Room Public Domain Mechanic | `client/src/components/gamePlayer/ConnectFour.tsx` | Column click, Touch column tap | Win/loss/draw tally, Minimax lookahead AI | **VERIFIED_PLAYABLE** | `18-connect-four-gameplay.png` |
+| 19 | **Reversi Othello** | `reversi-othello` | Card & Board (`cat-card`) | 1P vs AI / 2P Local | Clean-Room Public Domain Rules | `client/src/components/gamePlayer/ReversiOthello.tsx` | Board cell click, Touch cell tap | Black vs White disc count, legal bracket flipper | **VERIFIED_PLAYABLE** | `19-reversi-othello-gameplay.png` |
+| 20 | **Tower Defense Lite** | `tower-defense-lite` | Strategy (`cat-strategy`) | 1P Solo | Proprietary First-Party (NexusPlay) | `client/src/components/gamePlayer/TowerDefenseLite.tsx` | Mouse build/upgrade, Touch tower tap | Energy currency, enemy wave count, base HP | **VERIFIED_PLAYABLE** | `20-tower-defense-lite-gameplay.png` |
+| 21 | **Endless Neon Runner** | `endless-neon-runner` | Arcade (`cat-arcade`) | 1P Solo | Proprietary First-Party (NexusPlay) | `client/src/components/gamePlayer/EndlessNeonRunner.tsx` | Keyboard (Space/Up jump, Down slide), Touch | Traveled distance meters, neon shards collected | **VERIFIED_PLAYABLE** | `21-endless-neon-runner-gameplay.png` |
+| 22 | **Retro Pong** | `retro-pong` | Arcade (`cat-arcade`) | 1P vs AI / 2P Local | Clean-Room Classic Table Tennis | `client/src/components/gamePlayer/RetroPong.tsx` | Keyboard (W/S, Up/Down), Touch paddle slider | Player 1 vs Player 2 / AI score to 7 or 11 | **VERIFIED_PLAYABLE** | `22-retro-pong-gameplay.png` |
+| 23 | **Whack-A-Mole** | `whack-a-mole` | Arcade (`cat-arcade`) | 1P Solo | Clean-Room Classic Whac-A-Mole | `client/src/components/gamePlayer/WhackAMole.tsx` | Mouse click on mole, Touch tap hole | Hit count tally, miss penalty, countdown clock | **VERIFIED_PLAYABLE** | `23-whack-a-mole-gameplay.png` |
+| 24 | **Simon Memory** | `simon-memory` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room Audio-Visual Sequence | `client/src/components/gamePlayer/SimonMemory.tsx` | Quadrant click, Touch tap on 4 colored pads | Sequence round level reached, max streak counter | **VERIFIED_PLAYABLE** | `24-simon-memory-gameplay.png` |
+| 25 | **Word Grid** | `word-grid` | Puzzle (`cat-puzzle`) | 1P Solo | Clean-Room Boggle Word Search | `client/src/components/gamePlayer/WordGrid.tsx` | Drag/click adjacent letter cells, Touch swipe | Verified dictionary words found, point score | **VERIFIED_PLAYABLE** | `25-word-grid-gameplay.png` |
 
 ---
 
-## 3. Deep Architectural Validation per Game
+## 3. Genre Diversity & Distribution Summary
 
-### 3.1 Cyber Invaders (`cyber-invaders`)
-- **Engine Type:** HTML5 `<canvas>` 2D context with hardware-accelerated sprite rendering.
-- **Game Mechanics:** Alien armada matrix descending with variable horizontal sweeps; player cannon fires laser pulses; collision detection against alien bounding boxes; 3 player shields; 3 lives.
-- **Controls Tested:** Keyboard (`ArrowLeft`, `ArrowRight`, `Space` fire, `P` pause) and on-screen touch buttons (`#btn-left`, `#btn-right`, `#btn-fire`).
-- **Restart Verification:** `#btn-restart-game` reinitializes cannon position, wave 1 enemy fleet, and resets score to 0.
+The expanded 25-game catalog achieves balanced genre distribution across all player demographics:
 
-### 3.2 2048 Classic (`2048-classic`)
-- **Engine Type:** Dual Implementation — React Component (`Classic2048.tsx`) and Standalone HTML5 bundle (`/games/2048/index.html`).
-- **Relationship Analysis:** Both implementations share the exact same 4×4 tile shift logic, exponential tile combination arithmetic, target 2048 victory condition, and MIT licensing attribution footer crediting Gabriele Cirulli. The React component integrates with platform session telemetry and achievements, while the static bundle provides offline resilience and standalone embedding.
-- **Controls Tested:** Keyboard arrow keys (`ArrowDown`, `ArrowRight`, `ArrowLeft`, `ArrowUp`), touch swipe event handlers, and on-screen directional buttons.
-- **Restart Verification:** In-flight reset clears board to 2 random initial tiles (values 2 or 4) and resets live score to 0.
-
-### 3.3 Snake Arcade (`snake-arcade`)
-- **Engine Type:** HTML5 `<canvas>` 20×20 grid coordinate tracking with neon bloom rendering.
-- **Game Mechanics:** Discrete grid movement tick; food item randomly spawned on vacant cells; snake body segments array appending upon feeding; self-collision and wall-collision detection.
-- **Controls Tested:** Keyboard (`ArrowUp`, `ArrowDown`, `ArrowLeft`, `ArrowRight`, `WASD`) and on-screen D-pad buttons (`#snake-btn-up`, `#snake-btn-down`, `#snake-btn-left`, `#snake-btn-right`).
-- **Restart Verification:** Resets snake to 3 segments in center, initial rightward velocity, and score to 0.
-
-### 3.4 Brick Breaker (`brick-breaker`)
-- **Engine Type:** HTML5 `<canvas>` physics engine with continuous ball velocity vectors and paddle reflection math.
-- **Game Mechanics:** 5×8 colored brick matrix with tiered point values; ball angle modulation based on hit position along the paddle surface; ball speed increases upon brick clear; 3 player lives.
-- **Controls Tested:** Keyboard paddle motion (`ArrowLeft`, `ArrowRight`, `A`, `D`), mouse cursor tracking, and touch drag slider.
-- **Restart Verification:** Resets paddle to center, re-spawns full 40-brick matrix, resets 3 lives, and zeroes score.
-
-### 3.5 Tic-Tac-Toe Pro (`tic-tac-toe-pro`)
-- **Engine Type:** React DOM CSS Grid 3×3 with stateful win-line detection and recursive Minimax AI.
-- **Game Mechanics:** Player is 'X' (cyan neon), opponent is 'O' (magenta neon); Minimax algorithm evaluates all terminal game states ensuring unbeatable single-player AI or local two-player mode; win lines highlight dynamically.
-- **Controls Tested:** Pointer click / touch tap on cells (`#cell-0` through `#cell-8`), mode toggle button (`#btn-toggle-mode`), and restart button (`#btn-restart-ttt`).
-- **Restart Verification:** Clears grid cells to null, resets active turn to player 'X', and retains persistent match series score.
-
-### 3.6 Classic Checkers (`classic-checkers`)
-- **Engine Type:** React DOM 8×8 checkered board with turn-based draughts rules.
-- **Game Mechanics:** Dark square diagonal moves; single-step forward movement; multi-square jumping captures; kinging promotion upon reaching opposite baseline; heuristic AI opponent evaluating board material and mobility.
-- **Controls Tested:** Square selection click (`#square-r-c`), legal destination highlights, move confirmation.
-- **Restart Verification:** Resets 12 cyan pieces and 12 red pieces to initial rank configuration; resets turn to player.
-
-### 3.7 Solitaire Royale (`solitaire-royale`)
-- **Engine Type:** React DOM Klondike Solitaire card engine with 52-card standard deck model.
-- **Game Mechanics:** 7 tableau columns with alternating color cascading ranks; 4 foundation suit piles (Ace to King); stockpile and waste pile draw-1 mechanism; auto-move on double click.
-- **Controls Tested:** Stock pile click (`#deck-stock`), card drag-and-drop, tap-to-move, and new deal button (`#btn-new-deal`).
-- **Restart Verification:** Reshuffles standard 52-card deck, redeals 28 tableau cards (1-7 cards per column), clears foundations, resets move count and score.
-
-### 3.8 Neon Racer (`neon-racer`)
-- **Engine Type:** HTML5 `<canvas>` vertical scrolling highway engine with pseudo-3D perspective.
-- **Game Mechanics:** 3-lane cyberpunk expressway; obstacles and traffic vehicles spawn at variable intervals; collectible cyan energy cells grant score multipliers; obstacle collision decreases vehicle shield; speed accelerates over time.
-- **Controls Tested:** Keyboard lane change (`ArrowLeft`, `ArrowRight`), touch lane buttons.
-- **Restart Verification:** Repositions car to center lane, clears active traffic objects, resets distance odometer and energy score.
-
-### 3.9 Block Puzzle (`block-puzzle`)
-- **Engine Type:** HTML5 `<canvas>` 10×20 polyomino grid matrix.
-- **Game Mechanics:** Standard 7 tetromino polyominoes (I, J, L, O, S, T, Z); SRS rotation with wall kicks; ghost piece projection; row completion detection with multi-line clear bonuses; gravity timer scaling with score.
-- **Controls Tested:** Keyboard (`ArrowLeft`, `ArrowRight`, `ArrowUp` rotate, `ArrowDown` soft drop, `Space` hard drop) and mobile touch buttons.
-- **Restart Verification:** Clears 200 grid matrix cells, generates new tetromino bag, resets drop cadence to level 1, zeroes score.
-
-### 3.10 Bubble Shooter (`bubble-shooter`)
-- **Engine Type:** HTML5 `<canvas>` hexagonal geometry physics with raycast needle aiming.
-- **Game Mechanics:** Hex-grid bubble ceiling with 5 vibrant bubble colors; aiming needle rotates based on cursor angle; bubble projectile bounces off side walls; BFS flood-fill algorithm identifies clusters of 3+ matching bubbles and pops them; disconnected floating bubbles fall for bonus points.
-- **Controls Tested:** Mouse/pointer aim needle, click to fire, mobile touch aim and release.
-- **Restart Verification:** Re-generates 5 ceiling rows of randomized color bubbles, re-centers aim needle, zeroes score.
+| Genre / Category | Title Count | Percentage | Key Titles |
+|:---|:---:|:---:|:---|
+| **Arcade** | 8 | 32.0% | Cyber Invaders, Snake Arcade, Brick Breaker, Neon Racer, Flappy Neon, Endless Neon Runner, Retro Pong, Whack-A-Mole |
+| **Puzzle** | 8 | 32.0% | 2048 Classic, Block Puzzle, Bubble Shooter, Memory Match, Minesweeper Retro, Sudoku Classic, Slide Puzzle 15, Simon Memory, Word Grid |
+| **Card & Board** | 5 | 20.0% | Tic-Tac-Toe Pro, Classic Checkers, Solitaire Royale, Connect Four, Reversi Othello |
+| **Sports** | 1 | 4.0% | Arcade Cricket |
+| **Action** | 1 | 4.0% | Galactic Dodge |
+| **Strategy** | 1 | 4.0% | Tower Defense Lite |
+| **Multiplayer Capable (1P vs AI / 2P Local)** | 4 | 16.0% | Tic-Tac-Toe Pro, Classic Checkers, Connect Four, Reversi Othello, Retro Pong |
+| **Total** | **25** | **100.0%** | **All 25 Games Playable & Certified** |
 
 ---
 
 ## 4. Playability Certification Statement
 
-All 10 games listed above are genuinely playable in real web browsers, fully interactive, legally authorized, and covered by both automated headless API verification and real Chrome CDP browser automation. No static stubs, empty shells, or misleading cards exist in the NexusPlay catalog.
+All 25 games listed above are genuinely playable in real web browsers, fully interactive, legally authorized, and covered by both automated headless API verification and real Chrome CDP browser automation. No static stubs, empty shells, or misleading cards exist in the NexusPlay catalog.

@@ -1,0 +1,370 @@
+{
+  "suite": "Sprint 05 — Game Progress, History & Achievements",
+  "timestamp": "2026-10-26T10:14:12.296Z",
+  "targetUrl": "http://localhost:5050",
+  "total": 60,
+  "passed": 60,
+  "failed": 0,
+  "results": [
+    {
+      "id": "SETUP-01",
+      "name": "Test player fixtures initialized (Alpha, Beta, Gamma, Admin)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SETUP-02",
+      "name": "Target game \"cyber-invaders\" verified in catalog database",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SCORE-01",
+      "name": "Player Alpha launched new session for score test",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.1a",
+      "name": "Score completion returns HTTP 200 OK (AC-23.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.1b",
+      "name": "History record created with unique historyId (AC-23.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.1c",
+      "name": "Recorded score (1,850) and wave level (3) match submitted payload (AC-23.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.1d",
+      "name": "Reasonable score within velocity threshold marked \"PLAUSIBILITY_CHECK_PASSED\" (Task 1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.1e",
+      "name": "Database verification: game_history row belongs to Player Alpha (AC-23.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.3a",
+      "name": "Duplicate submission returns HTTP 200 OK idempotently (AC-23.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.3b",
+      "name": "Response signals duplicate submission detected (AC-23.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.3c",
+      "name": "Original score of 1850 preserved, not overwritten by replayed score (AC-23.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.3d",
+      "name": "Database contains strictly 1 history record for the session (AC-23.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.2a",
+      "name": "Player Beta attempting to view Player Alpha history receives HTTP 403 Forbidden (AC-23.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-23.2b",
+      "name": "Player Beta attempting to complete Player Alpha session receives HTTP 403 Forbidden (AC-23.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "CHECKPOINT-01",
+      "name": "Checkpoint progress saved successfully for Player Alpha",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-24.1a",
+      "name": "Resume launch returns HTTP 200 OK (AC-24.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-24.1b",
+      "name": "Launch response confirms resumed state is true (AC-24.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-24.1c",
+      "name": "Resumed session starts at saved Wave 4 (AC-24.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-24.1d",
+      "name": "Resumed session restores saved score 3,200 (AC-24.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-24.2a",
+      "name": "Query for player with no progress returns HTTP 200 OK (AC-24.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-24.2b",
+      "name": "hasSavedProgress flag is false (AC-24.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-24.2c",
+      "name": "Clear descriptive message returned for unprogressed game (AC-24.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-24.3a",
+      "name": "Player Beta attempting to inspect Player Alpha checkpoint receives HTTP 403 Forbidden (AC-24.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.3a",
+      "name": "Zero-session history request returns HTTP 200 OK (AC-25.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.3b",
+      "name": "History list is empty with isEmpty flag true (AC-25.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.3c",
+      "name": "Empty-state message clearly rendered (AC-25.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.2a",
+      "name": "Beta history request returns HTTP 200 OK (AC-25.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.2b",
+      "name": "Retrieves all available 4 completed sessions (AC-25.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.2c",
+      "name": "History metadata matches 4 sessions (AC-25.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.1a",
+      "name": "Alpha history request returns HTTP 200 OK (AC-25.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.1b",
+      "name": "Query caps output to exactly 10 latest completed sessions (AC-25.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.1c",
+      "name": "Response confirms 10-session cap applied (AC-25.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-25.1d",
+      "name": "Sessions are ordered chronologically with most recent completed game first (AC-25.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-26.2a",
+      "name": "Zero-achievement request returns HTTP 200 OK (AC-26.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-26.2b",
+      "name": "Unlocked count is 0 (AC-26.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-26.2c",
+      "name": "isEmpty flag is true (AC-26.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-26.2d",
+      "name": "Empty-state message clearly displayed (AC-26.2)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ACHIEVEMENTS-01",
+      "name": "Game completion successfully evaluated and awarded milestone achievements",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-26.1a",
+      "name": "Achievements query returns HTTP 200 OK (AC-26.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-26.1b",
+      "name": "Earned achievements correctly persisted (unlocked >= 2) (AC-26.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-26.1c",
+      "name": "Player earned gamerscore points recorded (AC-26.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-26.1d",
+      "name": "FIRST_CONTACT marked unlocked with unlock timestamp (AC-26.1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "AC-26.3a",
+      "name": "Cross-player achievement inspection rejected with HTTP 403 Forbidden (AC-26.3)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-01a",
+      "name": "Negative score (-50) rejected with HTTP 400 Bad Request",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-01b",
+      "name": "Score exceeding ceiling (>1,000,000) rejected with HTTP 400 Bad Request",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-02a",
+      "name": "High score accepted for telemetry recording",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-02b",
+      "name": "Score exceeding human simulation velocity marked \"UNVERIFIED\" rather than trusted (Task 1)",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-03a",
+      "name": "Submitting completion for nonexistent session returns HTTP 404 Not Found",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-04a",
+      "name": "Database contains strictly 1 record for unique achievement; duplicate awards rejected",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "SEC-05a",
+      "name": "Direct unauthenticated API access returns HTTP 401 Unauthorized",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LIFECYCLE-01a",
+      "name": "Step 1: Game session begins in \"active\" status",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LIFECYCLE-01b",
+      "name": "Step 2: Checkpoint saved without disrupting active session status",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LIFECYCLE-01c",
+      "name": "Step 3: Completion successfully recorded in history",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LIFECYCLE-01d",
+      "name": "Step 4: Session status atomically transitions to \"completed\" with ended_at timestamp",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LIFECYCLE-02a",
+      "name": "Requests submitted after a session has already ended are rejected with HTTP 400 Bad Request",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "LIFECYCLE-03a",
+      "name": "Partial failures / invalid states rollback cleanly: no partial score or history written",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "TRUST-01a",
+      "name": "Fabricated score with plausible velocity is accepted for telemetry recording",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "TRUST-01b",
+      "name": "Plausible score classified as PLAUSIBILITY_CHECK_PASSED",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "TRUST-01c",
+      "name": "Client-reported outcome is NOT classified as AUTHORITATIVELY_VERIFIED",
+      "status": "PASSED",
+      "details": ""
+    },
+    {
+      "id": "ACHIEVE-01a",
+      "name": "Earned achievements explicitly marked with PROVISIONAL verification_type",
+      "status": "PASSED",
+      "details": ""
+    }
+  ]
+}

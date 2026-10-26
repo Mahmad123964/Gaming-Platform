@@ -78,8 +78,21 @@ export const GameCatalog: React.FC<GameCatalogProps> = ({
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: CatalogResponse = await res.json();
 
-      setGames(data.games || []);
-      setTotalCount(data.pagination ? data.pagination.total : (data.games ? data.games.length : 0));
+      let allLoadedGames = data.games || [];
+      if (data.pagination && data.pagination.totalPages > 1 && !debouncedSearch) {
+        for (let p = 2; p <= data.pagination.totalPages; p++) {
+          const nextParams = new URLSearchParams(params);
+          nextParams.set('page', String(p));
+          const nextRes = await fetch(`/api/v1/catalog/games?${nextParams.toString()}`);
+          if (nextRes.ok) {
+            const nextData: CatalogResponse = await nextRes.json();
+            allLoadedGames = allLoadedGames.concat(nextData.games || []);
+          }
+        }
+      }
+
+      setGames(allLoadedGames);
+      setTotalCount(data.pagination ? data.pagination.total : allLoadedGames.length);
 
       if (onLog && (debouncedSearch || selectedCategory !== 'all')) {
         onLog(

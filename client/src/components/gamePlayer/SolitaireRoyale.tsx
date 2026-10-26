@@ -39,7 +39,7 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
   onGameOver,
   onRestart
 }, ref) => {
-  // Create shuffled deck of 52 cards
+  // Create complete 52-card standard deck with 4 suits and 13 ranks
   const createDeck = (): Card[] => {
     const suits: Suit[] = ['HEARTS', 'DIAMONDS', 'CLUBS', 'SPADES'];
     const cards: Card[] = [];
@@ -68,6 +68,7 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
   const [tableaus, setTableaus] = useState<Card[][]>([[], [], [], [], [], [], []]);
   const [score, setScore] = useState<number>(initialScore);
   const [moves, setMoves] = useState<number>(0);
+  const [victory, setVictory] = useState<boolean>(false);
 
   // Initialize new game
   const initGame = useCallback(() => {
@@ -75,6 +76,7 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
     const newTableaus: Card[][] = [[], [], [], [], [], [], []];
 
     let deckIdx = 0;
+    // Standard Klondike deal: 1 card to col 0, 2 to col 1, ..., 7 to col 6 (Total: 28 cards)
     for (let col = 0; col < 7; col++) {
       for (let row = 0; row <= col; row++) {
         const card = deck[deckIdx++];
@@ -84,11 +86,12 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
     }
 
     setTableaus(newTableaus);
-    setStock(deck.slice(deckIdx));
+    setStock(deck.slice(deckIdx)); // Remaining 24 cards into stock
     setWaste([]);
     setFoundations([[], [], [], []]);
     setScore(0);
     setMoves(0);
+    setVictory(false);
     onScoreUpdate?.(0);
     onRestart?.();
   }, [onScoreUpdate, onRestart]);
@@ -102,8 +105,17 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
     getScore: () => score
   }), [initGame, score]);
 
+  const checkVictoryCondition = useCallback((f: Card[][], currentScore: number) => {
+    const totalFoundations = f.reduce((acc, pile) => acc + pile.length, 0);
+    if (totalFoundations === 52) {
+      setVictory(true);
+      onGameOver?.(currentScore);
+    }
+  }, [onGameOver]);
+
   // Click stockpile
   const handleStockClick = () => {
+    if (victory) return;
     if (stock.length === 0) {
       // Recycle waste
       if (waste.length > 0) {
@@ -129,11 +141,10 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
           const newF = [...foundations];
           newF[fIdx] = [card];
           setFoundations(newF);
-          setScore(s => {
-            const upd = s + 15;
-            onScoreUpdate?.(upd);
-            return upd;
-          });
+          const upd = score + 15;
+          setScore(upd);
+          onScoreUpdate?.(upd);
+          checkVictoryCondition(newF, upd);
           return true;
         }
       } else {
@@ -142,11 +153,10 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
           const newF = [...foundations];
           newF[fIdx] = [...pile, card];
           setFoundations(newF);
-          setScore(s => {
-            const upd = s + 15;
-            onScoreUpdate?.(upd);
-            return upd;
-          });
+          const upd = score + 15;
+          setScore(upd);
+          onScoreUpdate?.(upd);
+          checkVictoryCondition(newF, upd);
           return true;
         }
       }
@@ -156,7 +166,7 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
 
   // Move from waste
   const handleWasteCardClick = () => {
-    if (waste.length === 0) return;
+    if (waste.length === 0 || victory) return;
     const card = waste[waste.length - 1];
 
     // Try foundation first
@@ -170,13 +180,17 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
     for (let t = 0; t < 7; t++) {
       const col = tableaus[t];
       if (col.length === 0) {
-        if (card.value === 13) { // King on empty
+        if (card.value === 13) { // King on empty column
           const newT = [...tableaus];
           newT[t] = [card];
           setTableaus(newT);
           setWaste(waste.slice(0, waste.length - 1));
           setMoves(m => m + 1);
-          setScore(s => s + 5);
+          setScore(s => {
+            const upd = s + 5;
+            onScoreUpdate?.(upd);
+            return upd;
+          });
           return;
         }
       } else {
@@ -189,7 +203,11 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
           setTableaus(newT);
           setWaste(waste.slice(0, waste.length - 1));
           setMoves(m => m + 1);
-          setScore(s => s + 5);
+          setScore(s => {
+            const upd = s + 5;
+            onScoreUpdate?.(upd);
+            return upd;
+          });
           return;
         }
       }
@@ -198,11 +216,12 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
 
   // Click card on tableau column
   const handleTableauCardClick = (colIdx: number, cardIdx: number) => {
+    if (victory) return;
     const col = tableaus[colIdx];
     const card = col[cardIdx];
     if (!card.isFaceUp) return;
 
-    // If it's the top card, try foundation
+    // If it's the top card of tableau, try moving to foundation
     if (cardIdx === col.length - 1) {
       if (tryMoveToFoundation(card)) {
         const newCol = col.slice(0, col.length - 1);
@@ -232,7 +251,11 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
           newT[t] = stack;
           setTableaus(newT);
           setMoves(m => m + 1);
-          setScore(s => s + 5);
+          setScore(s => {
+            const upd = s + 5;
+            onScoreUpdate?.(upd);
+            return upd;
+          });
           return;
         }
       } else {
@@ -247,7 +270,11 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
           newT[t] = [...targetCol, ...stack];
           setTableaus(newT);
           setMoves(m => m + 1);
-          setScore(s => s + 5);
+          setScore(s => {
+            const upd = s + 5;
+            onScoreUpdate?.(upd);
+            return upd;
+          });
           return;
         }
       }
@@ -261,7 +288,7 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
       <div className={styles.header}>
         <div className={styles.titleArea}>
           <h3>SOLITAIRE ROYALE</h3>
-          <span>Classic Klondike Rules</span>
+          <span>Classic Klondike • 52-Card Integrity</span>
         </div>
         <div className={styles.statsArea}>
           <div className={styles.statBox}>
@@ -366,11 +393,41 @@ export const SolitaireRoyale = forwardRef<SolitaireRoyaleRef, SolitaireRoyalePro
             </div>
           ))}
         </div>
+
+        {victory && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(11, 15, 25, 0.92)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 30,
+              borderRadius: '8px'
+            }}
+            id="solitaire-victory-overlay"
+          >
+            <h2 style={{ color: '#10B981', fontSize: '1.8rem', marginBottom: '8px' }}>ROYAL VICTORY!</h2>
+            <p style={{ color: '#94A3B8', marginBottom: '16px' }}>All 52 Cards Assembled In Foundations!</p>
+            <div style={{ color: '#00F0FF', fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '20px' }}>
+              Final Score: {score}
+            </div>
+            <button
+              className={styles.restartButton}
+              onClick={initGame}
+              id="btn-solitaire-victory-deal"
+            >
+              Deal New Hand
+            </button>
+          </div>
+        )}
       </div>
 
       <div className={styles.footer}>
         <div style={{ fontSize: '0.75rem', color: '#64748B' }}>
-          Tip: Click top card to auto-move to foundations or valid columns
+          Tip: Click cards to auto-move to foundations or valid descending columns
         </div>
         <button className={styles.restartButton} onClick={initGame} id="btn-solitaire-restart">
           New Deal

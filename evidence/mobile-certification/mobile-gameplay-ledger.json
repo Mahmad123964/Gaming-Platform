@@ -1,0 +1,218 @@
+{
+  "timestamp": "2026-10-26T09:33:36.166Z",
+  "viewport": "375x667",
+  "totalGames": 10,
+  "passedTotal": 10,
+  "results": [
+    {
+      "id": "MOB-01",
+      "slug": "cyber-invaders",
+      "title": "Cyber Invaders",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "game-touch-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 64,
+        "top": 442,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Dispatched touch pulse fire & touch right pointer events",
+      "screenshot": "mobile-cyber-invaders.png",
+      "screenshotBytes": 116572
+    },
+    {
+      "id": "MOB-02",
+      "slug": "2048-classic",
+      "title": "2048 Classic",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "btn-dpad-down",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 52,
+        "height": 44,
+        "top": 691,
+        "left": 162
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped on-screen D-pad buttons (Down, Right)",
+      "screenshot": "mobile-2048-classic.png",
+      "screenshotBytes": 101333
+    },
+    {
+      "id": "MOB-03",
+      "slug": "snake-arcade",
+      "title": "Snake Arcade",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "snake-mobile-dpad",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 140,
+        "height": 92,
+        "top": 630,
+        "left": 118
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped mobile touch D-Pad (Down -> Left)",
+      "screenshot": "mobile-snake-arcade.png",
+      "screenshotBytes": 105490
+    },
+    {
+      "id": "MOB-04",
+      "slug": "brick-breaker",
+      "title": "Brick Breaker",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "breaker-mobile-buttons",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 180,
+        "height": 44,
+        "top": 627,
+        "left": 98
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped mobile paddle buttons (Left, Right)",
+      "screenshot": "mobile-brick-breaker.png",
+      "screenshotBytes": 121157
+    },
+    {
+      "id": "MOB-05",
+      "slug": "tic-tac-toe-pro",
+      "title": "Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "cell-ttt-4",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 84,
+        "height": 84,
+        "top": 570,
+        "left": 145
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped center cell (index 4)",
+      "screenshot": "mobile-tic-tac-toe-pro.png",
+      "screenshotBytes": 107886
+    },
+    {
+      "id": "MOB-06",
+      "slug": "classic-checkers",
+      "title": "Classic Checkers",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "board-checkers-grid",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 301,
+        "top": 385,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped Cyan checker piece at row 5",
+      "screenshot": "mobile-classic-checkers.png",
+      "screenshotBytes": 178920
+    },
+    {
+      "id": "MOB-07",
+      "slug": "solitaire-royale",
+      "title": "Solitaire Royale",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "stockpile-btn",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 60,
+        "height": 84,
+        "top": 357,
+        "left": 53
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped Stockpile button to draw waste card",
+      "screenshot": "mobile-solitaire-royale.png",
+      "screenshotBytes": 198617
+    },
+    {
+      "id": "MOB-08",
+      "slug": "neon-racer",
+      "title": "Neon Racer",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "neon-mobile-buttons",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 200,
+        "height": 46,
+        "top": 842,
+        "left": 88
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped mobile steer left button",
+      "screenshot": "mobile-neon-racer.png",
+      "screenshotBytes": 100102
+    },
+    {
+      "id": "MOB-09",
+      "slug": "block-puzzle",
+      "title": "Block Puzzle",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "block-mobile-controls",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 300,
+        "height": 44,
+        "top": 934,
+        "left": 38
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Tapped mobile Rotate & Soft Drop controls",
+      "screenshot": "mobile-block-puzzle.png",
+      "screenshotBytes": 93722
+    },
+    {
+      "id": "MOB-10",
+      "slug": "bubble-shooter",
+      "title": "Bubble Shooter",
+      "status": "PASS",
+      "modalOpen": true,
+      "touchControlsId": "wrapper-bubble-shooter",
+      "touchFound": true,
+      "touchMetrics": {
+        "modalOpen": true,
+        "found": true,
+        "width": 301,
+        "height": 396,
+        "top": 287,
+        "left": 37
+      },
+      "horizontalOverflow": false,
+      "interactionNote": "Fired bubble via pointer tap on upper canvas",
+      "screenshot": "mobile-bubble-shooter.png",
+      "screenshotBytes": 190140
+    }
+  ]
+}

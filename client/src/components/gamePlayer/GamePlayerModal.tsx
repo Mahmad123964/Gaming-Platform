@@ -10,6 +10,21 @@ import { SolitaireRoyale, SolitaireRoyaleRef } from './SolitaireRoyale';
 import { NeonHorizonRacer, NeonHorizonRacerRef } from './NeonHorizonRacer';
 import { BlockPuzzle, BlockPuzzleRef } from './BlockPuzzle';
 import { BubbleShooter, BubbleShooterRef } from './BubbleShooter';
+import { ArcadeCricket, ArcadeCricketRef } from './ArcadeCricket';
+import { FlappyNeon, FlappyNeonRef } from './FlappyNeon';
+import { GalacticDodge, GalacticDodgeRef } from './GalacticDodge';
+import { MemoryMatch, MemoryMatchRef } from './MemoryMatch';
+import { MinesweeperRetro, MinesweeperRetroRef } from './MinesweeperRetro';
+import { SudokuClassic, SudokuClassicRef } from './SudokuClassic';
+import { SlidePuzzle15, SlidePuzzle15Ref } from './SlidePuzzle15';
+import { ConnectFour, ConnectFourRef } from './ConnectFour';
+import { ReversiOthello, ReversiOthelloRef } from './ReversiOthello';
+import { TowerDefenseLite, TowerDefenseLiteRef } from './TowerDefenseLite';
+import { EndlessNeonRunner, EndlessNeonRunnerRef } from './EndlessNeonRunner';
+import { RetroPong, RetroPongRef } from './RetroPong';
+import { WhackAMole, WhackAMoleRef } from './WhackAMole';
+import { SimonMemory, SimonMemoryRef } from './SimonMemory';
+import { WordGrid, WordGridRef } from './WordGrid';
 
 interface GamePlayerModalProps {
   gameIdOrSlug: string;
@@ -75,6 +90,21 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
   const racerRef = useRef<NeonHorizonRacerRef | null>(null);
   const blockRef = useRef<BlockPuzzleRef | null>(null);
   const bubbleRef = useRef<BubbleShooterRef | null>(null);
+  const cricketRef = useRef<ArcadeCricketRef | null>(null);
+  const flappyRef = useRef<FlappyNeonRef | null>(null);
+  const dodgeRef = useRef<GalacticDodgeRef | null>(null);
+  const memoryRef = useRef<MemoryMatchRef | null>(null);
+  const minesRef = useRef<MinesweeperRetroRef | null>(null);
+  const sudokuRef = useRef<SudokuClassicRef | null>(null);
+  const slideRef = useRef<SlidePuzzle15Ref | null>(null);
+  const c4Ref = useRef<ConnectFourRef | null>(null);
+  const reversiRef = useRef<ReversiOthelloRef | null>(null);
+  const tdRef = useRef<TowerDefenseLiteRef | null>(null);
+  const runnerRef = useRef<EndlessNeonRunnerRef | null>(null);
+  const pongRef = useRef<RetroPongRef | null>(null);
+  const moleRef = useRef<WhackAMoleRef | null>(null);
+  const simonRef = useRef<SimonMemoryRef | null>(null);
+  const wordRef = useRef<WordGridRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const sessionStartTimeRef = useRef<number>(Date.now());
 
@@ -173,6 +203,21 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
         racerRef.current?.restart();
         blockRef.current?.restart();
         bubbleRef.current?.restart();
+        cricketRef.current?.restart();
+        flappyRef.current?.restart();
+        dodgeRef.current?.restart();
+        memoryRef.current?.restart();
+        minesRef.current?.restart();
+        sudokuRef.current?.restart();
+        slideRef.current?.restart();
+        c4Ref.current?.restart();
+        reversiRef.current?.restart();
+        tdRef.current?.restart();
+        runnerRef.current?.restart();
+        pongRef.current?.restart();
+        moleRef.current?.restart();
+        simonRef.current?.restart();
+        wordRef.current?.restart();
         canvasRef.current?.restart();
         if (onLog) {
           onLog(`Session restarted: Score reset to 0, wave 1 reinitialized (AC-15.1, AC-15.3).`, 'blue');
@@ -588,7 +633,7 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
                   onScoreUpdate={(s) => setScore(s)}
                   onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
                 />
-              ) : (launchData.game.slug === 'neon-horizon') ? (
+              ) : (launchData.game.slug === 'neon-racer' || launchData.game.slug === 'neon-horizon') ? (
                 <NeonHorizonRacer
                   ref={racerRef}
                   initialScore={launchData?.resumption?.score || 0}
@@ -605,6 +650,111 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
               ) : (launchData.game.slug === 'bubble-shooter') ? (
                 <BubbleShooter
                   ref={bubbleRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'arcade-cricket' || launchData.game.slug === 'cricket') ? (
+                <ArcadeCricket
+                  ref={cricketRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'flappy-neon' || launchData.game.slug === 'flappy') ? (
+                <FlappyNeon
+                  ref={flappyRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'galactic-dodge' || launchData.game.slug === 'space-dodge') ? (
+                <GalacticDodge
+                  ref={dodgeRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'memory-match' || launchData.game.slug === 'memory') ? (
+                <MemoryMatch
+                  ref={memoryRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'minesweeper-retro' || launchData.game.slug === 'minesweeper') ? (
+                <MinesweeperRetro
+                  ref={minesRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'sudoku-classic' || launchData.game.slug === 'sudoku') ? (
+                <SudokuClassic
+                  ref={sudokuRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'slide-puzzle-15' || launchData.game.slug === 'slide-puzzle') ? (
+                <SlidePuzzle15
+                  ref={slideRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'connect-four' || launchData.game.slug === 'connect-4') ? (
+                <ConnectFour
+                  ref={c4Ref}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(winner) => handleGameOver(winner === 'PLAYER' ? 200 : 0, 1)}
+                />
+              ) : (launchData.game.slug === 'reversi-othello' || launchData.game.slug === 'reversi' || launchData.game.slug === 'othello') ? (
+                <ReversiOthello
+                  ref={reversiRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(winner) => handleGameOver(winner === 'BLACK' ? 200 : 0, 1)}
+                />
+              ) : (launchData.game.slug === 'tower-defense-lite' || launchData.game.slug === 'tower-defense') ? (
+                <TowerDefenseLite
+                  ref={tdRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'endless-neon-runner' || launchData.game.slug === 'neon-runner') ? (
+                <EndlessNeonRunner
+                  ref={runnerRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'retro-pong' || launchData.game.slug === 'pong') ? (
+                <RetroPong
+                  ref={pongRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'whack-a-mole' || launchData.game.slug === 'whackamole') ? (
+                <WhackAMole
+                  ref={moleRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'simon-memory' || launchData.game.slug === 'simon') ? (
+                <SimonMemory
+                  ref={simonRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'word-grid' || launchData.game.slug === 'word-hunt') ? (
+                <WordGrid
+                  ref={wordRef}
                   initialScore={launchData?.resumption?.score || 0}
                   onScoreUpdate={(s) => setScore(s)}
                   onGameOver={(finalScore) => handleGameOver(finalScore, 1)}

@@ -1,0 +1,154 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  color: #F8FAFC;
+  user-select: none;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+}
+
+.titleArea h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #10B981;
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+  font-weight: 800;
+}
+
+.titleArea span {
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+.statsArea {
+  display: flex;
+  gap: 10px;
+}
+
+.statBox {
+  background: rgba(30, 41, 59, 0.8);
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 50px;
+}
+
+.statLabel {
+  font-size: 0.62rem;
+  color: #64748B;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.statValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #00F0FF;
+}
+
+.statusBar {
+  width: 100%;
+  max-width: 360px;
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  background: rgba(30, 41, 59, 0.85);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #FBBF24;
+}
+
+.boardGrid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1 / 1;
+  background: #064E3B;
+  padding: 6px;
+  border: 3px solid #10B981;
+  border-radius: 8px;
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.25);
+}
+
+.cell {
+  background: #047857;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  position: relative;
+  transition: background 0.15s;
+}
+
+.cell:hover {
+  background: #059669;
+}
+
+.legalIndicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(0, 240, 255, 0.6);
+  box-shadow: 0 0 6px #00F0FF;
+}
+
+.discBlack {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #334155, #0B0F19);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.discWhite {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FFFFFF, #E2E8F0);
+  border: 1px solid #94A3B8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+.restartButton {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}

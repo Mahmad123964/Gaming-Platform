@@ -1,0 +1,174 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  color: #F8FAFC;
+  user-select: none;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  border-radius: 8px;
+}
+
+.titleArea h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0EA5E9;
+  text-shadow: 0 0 10px rgba(14, 165, 233, 0.6);
+  font-weight: 800;
+}
+
+.titleArea span {
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+.statsArea {
+  display: flex;
+  gap: 10px;
+}
+
+.statBox {
+  background: rgba(30, 41, 59, 0.8);
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 55px;
+}
+
+.statLabel {
+  font-size: 0.62rem;
+  color: #64748B;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.statValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #00F0FF;
+}
+
+.wordPreviewBar {
+  width: 100%;
+  max-width: 360px;
+  padding: 8px 14px;
+  margin-bottom: 8px;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #FBBF24;
+  min-height: 42px;
+}
+
+.gridArea {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1 / 1;
+  background: #0B0F19;
+  padding: 10px;
+  border: 2px solid rgba(14, 165, 233, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 0 24px rgba(14, 165, 233, 0.2);
+}
+
+.cell {
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+  border: 2px solid rgba(14, 165, 233, 0.4);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #00F0FF;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s;
+}
+
+.cell:hover {
+  border-color: #00F0FF;
+  transform: scale(1.04);
+}
+
+.cellSelected {
+  background: rgba(14, 165, 233, 0.45);
+  border-color: #FBBF24;
+  color: #FFFFFF;
+  box-shadow: 0 0 12px #00F0FF;
+}
+
+.actionRow {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.submitBtn {
+  flex: 2;
+  height: 44px;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.clearBtn {
+  flex: 1;
+  height: 44px;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #E2E8F0;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.footer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+.restartButton {
+  background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}

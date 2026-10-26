@@ -64,35 +64,59 @@ export const TicTacToePro = forwardRef<TicTacToeProRef, TicTacToeProProps>(({
     getScore: () => scores.x
   }), [restart, scores.x]);
 
-  // Minimax Bot Move
-  const makeAiMove = useCallback((currentBoard: CellValue[]) => {
-    // 1. Check if AI ('O') can win in 1 move
-    for (let i = 0; i < 9; i++) {
-      if (!currentBoard[i]) {
-        const copy = [...currentBoard];
-        copy[i] = 'O';
-        const win = checkWinner(copy);
-        if (win && win.winner === 'O') return i;
+  // True Optimal Minimax Algorithm for unbeatable AI
+  const minimax = useCallback((b: CellValue[], depth: number, isMaximizing: boolean): number => {
+    const outcome = checkWinner(b);
+    if (outcome) {
+      if (outcome.winner === 'O') return 10 - depth;
+      if (outcome.winner === 'X') return depth - 10;
+      if (outcome.winner === 'TIE') return 0;
+    }
+
+    if (isMaximizing) {
+      let maxEval = -Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (b[i] === null) {
+          b[i] = 'O';
+          const evalScore = minimax(b, depth + 1, false);
+          b[i] = null;
+          maxEval = Math.max(maxEval, evalScore);
+        }
       }
-    }
-    // 2. Check if Human ('X') can win in 1 move -> block!
-    for (let i = 0; i < 9; i++) {
-      if (!currentBoard[i]) {
-        const copy = [...currentBoard];
-        copy[i] = 'X';
-        const win = checkWinner(copy);
-        if (win && win.winner === 'X') return i;
+      return maxEval;
+    } else {
+      let minEval = Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (b[i] === null) {
+          b[i] = 'X';
+          const evalScore = minimax(b, depth + 1, true);
+          b[i] = null;
+          minEval = Math.min(minEval, evalScore);
+        }
       }
+      return minEval;
     }
-    // 3. Take center if available
-    if (!currentBoard[4]) return 4;
-    // 4. Take random available corner or side
-    const available = currentBoard.map((val, idx) => (val === null ? idx : null)).filter(val => val !== null) as number[];
-    if (available.length > 0) {
-      return available[Math.floor(Math.random() * available.length)];
-    }
-    return -1;
   }, []);
+
+  const makeAiMove = useCallback((currentBoard: CellValue[]) => {
+    const bCopy = [...currentBoard];
+    let bestScore = -Infinity;
+    let bestMove = -1;
+
+    for (let i = 0; i < 9; i++) {
+      if (bCopy[i] === null) {
+        bCopy[i] = 'O';
+        const moveScore = minimax(bCopy, 0, false);
+        bCopy[i] = null;
+        if (moveScore > bestScore) {
+          bestScore = moveScore;
+          bestMove = i;
+        }
+      }
+    }
+
+    return bestMove;
+  }, [minimax]);
 
   const handleCellClick = (index: number) => {
     if (board[index] || winner) return;
@@ -153,14 +177,14 @@ export const TicTacToePro = forwardRef<TicTacToeProRef, TicTacToeProProps>(({
       <div className={styles.header}>
         <div className={styles.titleArea}>
           <h3>TIC-TAC-TOE PRO</h3>
-          <span>Neural AI & Local Match</span>
+          <span>Minimax Optimal AI & Local Match</span>
         </div>
         <button
           className={styles.modeToggle}
           onClick={() => { setVsAi(!vsAi); restart(); }}
           id="btn-ttt-toggle-ai"
         >
-          {vsAi ? 'Mode: vs AI Bot' : 'Mode: 2-Player'}
+          {vsAi ? 'Mode: vs AI Bot (Minimax)' : 'Mode: 2-Player'}
         </button>
       </div>
 
@@ -168,7 +192,7 @@ export const TicTacToePro = forwardRef<TicTacToeProRef, TicTacToeProProps>(({
         {winner ? (
           winner === 'TIE' ? "It's a Stalemate Draw!" : `Player ${winner} Victorious!`
         ) : (
-          `Current Turn: Player ${isXNext ? 'X (You)' : (vsAi ? 'O (Bot)' : 'O')}`
+          `Current Turn: Player ${isXNext ? 'X (You)' : (vsAi ? 'O (Minimax Bot)' : 'O')}`
         )}
       </div>
 

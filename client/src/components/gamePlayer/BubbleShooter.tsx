@@ -212,6 +212,55 @@ export const BubbleShooter = forwardRef<BubbleShooterRef, BubbleShooterProps>(({
       });
       const gained = cluster.length * 15;
       scoreRef.current += gained;
+
+      // Handle detached floating bubbles not anchored to ceiling row 0
+      const connected = new Set<string>();
+      const queue: [number, number][] = [];
+      for (let c = 0; c < GRID_COLS; c++) {
+        if (grid[0][c]) {
+          queue.push([0, c]);
+          connected.add(`0,${c}`);
+        }
+      }
+
+      while (queue.length > 0) {
+        const [qr, qc] = queue.shift()!;
+        const isOdd = qr % 2 === 1;
+        const neighbors = isOdd
+          ? [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
+          : [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]];
+
+        for (const [dr, dc] of neighbors) {
+          const nr = qr + dr;
+          const nc = qc + dc;
+          if (nr >= 0 && nr < GRID_ROWS) {
+            const maxCols = nr % 2 === 1 ? GRID_COLS - 1 : GRID_COLS;
+            if (nc >= 0 && nc < maxCols) {
+              const key = `${nr},${nc}`;
+              if (!connected.has(key) && grid[nr][nc]) {
+                connected.add(key);
+                queue.push([nr, nc]);
+              }
+            }
+          }
+        }
+      }
+
+      let detachedCount = 0;
+      for (let r = 0; r < GRID_ROWS; r++) {
+        const maxCols = r % 2 === 1 ? GRID_COLS - 1 : GRID_COLS;
+        for (let c = 0; c < maxCols; c++) {
+          if (grid[r][c] && !connected.has(`${r},${c}`)) {
+            grid[r][c] = null;
+            detachedCount++;
+          }
+        }
+      }
+
+      if (detachedCount > 0) {
+        scoreRef.current += detachedCount * 25;
+      }
+
       setScore(scoreRef.current);
       onScoreUpdate?.(scoreRef.current);
     }

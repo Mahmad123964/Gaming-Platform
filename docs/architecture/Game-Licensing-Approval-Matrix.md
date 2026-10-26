@@ -103,7 +103,7 @@ When an administrator modifies a licensing record to `LICENSE_REJECTED`, `LICENS
 
 ## 4. Comprehensive Licensing Matrix — Active Catalog & Expansion Titles
 
-### 4.1 Tier 1: Verified Playable Games (10 Fully Licensed & Certified Titles)
+### 4.1 Tier 1: Verified Playable Games (25 Fully Licensed & Certified Titles)
 
 | Game Title | Slug | Original Publisher / Dev | Intellectual Property Status | Distribution Model | Permitted Channel | NexusPlay Hosting Right | Action State | Verification Status |
 |:---|:---|:---|:---|:---|:---|:---:|:---:|:---:|
@@ -117,6 +117,21 @@ When an administrator modifies a licensing record to `LICENSE_REJECTED`, `LICENS
 | **Neon Racer** | `neon-racer` | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
 | **Block Puzzle** | `block-puzzle` | NexusPlay Studio | Clean-Room Polyomino Mechanic | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
 | **Bubble Shooter** | `bubble-shooter` | NexusPlay Studio | Clean-Room Cluster Mechanic | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Arcade Cricket** | `arcade-cricket` | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Flappy Neon** | `flappy-neon` | NexusPlay Studio | Clean-Room Tap-to-Flap Mechanic | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Galactic Dodge** | `galactic-dodge` | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Memory Match** | `memory-match` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Minesweeper Retro** | `minesweeper-retro` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Sudoku Classic** | `sudoku-classic` | NexusPlay Studio | Clean-Room Public Domain Math | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Slide Puzzle 15** | `slide-puzzle-15` | NexusPlay Studio | Clean-Room Public Domain Math | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Connect Four** | `connect-four` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Reversi Othello** | `reversi-othello` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Tower Defense Lite** | `tower-defense-lite` | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Endless Neon Runner** | `endless-neon-runner` | NexusPlay Studio | Proprietary In-House | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Retro Pong** | `retro-pong` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Whack-A-Mole** | `whack-a-mole` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Simon Memory** | `simon-memory` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
+| **Word Grid** | `word-grid` | NexusPlay Studio | Clean-Room Public Domain Rules | `FREE` | Native Browser & Mobile Web | **YES** (Owned by NexusPlay) | `PLAY_NOW` | **VERIFIED_PLAYABLE** |
 
 ### 4.2 Tier 2: Paid Commercial Titles (Entitlement & Membership Gated)
 

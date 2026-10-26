@@ -407,11 +407,13 @@ async function runBrowserVerification() {
         await client.eval(`
           const input = document.getElementById('game-search-input');
           if (input) {
-            input.value = '${game.title}';
+            const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+            if (nativeSetter) nativeSetter.call(input, '${game.title}');
+            else input.value = '${game.title}';
             input.dispatchEvent(new Event('input', { bubbles: true }));
           }
         `);
-        await sleep(600);
+        await sleep(700);
         cardClicked = await client.eval(`
           const card = document.getElementById('game-card-${game.slug}');
           if (card) {
@@ -494,7 +496,9 @@ async function runBrowserVerification() {
         if (clearBtn) clearBtn.click();
         const input = document.getElementById('game-search-input');
         if (input && input.value) {
-          input.value = '';
+          const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+          if (nativeSetter) nativeSetter.call(input, '');
+          else input.value = '';
           input.dispatchEvent(new Event('input', { bubbles: true }));
         }
       `);

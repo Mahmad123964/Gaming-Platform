@@ -1,0 +1,1181 @@
+{
+  "milestone": "3.2",
+  "tier": "TIER_A_HEADLESS_API",
+  "total": 130,
+  "passed": 130,
+  "failed": 0,
+  "passRate": "100.0%",
+  "timestamp": "2026-10-26T10:14:58.094Z",
+  "results": [
+    {
+      "id": "TC-25G-CAT-01",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Cyber Invaders",
+      "status": "PASS",
+      "details": "Found \"Cyber Invaders\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.485Z"
+    },
+    {
+      "id": "TC-25G-CAT-02",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: 2048 Classic",
+      "status": "PASS",
+      "details": "Found \"2048 Classic\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.487Z"
+    },
+    {
+      "id": "TC-25G-CAT-03",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Snake Arcade",
+      "status": "PASS",
+      "details": "Found \"Snake Arcade\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.488Z"
+    },
+    {
+      "id": "TC-25G-CAT-04",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Brick Breaker",
+      "status": "PASS",
+      "details": "Found \"Brick Breaker\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.488Z"
+    },
+    {
+      "id": "TC-25G-CAT-05",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "Found \"Tic-Tac-Toe Pro\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.489Z"
+    },
+    {
+      "id": "TC-25G-CAT-06",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Classic Checkers",
+      "status": "PASS",
+      "details": "Found \"Classic Checkers\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.489Z"
+    },
+    {
+      "id": "TC-25G-CAT-07",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Solitaire Royale",
+      "status": "PASS",
+      "details": "Found \"Solitaire Royale\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.489Z"
+    },
+    {
+      "id": "TC-25G-CAT-08",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Neon Racer",
+      "status": "PASS",
+      "details": "Found \"Neon Racer\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.489Z"
+    },
+    {
+      "id": "TC-25G-CAT-09",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Block Puzzle",
+      "status": "PASS",
+      "details": "Found \"Block Puzzle\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.489Z"
+    },
+    {
+      "id": "TC-25G-CAT-10",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Bubble Shooter",
+      "status": "PASS",
+      "details": "Found \"Bubble Shooter\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.489Z"
+    },
+    {
+      "id": "TC-25G-CAT-11",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Arcade Cricket",
+      "status": "PASS",
+      "details": "Found \"Arcade Cricket\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.489Z"
+    },
+    {
+      "id": "TC-25G-CAT-12",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Flappy Neon",
+      "status": "PASS",
+      "details": "Found \"Flappy Neon\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.489Z"
+    },
+    {
+      "id": "TC-25G-CAT-13",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Galactic Dodge",
+      "status": "PASS",
+      "details": "Found \"Galactic Dodge\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-14",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Memory Match",
+      "status": "PASS",
+      "details": "Found \"Memory Match\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-15",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Minesweeper Retro",
+      "status": "PASS",
+      "details": "Found \"Minesweeper Retro\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-16",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Sudoku Classic",
+      "status": "PASS",
+      "details": "Found \"Sudoku Classic\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-17",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "Found \"Slide Puzzle 15\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-18",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Connect Four",
+      "status": "PASS",
+      "details": "Found \"Connect Four\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-19",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Reversi Othello",
+      "status": "PASS",
+      "details": "Found \"Reversi Othello\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-20",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Tower Defense Lite",
+      "status": "PASS",
+      "details": "Found \"Tower Defense Lite\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-21",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Endless Neon Runner",
+      "status": "PASS",
+      "details": "Found \"Endless Neon Runner\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-22",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Retro Pong",
+      "status": "PASS",
+      "details": "Found \"Retro Pong\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-23",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Whack-A-Mole",
+      "status": "PASS",
+      "details": "Found \"Whack-A-Mole\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-24",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Simon Memory",
+      "status": "PASS",
+      "details": "Found \"Simon Memory\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-CAT-25",
+      "ac": "AC-CAT-25G",
+      "name": "Catalog Check: Word Grid",
+      "status": "PASS",
+      "details": "Found \"Word Grid\" | model=FREE | action=PLAY_NOW | integration=SELF_HOSTED",
+      "durationMs": 97,
+      "timestamp": "2026-10-26T10:14:57.490Z"
+    },
+    {
+      "id": "TC-25G-ST-01",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Cyber Invaders",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.497Z"
+    },
+    {
+      "id": "TC-25G-ST-02",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: 2048 Classic",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.502Z"
+    },
+    {
+      "id": "TC-25G-ST-03",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Snake Arcade",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.508Z"
+    },
+    {
+      "id": "TC-25G-ST-04",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Brick Breaker",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.513Z"
+    },
+    {
+      "id": "TC-25G-ST-05",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.520Z"
+    },
+    {
+      "id": "TC-25G-ST-06",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Classic Checkers",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.525Z"
+    },
+    {
+      "id": "TC-25G-ST-07",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Solitaire Royale",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.531Z"
+    },
+    {
+      "id": "TC-25G-ST-08",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Neon Racer",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.535Z"
+    },
+    {
+      "id": "TC-25G-ST-09",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Block Puzzle",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.541Z"
+    },
+    {
+      "id": "TC-25G-ST-10",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Bubble Shooter",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:57.544Z"
+    },
+    {
+      "id": "TC-25G-ST-11",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Arcade Cricket",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.548Z"
+    },
+    {
+      "id": "TC-25G-ST-12",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Flappy Neon",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.552Z"
+    },
+    {
+      "id": "TC-25G-ST-13",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Galactic Dodge",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.557Z"
+    },
+    {
+      "id": "TC-25G-ST-14",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Memory Match",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:57.560Z"
+    },
+    {
+      "id": "TC-25G-ST-15",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Minesweeper Retro",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.564Z"
+    },
+    {
+      "id": "TC-25G-ST-16",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Sudoku Classic",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:57.568Z"
+    },
+    {
+      "id": "TC-25G-ST-17",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.574Z"
+    },
+    {
+      "id": "TC-25G-ST-18",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Connect Four",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.578Z"
+    },
+    {
+      "id": "TC-25G-ST-19",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Reversi Othello",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.582Z"
+    },
+    {
+      "id": "TC-25G-ST-20",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Tower Defense Lite",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.586Z"
+    },
+    {
+      "id": "TC-25G-ST-21",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Endless Neon Runner",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.592Z"
+    },
+    {
+      "id": "TC-25G-ST-22",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Retro Pong",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.596Z"
+    },
+    {
+      "id": "TC-25G-ST-23",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Whack-A-Mole",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.601Z"
+    },
+    {
+      "id": "TC-25G-ST-24",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Simon Memory",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.607Z"
+    },
+    {
+      "id": "TC-25G-ST-25",
+      "ac": "AC-ELIG-25G",
+      "name": "Pre-Flight Eligibility: Word Grid",
+      "status": "PASS",
+      "details": "HTTP 200 | eligible=true | isPremium=false",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.611Z"
+    },
+    {
+      "id": "TC-25G-TKT-01",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Cyber Invaders",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-4fb21df2-2e65-4cbe-aa97-520a1686c2da | hmacSignatureValid=true",
+      "durationMs": 10,
+      "timestamp": "2026-10-26T10:14:57.623Z"
+    },
+    {
+      "id": "TC-25G-TKT-02",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: 2048 Classic",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-2c7d21fe-a33a-4f4c-847b-a94d5785dc7d | hmacSignatureValid=true",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T10:14:57.630Z"
+    },
+    {
+      "id": "TC-25G-TKT-03",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Snake Arcade",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-ec514969-e33f-421c-ba74-21656487ed0d | hmacSignatureValid=true",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T10:14:57.638Z"
+    },
+    {
+      "id": "TC-25G-TKT-04",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Brick Breaker",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-32b2d81a-e2a7-4aab-8ca2-4ccbeddd426e | hmacSignatureValid=true",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T10:14:57.647Z"
+    },
+    {
+      "id": "TC-25G-TKT-05",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-3d80bc76-fa2b-4c2d-a400-830554175c7b | hmacSignatureValid=true",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T10:14:57.657Z"
+    },
+    {
+      "id": "TC-25G-TKT-06",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Classic Checkers",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-c7464177-370d-4e9e-8dcb-f436a0b45d5c | hmacSignatureValid=true",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T10:14:57.666Z"
+    },
+    {
+      "id": "TC-25G-TKT-07",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Solitaire Royale",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-77ce0f0b-f3b2-4152-8326-01c59059c32a | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.674Z"
+    },
+    {
+      "id": "TC-25G-TKT-08",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Neon Racer",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-b0f2ffe4-7953-4146-b818-be0e4b332dc1 | hmacSignatureValid=true",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.681Z"
+    },
+    {
+      "id": "TC-25G-TKT-09",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Block Puzzle",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-19919919-17f4-4e11-885c-6babf8e1df54 | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.689Z"
+    },
+    {
+      "id": "TC-25G-TKT-10",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Bubble Shooter",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-87d4d337-791c-4623-abf6-ffd582cc121e | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.697Z"
+    },
+    {
+      "id": "TC-25G-TKT-11",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Arcade Cricket",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-5f9d39ae-85f0-4851-b3f9-20f0ab8464b0 | hmacSignatureValid=true",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T10:14:57.705Z"
+    },
+    {
+      "id": "TC-25G-TKT-12",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Flappy Neon",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-76d82445-1678-4b9a-8288-c0aa0b29fac3 | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.713Z"
+    },
+    {
+      "id": "TC-25G-TKT-13",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Galactic Dodge",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-18a551e7-bbfa-4ec1-946f-b816da97c735 | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.722Z"
+    },
+    {
+      "id": "TC-25G-TKT-14",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Memory Match",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-331f140a-6c24-425a-8b83-37a864efb9bd | hmacSignatureValid=true",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T10:14:57.731Z"
+    },
+    {
+      "id": "TC-25G-TKT-15",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Minesweeper Retro",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-6861ea72-f03a-4db5-9285-2142ca397496 | hmacSignatureValid=true",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T10:14:57.740Z"
+    },
+    {
+      "id": "TC-25G-TKT-16",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Sudoku Classic",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-bea699d4-db6b-4e8d-9276-4b9a9203af30 | hmacSignatureValid=true",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T10:14:57.749Z"
+    },
+    {
+      "id": "TC-25G-TKT-17",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-fe9820e5-3542-4a1e-9156-4334e5eb9676 | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.758Z"
+    },
+    {
+      "id": "TC-25G-TKT-18",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Connect Four",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-1da4068a-51b9-4dc6-808a-79a366316de8 | hmacSignatureValid=true",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.765Z"
+    },
+    {
+      "id": "TC-25G-TKT-19",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Reversi Othello",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-ffbe9e06-9c4d-4db1-bc0a-7151bad1ed49 | hmacSignatureValid=true",
+      "durationMs": 9,
+      "timestamp": "2026-10-26T10:14:57.774Z"
+    },
+    {
+      "id": "TC-25G-TKT-20",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Tower Defense Lite",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-5373e503-8a42-4fd4-9299-29e242c34ff8 | hmacSignatureValid=true",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T10:14:57.781Z"
+    },
+    {
+      "id": "TC-25G-TKT-21",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Endless Neon Runner",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-a46d04b9-094a-45ec-b344-34ce877ec245 | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.790Z"
+    },
+    {
+      "id": "TC-25G-TKT-22",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Retro Pong",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-2df53509-02a2-4a1f-b31b-4fbec8c078f4 | hmacSignatureValid=true",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T10:14:57.798Z"
+    },
+    {
+      "id": "TC-25G-TKT-23",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Whack-A-Mole",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-d11e8174-7c39-4a22-a23e-e979aa83eefb | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.806Z"
+    },
+    {
+      "id": "TC-25G-TKT-24",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Simon Memory",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-4577f091-e3c5-482b-8baf-d6c4cc472357 | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.815Z"
+    },
+    {
+      "id": "TC-25G-TKT-25",
+      "ac": "AC-TKT-25G",
+      "name": "Launch Ticket: Word Grid",
+      "status": "PASS",
+      "details": "HTTP 200 | session=ses-bb19dbd7-4f6d-4c61-94d4-b6a2a591dba2 | hmacSignatureValid=true",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T10:14:57.824Z"
+    },
+    {
+      "id": "TC-25G-PRG-01",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Cyber Invaders",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (150)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.829Z"
+    },
+    {
+      "id": "TC-25G-PRG-02",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: 2048 Classic",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (300)",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:57.833Z"
+    },
+    {
+      "id": "TC-25G-PRG-03",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Snake Arcade",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (450)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.837Z"
+    },
+    {
+      "id": "TC-25G-PRG-04",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Brick Breaker",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (600)",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.842Z"
+    },
+    {
+      "id": "TC-25G-PRG-05",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (750)",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.847Z"
+    },
+    {
+      "id": "TC-25G-PRG-06",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Classic Checkers",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (900)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.852Z"
+    },
+    {
+      "id": "TC-25G-PRG-07",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Solitaire Royale",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (1050)",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.857Z"
+    },
+    {
+      "id": "TC-25G-PRG-08",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Neon Racer",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (1200)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.861Z"
+    },
+    {
+      "id": "TC-25G-PRG-09",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Block Puzzle",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (1350)",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:57.866Z"
+    },
+    {
+      "id": "TC-25G-PRG-10",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Bubble Shooter",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (1500)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.871Z"
+    },
+    {
+      "id": "TC-25G-PRG-11",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Arcade Cricket",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (1650)",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.877Z"
+    },
+    {
+      "id": "TC-25G-PRG-12",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Flappy Neon",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (1800)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.881Z"
+    },
+    {
+      "id": "TC-25G-PRG-13",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Galactic Dodge",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (1950)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.886Z"
+    },
+    {
+      "id": "TC-25G-PRG-14",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Memory Match",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (2100)",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.892Z"
+    },
+    {
+      "id": "TC-25G-PRG-15",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Minesweeper Retro",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (2250)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.897Z"
+    },
+    {
+      "id": "TC-25G-PRG-16",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Sudoku Classic",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (2400)",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:57.900Z"
+    },
+    {
+      "id": "TC-25G-PRG-17",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (2550)",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.906Z"
+    },
+    {
+      "id": "TC-25G-PRG-18",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Connect Four",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (2700)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.910Z"
+    },
+    {
+      "id": "TC-25G-PRG-19",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Reversi Othello",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (2850)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.915Z"
+    },
+    {
+      "id": "TC-25G-PRG-20",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Tower Defense Lite",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (3000)",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.921Z"
+    },
+    {
+      "id": "TC-25G-PRG-21",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Endless Neon Runner",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (3150)",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.926Z"
+    },
+    {
+      "id": "TC-25G-PRG-22",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Retro Pong",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (3300)",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:57.931Z"
+    },
+    {
+      "id": "TC-25G-PRG-23",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Whack-A-Mole",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (3450)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.935Z"
+    },
+    {
+      "id": "TC-25G-PRG-24",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Simon Memory",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (3600)",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.940Z"
+    },
+    {
+      "id": "TC-25G-PRG-25",
+      "ac": "AC-PROG-25G",
+      "name": "Session Progress: Word Grid",
+      "status": "PASS",
+      "details": "HTTP 200 | scoreMutated=true (3750)",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.944Z"
+    },
+    {
+      "id": "TC-25G-RST-01",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Cyber Invaders",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.949Z"
+    },
+    {
+      "id": "TC-25G-RST-02",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: 2048 Classic",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.954Z"
+    },
+    {
+      "id": "TC-25G-RST-03",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Snake Arcade",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.959Z"
+    },
+    {
+      "id": "TC-25G-RST-04",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Brick Breaker",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.964Z"
+    },
+    {
+      "id": "TC-25G-RST-05",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Tic-Tac-Toe Pro",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:57.968Z"
+    },
+    {
+      "id": "TC-25G-RST-06",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Classic Checkers",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:57.974Z"
+    },
+    {
+      "id": "TC-25G-RST-07",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Solitaire Royale",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.979Z"
+    },
+    {
+      "id": "TC-25G-RST-08",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Neon Racer",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.984Z"
+    },
+    {
+      "id": "TC-25G-RST-09",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Block Puzzle",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.990Z"
+    },
+    {
+      "id": "TC-25G-RST-10",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Bubble Shooter",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:57.995Z"
+    },
+    {
+      "id": "TC-25G-RST-11",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Arcade Cricket",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:58.000Z"
+    },
+    {
+      "id": "TC-25G-RST-12",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Flappy Neon",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:58.005Z"
+    },
+    {
+      "id": "TC-25G-RST-13",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Galactic Dodge",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:58.011Z"
+    },
+    {
+      "id": "TC-25G-RST-14",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Memory Match",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:58.016Z"
+    },
+    {
+      "id": "TC-25G-RST-15",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Minesweeper Retro",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:58.022Z"
+    },
+    {
+      "id": "TC-25G-RST-16",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Sudoku Classic",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:58.026Z"
+    },
+    {
+      "id": "TC-25G-RST-17",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Slide Puzzle 15",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:58.030Z"
+    },
+    {
+      "id": "TC-25G-RST-18",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Connect Four",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:58.034Z"
+    },
+    {
+      "id": "TC-25G-RST-19",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Reversi Othello",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:58.041Z"
+    },
+    {
+      "id": "TC-25G-RST-20",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Tower Defense Lite",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:58.046Z"
+    },
+    {
+      "id": "TC-25G-RST-21",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Endless Neon Runner",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:58.050Z"
+    },
+    {
+      "id": "TC-25G-RST-22",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Retro Pong",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 6,
+      "timestamp": "2026-10-26T10:14:58.056Z"
+    },
+    {
+      "id": "TC-25G-RST-23",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Whack-A-Mole",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:58.061Z"
+    },
+    {
+      "id": "TC-25G-RST-24",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Simon Memory",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T10:14:58.066Z"
+    },
+    {
+      "id": "TC-25G-RST-25",
+      "ac": "AC-RST-25G",
+      "name": "Session Restart: Word Grid",
+      "status": "PASS",
+      "details": "HTTP 200 | status=RESTARTED | resetScore=0",
+      "durationMs": 7,
+      "timestamp": "2026-10-26T10:14:58.073Z"
+    },
+    {
+      "id": "TC-25G-SEC-01",
+      "ac": "AC-SEC-PATH",
+      "name": "Rejection of Path Traversal Slug Attack",
+      "status": "PASS",
+      "details": "HTTP 404 | error=GAME_NOT_FOUND",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:58.077Z"
+    },
+    {
+      "id": "TC-25G-SEC-02",
+      "ac": "AC-SEC-SQLI",
+      "name": "Rejection of SQL Injection Slug Parameter",
+      "status": "PASS",
+      "details": "HTTP 404 | error=GAME_NOT_FOUND",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:58.081Z"
+    },
+    {
+      "id": "TC-25G-SEC-03",
+      "ac": "AC-SEC-404",
+      "name": "Rejection of Non-Existent Game Launch",
+      "status": "PASS",
+      "details": "HTTP 404 | error=GAME_NOT_FOUND",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:58.084Z"
+    },
+    {
+      "id": "TC-25G-SEC-04",
+      "ac": "AC-SEC-SESS",
+      "name": "Rejection of Unregistered Session Mutation",
+      "status": "PASS",
+      "details": "HTTP 404 | error=SESSION_NOT_FOUND",
+      "durationMs": 3,
+      "timestamp": "2026-10-26T10:14:58.088Z"
+    },
+    {
+      "id": "TC-25G-SEC-05",
+      "ac": "AC-SEC-PAID",
+      "name": "Preservation of Paid Game Entitlement Gate (Neon Horizon)",
+      "status": "PASS",
+      "details": "HTTP 403 | error=AUTHENTICATION_REQUIRED",
+      "durationMs": 4,
+      "timestamp": "2026-10-26T10:14:58.092Z"
+    }
+  ]
+}
