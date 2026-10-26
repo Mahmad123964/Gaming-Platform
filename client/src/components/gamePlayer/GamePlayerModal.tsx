@@ -50,6 +50,31 @@ import { HexConquest, HexConquestRef } from './HexConquest';
 import { DotsAndBoxes, DotsAndBoxesRef } from './DotsAndBoxes';
 import { AnagramSolverBlitz, AnagramSolverBlitzRef } from './AnagramSolverBlitz';
 import { MathBlitzArcade, MathBlitzArcadeRef } from './MathBlitzArcade';
+import { BadmintonChallenge, BadmintonChallengeRef } from './BadmintonChallenge';
+import { TennisChampionship, TennisChampionshipRef } from './TennisChampionship';
+import { HockeyShootout, HockeyShootoutRef } from './HockeyShootout';
+import { CricketSuperOver, CricketSuperOverRef } from './CricketSuperOver';
+import { FootballPenaltyTournament, FootballPenaltyTournamentRef } from './FootballPenaltyTournament';
+import { OffRoadRally, OffRoadRallyRef } from './OffRoadRally';
+import { MotorcycleCircuit, MotorcycleCircuitRef } from './MotorcycleCircuit';
+import { DriftChampionship, DriftChampionshipRef } from './DriftChampionship';
+import { TrafficEscape, TrafficEscapeRef } from './TrafficEscape';
+import { MiniGolfDuel, MiniGolfDuelRef } from './MiniGolfDuel';
+import { TopDownArenaSurvival, TopDownArenaSurvivalRef } from './TopDownArenaSurvival';
+import { RobotCombatArena, RobotCombatArenaRef } from './RobotCombatArena';
+import { PlatformAdventure, PlatformAdventureRef } from './PlatformAdventure';
+import { StealthMazeMission, StealthMazeMissionRef } from './StealthMazeMission';
+import { SpaceBossBattle, SpaceBossBattleRef } from './SpaceBossBattle';
+import { TacticalGridBattle, TacticalGridBattleRef } from './TacticalGridBattle';
+import { MiniCityBuilder, MiniCityBuilderRef } from './MiniCityBuilder';
+import { NavalCommander, NavalCommanderRef } from './NavalCommander';
+import { ResourceDefense, ResourceDefenseRef } from './ResourceDefense';
+import { ArenaTag, ArenaTagRef } from './ArenaTag';
+import { FourPlayerPartyChallenge, FourPlayerPartyChallengeRef } from './FourPlayerPartyChallenge';
+import { PhysicsMarbleMaze, PhysicsMarbleMazeRef } from './PhysicsMarbleMaze';
+import { ChessPuzzleChallenges, ChessPuzzleChallengesRef } from './ChessPuzzleChallenges';
+import { LogicCircuitBuilder, LogicCircuitBuilderRef } from './LogicCircuitBuilder';
+import { RhythmReflexChallenge, RhythmReflexChallengeRef } from './RhythmReflexChallenge';
 
 interface GamePlayerModalProps {
   gameIdOrSlug: string;
@@ -155,6 +180,31 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
   const dotsRef = useRef<DotsAndBoxesRef | null>(null);
   const anagramRef = useRef<AnagramSolverBlitzRef | null>(null);
   const mathRef = useRef<MathBlitzArcadeRef | null>(null);
+  const badmintonRef = useRef<BadmintonChallengeRef | null>(null);
+  const tennisRef = useRef<TennisChampionshipRef | null>(null);
+  const hockeyRef = useRef<HockeyShootoutRef | null>(null);
+  const csoRef = useRef<CricketSuperOverRef | null>(null);
+  const penaltyRef = useRef<FootballPenaltyTournamentRef | null>(null);
+  const rallyRef = useRef<OffRoadRallyRef | null>(null);
+  const motoRef = useRef<MotorcycleCircuitRef | null>(null);
+  const driftChampRef = useRef<DriftChampionshipRef | null>(null);
+  const trafficRef = useRef<TrafficEscapeRef | null>(null);
+  const golfRef = useRef<MiniGolfDuelRef | null>(null);
+  const arenaSurvRef = useRef<TopDownArenaSurvivalRef | null>(null);
+  const botRef = useRef<RobotCombatArenaRef | null>(null);
+  const platRef = useRef<PlatformAdventureRef | null>(null);
+  const stealthRef = useRef<StealthMazeMissionRef | null>(null);
+  const spaceBossRef = useRef<SpaceBossBattleRef | null>(null);
+  const tacticalRef = useRef<TacticalGridBattleRef | null>(null);
+  const cityRef = useRef<MiniCityBuilderRef | null>(null);
+  const navalCmdRef = useRef<NavalCommanderRef | null>(null);
+  const resDefRef = useRef<ResourceDefenseRef | null>(null);
+  const tagRef = useRef<ArenaTagRef | null>(null);
+  const partyRef = useRef<FourPlayerPartyChallengeRef | null>(null);
+  const marbleRef = useRef<PhysicsMarbleMazeRef | null>(null);
+  const cpuzzRef = useRef<ChessPuzzleChallengesRef | null>(null);
+  const circuitRef = useRef<LogicCircuitBuilderRef | null>(null);
+  const rhythmRef = useRef<RhythmReflexChallengeRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const sessionStartTimeRef = useRef<number>(Date.now());
 
@@ -293,6 +343,31 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
         dotsRef.current?.restart();
         anagramRef.current?.restart();
         mathRef.current?.restart();
+        badmintonRef.current?.restart();
+        tennisRef.current?.restart();
+        hockeyRef.current?.restart();
+        csoRef.current?.restart();
+        penaltyRef.current?.restart();
+        rallyRef.current?.restart();
+        motoRef.current?.restart();
+        driftChampRef.current?.restart();
+        trafficRef.current?.restart();
+        golfRef.current?.restart();
+        arenaSurvRef.current?.restart();
+        botRef.current?.restart();
+        platRef.current?.restart();
+        stealthRef.current?.restart();
+        spaceBossRef.current?.restart();
+        tacticalRef.current?.restart();
+        cityRef.current?.restart();
+        navalCmdRef.current?.restart();
+        resDefRef.current?.restart();
+        tagRef.current?.restart();
+        partyRef.current?.restart();
+        marbleRef.current?.restart();
+        cpuzzRef.current?.restart();
+        circuitRef.current?.restart();
+        rhythmRef.current?.restart();
         canvasRef.current?.restart();
         if (onLog) {
           onLog(`Session restarted: Score reset to 0, wave 1 reinitialized (AC-15.1, AC-15.3).`, 'blue');
@@ -1005,6 +1080,181 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
               ) : (launchData.game.slug === 'math-blitz-arcade') ? (
                 <MathBlitzArcade
                   ref={mathRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'badminton-challenge') ? (
+                <BadmintonChallenge
+                  ref={badmintonRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'tennis-championship') ? (
+                <TennisChampionship
+                  ref={tennisRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'hockey-shootout') ? (
+                <HockeyShootout
+                  ref={hockeyRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'cricket-super-over') ? (
+                <CricketSuperOver
+                  ref={csoRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'football-penalty-tournament') ? (
+                <FootballPenaltyTournament
+                  ref={penaltyRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'off-road-rally') ? (
+                <OffRoadRally
+                  ref={rallyRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'motorcycle-circuit') ? (
+                <MotorcycleCircuit
+                  ref={motoRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'drift-championship') ? (
+                <DriftChampionship
+                  ref={driftChampRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'traffic-escape') ? (
+                <TrafficEscape
+                  ref={trafficRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'mini-golf-duel') ? (
+                <MiniGolfDuel
+                  ref={golfRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'top-down-arena-survival') ? (
+                <TopDownArenaSurvival
+                  ref={arenaSurvRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'robot-combat-arena') ? (
+                <RobotCombatArena
+                  ref={botRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'platform-adventure') ? (
+                <PlatformAdventure
+                  ref={platRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'stealth-maze-mission') ? (
+                <StealthMazeMission
+                  ref={stealthRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'space-boss-battle') ? (
+                <SpaceBossBattle
+                  ref={spaceBossRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'tactical-grid-battle') ? (
+                <TacticalGridBattle
+                  ref={tacticalRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'mini-city-builder') ? (
+                <MiniCityBuilder
+                  ref={cityRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'naval-commander') ? (
+                <NavalCommander
+                  ref={navalCmdRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'resource-defense') ? (
+                <ResourceDefense
+                  ref={resDefRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'arena-tag') ? (
+                <ArenaTag
+                  ref={tagRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'four-player-party-challenge') ? (
+                <FourPlayerPartyChallenge
+                  ref={partyRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'physics-marble-maze') ? (
+                <PhysicsMarbleMaze
+                  ref={marbleRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'chess-puzzle-challenges') ? (
+                <ChessPuzzleChallenges
+                  ref={cpuzzRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'logic-circuit-builder') ? (
+                <LogicCircuitBuilder
+                  ref={circuitRef}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                />
+              ) : (launchData.game.slug === 'rhythm-reflex-challenge') ? (
+                <RhythmReflexChallenge
+                  ref={rhythmRef}
                   initialScore={launchData?.resumption?.score || 0}
                   onScoreUpdate={(s) => setScore(s)}
                   onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
