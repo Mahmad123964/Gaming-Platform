@@ -226,7 +226,7 @@ async function runBusinessModelTests() {
 
   const priceINRes = await fetch(`${BASE_URL}/api/v1/pricing/game-004?country=IN`);
   const priceIN = await priceINRes.json();
-  assert(priceINRes.status === 200 && priceIN.pricing.currency === 'INR' && priceIN.pricing.priceMinor === 15000, 'BM-PRC-02', 'India regional price is INR 150 (15000 minor units)');
+  assert(priceINRes.status === 200 && priceIN.pricing.currency === 'INR' && priceIN.pricing.priceMinor === 14900, 'BM-PRC-02', 'India regional price is INR 149 (14900 minor units)');
 
   const priceUSRes = await fetch(`${BASE_URL}/api/v1/pricing/game-004?country=US`);
   const priceUS = await priceUSRes.json();

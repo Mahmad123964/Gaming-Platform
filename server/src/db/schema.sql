@@ -82,6 +82,9 @@ CREATE TABLE IF NOT EXISTS games (
     min_players INTEGER NOT NULL DEFAULT 1,
     max_players INTEGER NOT NULL DEFAULT 1,
     supports_bots INTEGER NOT NULL DEFAULT 0,
+    integration_type TEXT NOT NULL DEFAULT 'SELF_HOSTED',
+    iframe_sandbox_json TEXT DEFAULT '["allow-scripts","allow-same-origin","allow-popups","allow-forms"]',
+    allowed_iframe_hosts_json TEXT DEFAULT '["html5.gamedistribution.com","html5games.com"]',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -247,8 +250,8 @@ CREATE TABLE IF NOT EXISTS game_regional_prices (
     game_id TEXT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     country_code TEXT NOT NULL, -- 'PK', 'IN', 'US', 'GB', 'CA', 'EU', etc.
     currency_code TEXT NOT NULL, -- 'PKR', 'INR', 'USD', 'GBP', 'CAD', 'EUR'
-    price_minor INTEGER NOT NULL, -- in minor units: 25000 for PKR 250.00, 15000 for INR 150.00, 399 for USD 3.99
-    price_display TEXT NOT NULL, -- e.g. 'PKR 250', '₹150', '$3.99', '£2.99', 'CAD 4.99', '€3.49'
+    price_minor INTEGER NOT NULL, -- in minor units: 25000 for PKR 250.00, 14900 for INR 149.00, 399 for USD 3.99
+    price_display TEXT NOT NULL, -- e.g. 'PKR 250', '₹149', '$3.99', '£2.99', 'CAD 4.99', '€3.49'
     effective_from DATETIME DEFAULT CURRENT_TIMESTAMP,
     effective_to DATETIME,
     tax_inclusive INTEGER NOT NULL DEFAULT 1,

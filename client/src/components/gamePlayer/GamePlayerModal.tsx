@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './GamePlayerModal.module.css';
 import { CyberInvadersCanvas, CyberInvadersRef } from './CyberInvadersCanvas';
+import { Classic2048, Classic2048Ref } from './Classic2048';
 
 interface GamePlayerModalProps {
   gameIdOrSlug: string;
@@ -30,6 +31,7 @@ interface LaunchData {
     minPlayers: number;
     maxPlayers: number;
     supportsBots: boolean;
+    integrationType?: string;
   };
   compatibility: {
     status: string;
@@ -56,6 +58,7 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
   const [scorePersisted, setScorePersisted] = useState<boolean>(false);
 
   const canvasRef = useRef<CyberInvadersRef | null>(null);
+  const c2048Ref = useRef<Classic2048Ref | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const sessionStartTimeRef = useRef<number>(Date.now());
 
@@ -143,7 +146,11 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
 
       if (res.ok) {
         setScore(0);
-        if (canvasRef.current) {
+        if (launchData.game.slug === '2048-classic' || launchData.game.slug === '2048') {
+          if (c2048Ref.current) {
+            c2048Ref.current.restart();
+          }
+        } else if (canvasRef.current) {
           canvasRef.current.restart();
         }
         if (onLog) {
@@ -489,15 +496,36 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
                 </div>
               )}
 
-              <CyberInvadersCanvas
-                ref={canvasRef}
-                initialWave={launchData?.resumption?.level || 1}
-                initialScore={launchData?.resumption?.score || 0}
-                soundEnabled={soundEnabled}
-                onScoreUpdate={(s) => setScore(s)}
-                onGameOver={handleGameOver}
-                onWaveComplete={handleWaveComplete}
-              />
+              {/* Game Viewport Switcher */}
+              {(launchData.game.slug === '2048-classic' || launchData.game.slug === '2048') ? (
+                <Classic2048
+                  ref={c2048Ref}
+                  initialScore={launchData?.resumption?.score || 0}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={(finalScore, maxTile) => handleGameOver(finalScore, maxTile)}
+                />
+              ) : launchData.game.integrationType === 'AUTHORIZED_IFRAME' ? (
+                <div style={{ width: '100%', height: '540px', position: 'relative' }} id="authorized-iframe-container">
+                  <iframe
+                    src={launchData.launchDestination}
+                    title={launchData.game.title}
+                    style={{ width: '100%', height: '100%', border: 'none', borderRadius: '8px' }}
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                    allow="autoplay; fullscreen"
+                    id="game-runtime-iframe"
+                  />
+                </div>
+              ) : (
+                <CyberInvadersCanvas
+                  ref={canvasRef}
+                  initialWave={launchData?.resumption?.level || 1}
+                  initialScore={launchData?.resumption?.score || 0}
+                  soundEnabled={soundEnabled}
+                  onScoreUpdate={(s) => setScore(s)}
+                  onGameOver={handleGameOver}
+                  onWaveComplete={handleWaveComplete}
+                />
+              )}
 
               {/* In-Game Footer Controls */}
               <div className={styles.footerControls}>

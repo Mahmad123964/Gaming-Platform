@@ -1,0 +1,182 @@
+/* NexusPlay Standalone Self-Hosted 2048 Style */
+/* Copyright (c) 2014 Gabriele Cirulli under MIT License */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0B0F19;
+  color: #F8FAFC;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 16px;
+  user-select: none;
+  touch-action: none;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.title-group h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #ECC94B;
+  letter-spacing: -1px;
+}
+
+.title-group p {
+  font-size: 0.8rem;
+  color: #94A3B8;
+}
+
+.scores {
+  display: flex;
+  gap: 8px;
+}
+
+.score-box {
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 14px;
+  text-align: center;
+  min-width: 70px;
+}
+
+.score-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94A3B8;
+  text-transform: uppercase;
+}
+
+.score-val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.btn-restart {
+  background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.grid-board {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #0F172A;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 10px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+}
+
+.grid-cell {
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.8rem;
+}
+
+.tile-2 { background: #EEE4DA; color: #1E293B; }
+.tile-4 { background: #EDE0C8; color: #1E293B; }
+.tile-8 { background: #F59E0B; color: #FFFFFF; }
+.tile-16 { background: #EA580C; color: #FFFFFF; }
+.tile-32 { background: #E11D48; color: #FFFFFF; }
+.tile-64 { background: #DC2626; color: #FFFFFF; }
+.tile-128 { background: #FBBF24; color: #1E293B; font-size: 1.5rem; }
+.tile-256 { background: #F59E0B; color: #1E293B; font-size: 1.5rem; }
+.tile-512 { background: #10B981; color: #FFFFFF; font-size: 1.5rem; }
+.tile-1024 { background: #06B6D4; color: #FFFFFF; font-size: 1.3rem; }
+.tile-2048 { background: #EC4899; color: #FFFFFF; font-size: 1.3rem; box-shadow: 0 0 24px rgba(236,72,153,0.8); }
+
+.dpad {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.dpad-row {
+  display: flex;
+  gap: 6px;
+}
+
+.dpad-btn {
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  width: 52px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #E2E8F0;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.dpad-btn:active {
+  background: #3B82F6;
+  color: #FFFFFF;
+}
+
+.attribution {
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: #64748B;
+  text-align: center;
+}

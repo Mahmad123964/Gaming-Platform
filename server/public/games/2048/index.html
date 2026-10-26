@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>2048 Classic — NexusPlay Self-Hosted</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    <header class="game-header">
+      <div class="title-group">
+        <h1 id="standalone-title">2048</h1>
+        <p>Classic Open-Source Puzzle</p>
+      </div>
+      <div class="scores">
+        <div class="score-box">
+          <div class="score-label">Score</div>
+          <div class="score-val" id="score-val">0</div>
+        </div>
+        <div class="score-box">
+          <div class="score-label">Best</div>
+          <div class="score-val" id="best-val">0</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="controls-row">
+      <p style="font-size: 0.8rem; color: #94a3b8;">Use arrow keys or touch swipe to merge tiles!</p>
+      <button class="btn-restart" onclick="restart2048()" id="btn-restart-standalone">New Game</button>
+    </div>
+
+    <div class="grid-board" id="board" aria-label="2048 Board"></div>
+
+    <div class="dpad">
+      <button class="dpad-btn" onclick="move2048('UP')" id="btn-up">▲</button>
+      <div class="dpad-row">
+        <button class="dpad-btn" onclick="move2048('LEFT')" id="btn-left">◀</button>
+        <button class="dpad-btn" onclick="move2048('DOWN')" id="btn-down">▼</button>
+        <button class="dpad-btn" onclick="move2048('RIGHT')" id="btn-right">▶</button>
+      </div>
+    </div>
+
+    <footer class="attribution">
+      <strong>2048 Classic</strong> • Created by <strong>Gabriele Cirulli</strong> under the <strong>MIT License</strong>.<br>
+      NexusPlay Authoritative Self-Hosted Game Distribution.
+    </footer>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

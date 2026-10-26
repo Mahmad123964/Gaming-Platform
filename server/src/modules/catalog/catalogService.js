@@ -294,6 +294,7 @@ class GameCatalogService {
         g.region_restrictions_json,
         g.default_currency,
         g.default_price_minor,
+        g.integration_type,
         g.created_at,
         g.updated_at,
         c.id as category_id,
@@ -370,6 +371,7 @@ class GameCatalogService {
         g.region_restrictions_json,
         g.default_currency,
         g.default_price_minor,
+        g.integration_type,
         g.created_at,
         g.updated_at,
         c.id as category_id,
@@ -379,7 +381,7 @@ class GameCatalogService {
       FROM games g
       LEFT JOIN game_categories c ON g.category_id = c.id
       LEFT JOIN licensing_approvals l ON g.id = l.game_id
-      WHERE (g.id = ? OR g.slug = ?) AND g.is_published = 1 AND l.status = 'approved'
+      WHERE (g.id = ? OR g.slug = ?) AND g.is_published = 1 AND l.status IN ('approved', 'LICENSE_APPROVED', 'PUBLISHED', 'INTEGRATION_READY')
     `;
 
     const row = this.db.get(sql, [idOrSlug.trim(), idOrSlug.trim()]);
@@ -466,6 +468,7 @@ class GameCatalogService {
       slug: row.slug,
       description: row.description,
       launchUrl: row.launch_url,
+      integrationType: row.integration_type || 'SELF_HOSTED',
       isPublished: Boolean(row.is_published),
       isPremium: Boolean(row.is_premium),
       minPlayers: row.min_players,

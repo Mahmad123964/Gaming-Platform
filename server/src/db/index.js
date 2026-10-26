@@ -168,6 +168,10 @@ class DatabaseManager {
     try { this.db.exec("ALTER TABLE games ADD COLUMN region_restrictions_json TEXT DEFAULT '[]';"); } catch (e) {}
     try { this.db.exec("ALTER TABLE games ADD COLUMN default_currency TEXT DEFAULT 'USD';"); } catch (e) {}
     try { this.db.exec("ALTER TABLE games ADD COLUMN default_price_minor INTEGER DEFAULT 0;"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN integration_type TEXT NOT NULL DEFAULT 'SELF_HOSTED';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN iframe_sandbox_json TEXT DEFAULT '[\"allow-scripts\",\"allow-same-origin\",\"allow-popups\",\"allow-forms\"]';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN allowed_iframe_hosts_json TEXT DEFAULT '[\"html5.gamedistribution.com\",\"html5games.com\"]';"); } catch (e) {}
+    try { this.db.exec("UPDATE games SET integration_type = 'EXTERNAL_REDIRECT' WHERE commercial_model = 'EXTERNAL_STORE';"); } catch (e) {}
 
     try { this.db.exec("ALTER TABLE licensing_approvals ADD COLUMN rights_type TEXT DEFAULT 'PROPRIETARY_FIRST_PARTY';"); } catch (e) {}
     try { this.db.exec("ALTER TABLE licensing_approvals ADD COLUMN permitted_channels_json TEXT DEFAULT '[\"web_hosted\"]';"); } catch (e) {}

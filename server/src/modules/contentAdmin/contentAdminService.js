@@ -250,6 +250,7 @@ class ContentAdminService {
       SELECT g.id, g.title, g.slug, g.description, g.category_id, g.launch_url,
              g.is_published, g.is_premium, g.min_players, g.max_players, g.supports_bots,
              g.commercial_model, g.external_store_url, g.external_store_name, g.publisher, g.developer, g.content_rating,
+             g.integration_type, g.iframe_sandbox_json, g.allowed_iframe_hosts_json,
              g.created_at, g.updated_at,
              c.id as cat_id, c.name as category_name, c.slug as category_slug,
              l.id as licensing_id, l.status as licensing_status, l.approved_by, l.approved_at, l.notes as licensing_notes,
@@ -281,6 +282,7 @@ class ContentAdminService {
       `SELECT g.id, g.title, g.slug, g.description, g.category_id, g.launch_url,
               g.is_published, g.is_premium, g.min_players, g.max_players, g.supports_bots,
               g.commercial_model, g.external_store_url, g.external_store_name, g.publisher, g.developer, g.content_rating,
+              g.integration_type, g.iframe_sandbox_json, g.allowed_iframe_hosts_json,
               g.created_at, g.updated_at,
               c.id as cat_id, c.name as category_name, c.slug as category_slug,
               l.id as licensing_id, l.status as licensing_status, l.approved_by, l.approved_at, l.notes as licensing_notes,
@@ -323,7 +325,10 @@ class ContentAdminService {
       isPremium = 0,
       minPlayers = 1,
       maxPlayers = 1,
-      supportsBots = 0
+      supportsBots = 0,
+      integrationType = 'SELF_HOSTED',
+      iframeSandbox = ['allow-scripts', 'allow-same-origin', 'allow-popups', 'allow-forms'],
+      allowedIframeHosts = ['html5.gamedistribution.com', 'html5games.com']
     } = payload;
 
     // Check duplicate slug
@@ -353,8 +358,9 @@ class ContentAdminService {
       `INSERT INTO games (
         id, title, slug, description, category_id, launch_url,
         is_published, is_premium, min_players, max_players, supports_bots,
+        integration_type, iframe_sandbox_json, allowed_iframe_hosts_json,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
       [
         gameId,
         title.trim(),
@@ -366,7 +372,10 @@ class ContentAdminService {
         isPremium ? 1 : 0,
         parseInt(minPlayers, 10) || 1,
         parseInt(maxPlayers, 10) || 1,
-        supportsBots ? 1 : 0
+        supportsBots ? 1 : 0,
+        integrationType || 'SELF_HOSTED',
+        typeof iframeSandbox === 'string' ? iframeSandbox : JSON.stringify(iframeSandbox),
+        typeof allowedIframeHosts === 'string' ? allowedIframeHosts : JSON.stringify(allowedIframeHosts)
       ]
     );
 
@@ -421,7 +430,10 @@ class ContentAdminService {
       isPremium,
       minPlayers,
       maxPlayers,
-      supportsBots
+      supportsBots,
+      integrationType,
+      iframeSandbox,
+      allowedIframeHosts
     } = payload;
 
     // Check slug collision if slug provided and different from existing
@@ -456,6 +468,9 @@ class ContentAdminService {
         min_players = ?,
         max_players = ?,
         supports_bots = ?,
+        integration_type = COALESCE(?, integration_type),
+        iframe_sandbox_json = COALESCE(?, iframe_sandbox_json),
+        allowed_iframe_hosts_json = COALESCE(?, allowed_iframe_hosts_json),
         updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
       [
@@ -468,6 +483,9 @@ class ContentAdminService {
         minPlayers !== undefined ? parseInt(minPlayers, 10) : existing.minPlayers,
         maxPlayers !== undefined ? parseInt(maxPlayers, 10) : existing.maxPlayers,
         supportsBots !== undefined ? (supportsBots ? 1 : 0) : (existing.supportsBots ? 1 : 0),
+        integrationType || null,
+        iframeSandbox ? (typeof iframeSandbox === 'string' ? iframeSandbox : JSON.stringify(iframeSandbox)) : null,
+        allowedIframeHosts ? (typeof allowedIframeHosts === 'string' ? allowedIframeHosts : JSON.stringify(allowedIframeHosts)) : null,
         id
       ]
     );
@@ -739,7 +757,11 @@ class ContentAdminService {
           hostname === 'localhost' ||
           hostname === '127.0.0.1' ||
           hostname.endsWith('.nexusgames.net') ||
-          hostname.endsWith('.obsidianarcade.com');
+          hostname.endsWith('.obsidianarcade.com') ||
+          hostname === 'html5.gamedistribution.com' ||
+          hostname.endsWith('.gamedistribution.com') ||
+          hostname === 'html5games.com' ||
+          hostname.endsWith('.html5games.com');
 
         if (!isAllowedHost) {
           return {
@@ -831,6 +853,14 @@ class ContentAdminService {
       }
     }
 
+    // Integration type validation
+    if (payload.integrationType !== undefined && payload.integrationType !== null) {
+      const validTypes = ['SELF_HOSTED', 'AUTHORIZED_IFRAME', 'EXTERNAL_REDIRECT'];
+      if (!validTypes.includes(payload.integrationType)) {
+        errors.integrationType = `Invalid integration type '${payload.integrationType}'. Must be one of: ${validTypes.join(', ')}`;
+      }
+    }
+
     return errors;
   }
 
@@ -843,12 +873,25 @@ class ContentAdminService {
       permittedChannels = row.permitted_channels_json ? JSON.parse(row.permitted_channels_json) : [];
     } catch (_) {}
 
+    let iframeSandbox = ['allow-scripts', 'allow-same-origin', 'allow-popups', 'allow-forms'];
+    try {
+      if (row.iframe_sandbox_json) iframeSandbox = JSON.parse(row.iframe_sandbox_json);
+    } catch (_) {}
+
+    let allowedIframeHosts = ['html5.gamedistribution.com', 'html5games.com'];
+    try {
+      if (row.allowed_iframe_hosts_json) allowedIframeHosts = JSON.parse(row.allowed_iframe_hosts_json);
+    } catch (_) {}
+
     return {
       id: row.id,
       title: row.title,
       slug: row.slug,
       description: row.description,
       launchUrl: row.launch_url,
+      integrationType: row.integration_type || 'SELF_HOSTED',
+      iframeSandbox,
+      allowedIframeHosts,
       isPublished: Boolean(row.is_published),
       isPremium: Boolean(row.is_premium),
       commercialModel: row.commercial_model || (row.is_premium ? 'PAID_ONE_TIME' : 'FREE'),

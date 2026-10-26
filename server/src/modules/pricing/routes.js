@@ -127,7 +127,18 @@ router.post('/refund', requireAuth, (req, res) => {
       }
     }
 
-    const targetPlayerId = playerId || actorId;
+    // Strict Authorization Guard: Non-administrators cannot modify or refund entitlements belonging to other players
+    const isAdmin = req.player?.role === 'admin' || req.user?.role === 'admin';
+    if (playerId && playerId !== actorId && !isAdmin) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        code: 'UNAUTHORIZED_ACCOUNT_CHANGE',
+        message: 'Non-administrators are not authorized to modify or refund entitlements belonging to other accounts.',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const targetPlayerId = (isAdmin && playerId) ? playerId : actorId;
     const result = pricingService.refundGame({
       actorId,
       playerId: targetPlayerId,

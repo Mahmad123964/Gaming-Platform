@@ -38,6 +38,7 @@ class GameLaunchService {
       SELECT g.id, g.title, g.slug, g.description, g.category_id, g.launch_url,
              g.is_published, g.is_premium, g.min_players, g.max_players, g.supports_bots,
              g.commercial_model, g.external_store_url, g.external_store_name, g.region_restrictions_json,
+             g.integration_type, g.iframe_sandbox_json, g.allowed_iframe_hosts_json,
              c.name as category_name, c.slug as category_slug,
              l.status as licensing_status, l.notes as licensing_notes
       FROM games g
@@ -336,6 +337,9 @@ class GameLaunchService {
         description: game.description,
         launchUrl: game.launch_url,
         isPremium: game.is_premium === 1,
+        integrationType: game.integration_type || 'SELF_HOSTED',
+        iframeSandbox: game.iframe_sandbox_json ? JSON.parse(game.iframe_sandbox_json) : ['allow-scripts', 'allow-same-origin', 'allow-popups', 'allow-forms'],
+        allowedIframeHosts: game.allowed_iframe_hosts_json ? JSON.parse(game.allowed_iframe_hosts_json) : ['html5.gamedistribution.com', 'html5games.com'],
         category: {
           id: game.category_id,
           name: game.category_name,

@@ -1,5 +1,5 @@
 {
-  "deploymentId": "rbk-1792988799874",
+  "deploymentId": "rbk-1792992675035",
   "commitSha": "5e122fbea243b2e370c834727bee32b7f40ca5e5",
   "version": "v0.7.0",
   "artifactHash": "9a94c4ac10f898c841a22920b81e3fe228fd8558e1ceb6a8b7729cd1b331bc44",
@@ -7,6 +7,6 @@
   "status": "SUCCESS",
   "isRollback": true,
   "restoredFrom": "dep-lkg-verified",
-  "timestamp": "2026-10-26T04:26:39.874Z",
+  "timestamp": "2026-10-26T05:31:15.035Z",
   "port": 5050
 }

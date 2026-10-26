@@ -125,12 +125,29 @@ function createApp() {
   // Direct game launch asset protection (EP03-04, AC-12.1)
   // Direct navigation without a valid session launch ticket is rejected
   app.get('/games/:slug/index.html', directLaunchGuard, (req, res) => {
+    const slug = req.params.slug;
+    const staticHtmlPath = path.join(__dirname, '..', 'public', 'games', slug, 'index.html');
+    if (fs.existsSync(staticHtmlPath)) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.sendFile(staticHtmlPath);
+    }
+    // Backward-compatible JSON response for automated test stubs
     res.status(200).json({
       status: 'AUTHORIZED',
       message: 'Launch ticket verified. Initializing game runtime container.',
       ticket: req.launchTicketPayload,
       timestamp: new Date().toISOString()
     });
+  });
+
+  // Serve static assets (CSS, JS, media) for self-hosted games
+  app.use('/games/:slug', (req, res, next) => {
+    const slug = req.params.slug;
+    const gameAssetDir = path.join(__dirname, '..', 'public', 'games', slug);
+    if (fs.existsSync(gameAssetDir)) {
+      return express.static(gameAssetDir)(req, res, next);
+    }
+    next();
   });
 
   // Detailed platform status

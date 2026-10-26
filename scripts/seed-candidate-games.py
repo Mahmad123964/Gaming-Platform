@@ -263,7 +263,7 @@ def seed():
     premium_games = ["game-004", "game-005"]
     regional_matrix = [
         {"country": "PK", "currency": "PKR", "minor": 25000, "display": "PKR 250", "min": 20000},
-        {"country": "IN", "currency": "INR", "minor": 15000, "display": "₹150", "min": 10000},
+        {"country": "IN", "currency": "INR", "minor": 14900, "display": "₹149", "min": 10000},
         {"country": "US", "currency": "USD", "minor": 399, "display": "$3.99", "min": 299},
         {"country": "GB", "currency": "GBP", "minor": 299, "display": "£2.99", "min": 249},
         {"country": "CA", "currency": "CAD", "minor": 499, "display": "CAD 4.99", "min": 399},
