@@ -241,3 +241,41 @@ CREATE TABLE IF NOT EXISTS player_achievements (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_game_progress_player_game ON game_progress(player_id, game_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_game_history_session ON game_history(session_id);
 
+-- Task 2, 7 & 9: Global Game Catalog, Regional Pricing & Game Entitlements
+CREATE TABLE IF NOT EXISTS game_regional_prices (
+    id TEXT PRIMARY KEY,
+    game_id TEXT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    country_code TEXT NOT NULL, -- 'PK', 'IN', 'US', 'GB', 'CA', 'EU', etc.
+    currency_code TEXT NOT NULL, -- 'PKR', 'INR', 'USD', 'GBP', 'CAD', 'EUR'
+    price_minor INTEGER NOT NULL, -- in minor units: 25000 for PKR 250.00, 15000 for INR 150.00, 399 for USD 3.99
+    price_display TEXT NOT NULL, -- e.g. 'PKR 250', '₹150', '$3.99', '£2.99', 'CAD 4.99', '€3.49'
+    effective_from DATETIME DEFAULT CURRENT_TIMESTAMP,
+    effective_to DATETIME,
+    tax_inclusive INTEGER NOT NULL DEFAULT 1,
+    publisher_min_minor INTEGER NOT NULL DEFAULT 0,
+    promotional_discount_percent INTEGER NOT NULL DEFAULT 0,
+    refund_period_days INTEGER NOT NULL DEFAULT 14,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(game_id, country_code)
+);
+
+CREATE TABLE IF NOT EXISTS game_entitlements (
+    id TEXT PRIMARY KEY,
+    player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+    game_id TEXT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    entitlement_type TEXT NOT NULL, -- 'OWNED_GAME_LICENSE', 'FREE_ACCESS', 'TIME_LIMITED_ACCESS', 'OPTIONAL_SUBSCRIPTION', 'EXTERNAL_PURCHASE'
+    status TEXT NOT NULL DEFAULT 'ACTIVE', -- 'ACTIVE', 'REFUNDED', 'REVOKED', 'EXPIRED', 'PENDING_PAYMENT'
+    granted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME,
+    payment_ref TEXT,
+    purchase_price_minor INTEGER,
+    currency_code TEXT,
+    billing_country TEXT,
+    source TEXT NOT NULL DEFAULT 'PURCHASE_VERIFIED', -- 'PURCHASE_VERIFIED', 'PROMOTION', 'SUBSCRIPTION_GRANT', 'ADMIN_OVERRIDE'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(player_id, game_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_game_regional_prices_lookup ON game_regional_prices(game_id, country_code);
+CREATE INDEX IF NOT EXISTS idx_game_entitlements_player ON game_entitlements(player_id, game_id, status);
+

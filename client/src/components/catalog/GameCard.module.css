@@ -89,6 +89,25 @@
   box-shadow: 0 0 10px rgba(124, 58, 237, 0.3);
 }
 
+.tierStore {
+  background: rgba(6, 182, 212, 0.2);
+  color: #38BDF8;
+  border: 1px solid rgba(6, 182, 212, 0.45);
+}
+
+.tierPending {
+  background: rgba(156, 163, 175, 0.2);
+  color: #9CA3AF;
+  border: 1px solid rgba(156, 163, 175, 0.4);
+}
+
+.tierPaid {
+  background: rgba(245, 158, 11, 0.2);
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+}
+
 .categoryBadge {
   position: absolute;
   bottom: 10px;

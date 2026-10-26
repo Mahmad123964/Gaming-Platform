@@ -4,12 +4,49 @@ const { validateEmail, validatePassword, validateDisplayName } = require('./vali
 const { authRateLimiter } = require('./rateLimiter');
 const { emailService } = require('./emailService');
 
+const COUNTRY_TO_CURRENCY = {
+  PK: 'PKR',
+  IN: 'INR',
+  US: 'USD',
+  GB: 'GBP',
+  CA: 'CAD',
+  AU: 'AUD',
+  NZ: 'NZD',
+  DE: 'EUR',
+  FR: 'EUR',
+  IT: 'EUR',
+  ES: 'EUR',
+  NL: 'EUR',
+  BE: 'EUR',
+  IE: 'EUR',
+  PT: 'EUR',
+  AT: 'EUR',
+  FI: 'EUR',
+  GR: 'EUR',
+  AE: 'AED',
+  SA: 'SAR',
+  SG: 'SGD',
+  JP: 'JPY',
+  BR: 'BRL',
+  MX: 'MXN'
+};
+
+function resolveCurrencyForCountry(countryCode) {
+  const code = (countryCode || 'US').toUpperCase().trim();
+  return COUNTRY_TO_CURRENCY[code] || 'USD';
+}
+
+function isValidCountryCode(countryCode) {
+  if (!countryCode || typeof countryCode !== 'string') return false;
+  return /^[A-Z]{2}$/.test(countryCode.toUpperCase().trim());
+}
+
 class AuthService {
   constructor(db) {
     this.db = db || getDb();
   }
 
-  register({ email, password, displayName }) {
+  register({ email, password, displayName, country }) {
     // Input validation
     const emailValidation = validateEmail(email);
     if (!emailValidation.valid) {
@@ -35,6 +72,18 @@ class AuthService {
     const cleanEmail = emailValidation.value;
     const cleanDisplayName = displayNameValidation.value;
 
+    let cleanCountry = 'US';
+    if (country) {
+      const upper = country.trim().toUpperCase();
+      if (!isValidCountryCode(upper)) {
+        const err = new Error('Invalid ISO 3166-1 alpha-2 country code');
+        err.status = 400;
+        throw err;
+      }
+      cleanCountry = upper;
+    }
+    const defaultCurrency = resolveCurrencyForCountry(cleanCountry);
+
     // Check duplicate email
     const existing = this.db.get('SELECT id FROM players WHERE email = ?', [cleanEmail]);
     if (existing) {
@@ -47,9 +96,9 @@ class AuthService {
     const passwordHash = hashPassword(password);
 
     this.db.run(
-      `INSERT INTO players (id, email, password_hash, display_name, role, status)
-       VALUES (?, ?, ?, ?, 'player', 'active')`,
-      [playerId, cleanEmail, passwordHash, cleanDisplayName]
+      `INSERT INTO players (id, email, password_hash, display_name, role, status, country, currency_preference)
+       VALUES (?, ?, ?, ?, 'player', 'active', ?, ?)`,
+      [playerId, cleanEmail, passwordHash, cleanDisplayName, cleanCountry, defaultCurrency]
     );
 
     // Create initial 24h session (Session token hashed at rest with SHA-256)
@@ -70,7 +119,9 @@ class AuthService {
         id: playerId,
         email: cleanEmail,
         displayName: cleanDisplayName,
-        role: 'player'
+        role: 'player',
+        country: cleanCountry,
+        currencyPreference: defaultCurrency
       },
       token: rawSessionToken,
       csrfToken,
@@ -103,7 +154,7 @@ class AuthService {
     }
 
     const player = this.db.get(
-      'SELECT id, email, password_hash, display_name, role, status FROM players WHERE email = ?',
+      'SELECT id, email, password_hash, display_name, role, status, country, currency_preference FROM players WHERE email = ?',
       [cleanEmail]
     );
 
@@ -171,7 +222,9 @@ class AuthService {
         id: player.id,
         email: player.email,
         displayName: player.display_name,
-        role: player.role
+        role: player.role,
+        country: player.country || 'US',
+        currencyPreference: player.currency_preference || 'USD'
       },
       token: rawSessionToken,
       csrfToken,
@@ -340,7 +393,7 @@ class AuthService {
 
     const row = this.db.get(
       `SELECT s.id as session_id, s.token, s.csrf_token, s.expires_at, s.revoked,
-              p.id as player_id, p.email, p.display_name, p.role, p.status
+              p.id as player_id, p.email, p.display_name, p.role, p.status, p.country, p.currency_preference
        FROM auth_sessions s
        JOIN players p ON s.player_id = p.id
        WHERE s.token = ?`,
@@ -364,9 +417,35 @@ class AuthService {
       email: row.email,
       displayName: row.display_name,
       role: row.role,
+      country: row.country || 'US',
+      currencyPreference: row.currency_preference || 'USD',
       sessionId: row.session_id,
       rawToken: cleanToken,
       csrfToken: row.csrf_token || deriveCsrfToken(cleanToken)
+    };
+  }
+
+  updateCountryPreference(playerId, countryCode) {
+    if (!playerId) {
+      const err = new Error('Player ID is required');
+      err.status = 400;
+      throw err;
+    }
+    const upper = (countryCode || '').trim().toUpperCase();
+    if (!isValidCountryCode(upper)) {
+      const err = new Error('Invalid ISO 3166-1 alpha-2 country code');
+      err.status = 400;
+      throw err;
+    }
+    const currency = resolveCurrencyForCountry(upper);
+    this.db.run(
+      'UPDATE players SET country = ?, currency_preference = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [upper, currency, playerId]
+    );
+    return {
+      success: true,
+      country: upper,
+      currencyPreference: currency
     };
   }
 }

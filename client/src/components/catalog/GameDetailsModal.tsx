@@ -124,23 +124,85 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
                 {game.category?.name || 'Authorized Title'}
               </span>
             </div>
-            {/* Access Requirement Pill (AC-8.1, AC-8.2) */}
-            <span className={`${styles.tierPill} ${isPremium ? styles.tierPremium : styles.tierFree}`} id="game-access-pill">
-              {isPremium ? 'Obsidian VIP Required' : 'Free to Play'}
+            {/* Commercial Model Pill */}
+            <span 
+              className={styles.tierPill} 
+              id="game-access-pill"
+              style={
+                game.commercialModel === 'EXTERNAL_STORE'
+                  ? { background: 'rgba(6, 182, 212, 0.2)', color: '#38BDF8', border: '1px solid rgba(6, 182, 212, 0.45)' }
+                  : game.commercialModel === 'UNAVAILABLE_PENDING_LICENSE'
+                  ? { background: 'rgba(156, 163, 175, 0.2)', color: '#9CA3AF', border: '1px solid rgba(156, 163, 175, 0.4)' }
+                  : game.commercialModel === 'PAID_ONE_TIME'
+                  ? { background: 'rgba(245, 158, 11, 0.2)', color: '#FBBF24', border: '1px solid rgba(245, 158, 11, 0.5)' }
+                  : isPremium
+                  ? { background: 'rgba(124, 58, 237, 0.25)', color: '#C084FC', border: '1px solid rgba(124, 58, 237, 0.6)' }
+                  : { background: 'rgba(16, 185, 129, 0.2)', color: '#34D399', border: '1px solid rgba(16, 185, 129, 0.4)' }
+              }
+            >
+              {game.commercialModel === 'EXTERNAL_STORE'
+                ? 'Official Store Referral'
+                : game.commercialModel === 'UNAVAILABLE_PENDING_LICENSE'
+                ? 'Pending Rights Clearance'
+                : game.commercialModel === 'PAID_ONE_TIME'
+                ? (game.pricing?.isOwned ? 'Owned License' : `Buy to Play (${game.pricing?.priceDisplay || '$3.99'})`)
+                : (isPremium ? 'Obsidian VIP Required' : 'Free to Play')}
             </span>
           </div>
 
           {/* Description */}
           <p className={styles.desc}>{game.description}</p>
 
-          {/* AC-8.2: Prominent Premium Requirement Banner Before Launch */}
-          {isPremium && (
+          {/* External Store Disclaimer Banner */}
+          {game.commercialModel === 'EXTERNAL_STORE' && (
+            <div style={{ padding: '12px 16px', background: 'rgba(6, 182, 212, 0.08)', border: '1px solid rgba(6, 182, 212, 0.3)', borderRadius: '8px', marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }} id="external-store-notice">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px' }}>
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              <div style={{ fontSize: '0.85rem', color: '#E2E8F0', lineHeight: 1.4 }}>
+                <strong>External Publisher Distribution:</strong> This title is published by <strong>{game.distribution?.publisher || 'Official Publisher'}</strong>. NexusPlay does not host, resell, or process payments for this game. Clicking below will open the official publisher store ({game.distribution?.externalStoreName || 'Official Store'}).
+              </div>
+            </div>
+          )}
+
+          {/* Pending Rights Review Banner */}
+          {game.commercialModel === 'UNAVAILABLE_PENDING_LICENSE' && (
+            <div style={{ padding: '12px 16px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }} id="license-pending-notice">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F87171" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px' }}>
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <div style={{ fontSize: '0.85rem', color: '#E2E8F0', lineHeight: 1.4 }}>
+                <strong>Licensing Review Required:</strong> Commercial rights and distribution agreements for this game are currently under review. Gameplay launch is restricted until authorized by publisher.
+              </div>
+            </div>
+          )}
+
+          {/* AC-8.2: Prominent Premium Requirement Banner Before Launch (Only if legacy subscription-only) */}
+          {isPremium && game.commercialModel !== 'PAID_ONE_TIME' && game.commercialModel !== 'EXTERNAL_STORE' && (
             <div className={styles.premiumRequirementBanner} id="premium-requirement-banner">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C084FC" strokeWidth="2">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
               <div>
                 <strong>Obsidian VIP Subscription Required:</strong> This premium title requires an active subscription entitlement before gameplay launch (AC-8.2).
+              </div>
+            </div>
+          )}
+
+          {/* Direct One-Time Ownership Notice */}
+          {game.commercialModel === 'PAID_ONE_TIME' && !game.pricing?.isOwned && (
+            <div style={{ padding: '12px 16px', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }} id="paid-game-notice">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px' }}>
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <div style={{ fontSize: '0.85rem', color: '#E2E8F0', lineHeight: 1.4 }}>
+                <strong>Direct One-Time Purchase:</strong> Buy once to own lifetime access to this game. Regional price: <strong>{game.pricing?.priceDisplay || '$3.99'}</strong> ({game.pricing?.currency || 'USD'}).
               </div>
             </div>
           )}
@@ -167,9 +229,9 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
             </div>
 
             <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Access Tier</span>
+              <span className={styles.metaLabel}>Commercial Model</span>
               <span className={styles.metaValue} id="spec-access-tier">
-                {game.access.label}
+                {game.commercialModel === 'EXTERNAL_STORE' ? 'External Store' : (game.commercialModel === 'PAID_ONE_TIME' ? 'Paid One-Time' : (game.commercialModel === 'UNAVAILABLE_PENDING_LICENSE' ? 'Pending Rights' : 'Free to Play'))}
               </span>
             </div>
           </div>
@@ -192,18 +254,43 @@ export const GameDetailsModal: React.FC<GameDetailsModalProps> = ({
                 Resume at Wave {savedCheckpoint.level} (AC-24.1)
               </button>
             )}
-            <button
-              className={styles.launchBtn}
-              onClick={() => handleLaunchClick(false)}
-              id="btn-launch-game"
-              aria-describedby={isPremium ? 'premium-requirement-banner' : undefined}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <polygon points="5 3 19 12 5 21 5 3" />
-              </svg>
-              {isPremium ? 'Upgrade to Launch' : (savedCheckpoint ? 'Restart Mission' : 'Launch Game')}
-            </button>
-            {game.maxPlayers >= 2 && onOpenMultiplayer && (
+
+            {/* ACTION BUTTON SWITCH */}
+            {game.commercialModel === 'EXTERNAL_STORE' ? (
+              <a
+                href={game.distribution?.externalStoreUrl || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.launchBtn}
+                id="btn-open-official-store"
+                style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0EA5E9 0%, #00F0FF 100%)', color: '#0B0F19', fontWeight: 800 }}
+              >
+                Open {game.distribution?.externalStoreName || 'Official Store'} ↗
+              </a>
+            ) : game.commercialModel === 'UNAVAILABLE_PENDING_LICENSE' ? (
+              <button
+                disabled
+                className={styles.launchBtn}
+                id="btn-coming-soon"
+                style={{ opacity: 0.5, cursor: 'not-allowed', background: '#374151' }}
+              >
+                Coming Soon (Rights Pending)
+              </button>
+            ) : (
+              <button
+                className={styles.launchBtn}
+                onClick={() => handleLaunchClick(false)}
+                id="btn-launch-game"
+                aria-describedby={isPremium ? 'premium-requirement-banner' : undefined}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                {isPremium ? 'Upgrade to Launch' : (savedCheckpoint ? 'Restart Mission' : 'Launch Game')}
+              </button>
+            )}
+
+            {game.maxPlayers >= 2 && onOpenMultiplayer && game.commercialModel !== 'EXTERNAL_STORE' && game.commercialModel !== 'UNAVAILABLE_PENDING_LICENSE' && (
               <button
                 className={styles.launchBtn}
                 style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #00F0FF 100%)', border: 'none', color: '#0B0F19', fontWeight: 800 }}

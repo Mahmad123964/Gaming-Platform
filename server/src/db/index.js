@@ -156,6 +156,74 @@ class DatabaseManager {
         stmt.run(p.id, p.name, p.price_cents, p.currency, p.interval, p.features_json, p.is_popular);
       }
     } catch (e) {}
+
+    // Business Model, Regional Pricing & Licensing Migrations (Tasks 2, 4, 6, 7, 9)
+    try { this.db.exec("ALTER TABLE games ADD COLUMN commercial_model TEXT NOT NULL DEFAULT 'FREE';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN external_store_url TEXT;"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN external_store_name TEXT;"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN publisher TEXT DEFAULT 'NexusPlay Studios';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN developer TEXT DEFAULT 'NexusPlay Engineering';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN content_rating TEXT DEFAULT 'PEGI-3 / ESRB-E';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN supported_platforms_json TEXT DEFAULT '[\"browser\"]';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN region_restrictions_json TEXT DEFAULT '[]';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN default_currency TEXT DEFAULT 'USD';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE games ADD COLUMN default_price_minor INTEGER DEFAULT 0;"); } catch (e) {}
+
+    try { this.db.exec("ALTER TABLE licensing_approvals ADD COLUMN rights_type TEXT DEFAULT 'PROPRIETARY_FIRST_PARTY';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE licensing_approvals ADD COLUMN permitted_channels_json TEXT DEFAULT '[\"web_hosted\"]';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE licensing_approvals ADD COLUMN commercial_conditions TEXT DEFAULT 'Full free distribution authorized';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE licensing_approvals ADD COLUMN expires_at DATETIME;"); } catch (e) {}
+
+    try { this.db.exec("ALTER TABLE players ADD COLUMN country TEXT DEFAULT 'US';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE players ADD COLUMN currency_preference TEXT DEFAULT 'USD';"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE players ADD COLUMN email_verified INTEGER DEFAULT 0;"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE players ADD COLUMN birth_date DATE;"); } catch (e) {}
+    try { this.db.exec("ALTER TABLE players ADD COLUMN parental_consent_verified INTEGER DEFAULT 0;"); } catch (e) {}
+
+    // Ensure game_regional_prices and game_entitlements exist
+    try {
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS game_regional_prices (
+            id TEXT PRIMARY KEY,
+            game_id TEXT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+            country_code TEXT NOT NULL,
+            currency_code TEXT NOT NULL,
+            price_minor INTEGER NOT NULL,
+            price_display TEXT NOT NULL,
+            effective_from DATETIME DEFAULT CURRENT_TIMESTAMP,
+            effective_to DATETIME,
+            tax_inclusive INTEGER NOT NULL DEFAULT 1,
+            publisher_min_minor INTEGER NOT NULL DEFAULT 0,
+            promotional_discount_percent INTEGER NOT NULL DEFAULT 0,
+            refund_period_days INTEGER NOT NULL DEFAULT 14,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(game_id, country_code)
+        );
+        CREATE TABLE IF NOT EXISTS game_entitlements (
+            id TEXT PRIMARY KEY,
+            player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+            game_id TEXT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+            entitlement_type TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'ACTIVE',
+            granted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            expires_at DATETIME,
+            payment_ref TEXT,
+            purchase_price_minor INTEGER,
+            currency_code TEXT,
+            billing_country TEXT,
+            source TEXT NOT NULL DEFAULT 'PURCHASE_VERIFIED',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(player_id, game_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_game_regional_prices_lookup ON game_regional_prices(game_id, country_code);
+        CREATE INDEX IF NOT EXISTS idx_game_entitlements_player ON game_entitlements(player_id, game_id, status);
+      `);
+    } catch (e) {}
+
+    // Sync commercial models for existing games based on is_premium
+    try {
+      this.db.exec("UPDATE games SET commercial_model = 'PAID_ONE_TIME', default_price_minor = 399, default_currency = 'USD' WHERE is_premium = 1 AND commercial_model = 'FREE';");
+    } catch (e) {}
   }
 
   transaction(fn) {
@@ -185,6 +253,10 @@ class DatabaseManager {
   run(sql, params = []) {
     const stmt = this.db.prepare(sql);
     return stmt.run(...params);
+  }
+
+  exec(sql) {
+    return this.db.exec(sql);
   }
 
   healthCheck() {

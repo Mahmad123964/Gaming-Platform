@@ -10,6 +10,29 @@ interface GameCardProps {
 export const GameCard: React.FC<GameCardProps> = ({ game, onClick }) => {
   const isPremium = game.isPremium;
 
+  const getBadge = () => {
+    const model = game.commercialModel;
+    if (model === 'EXTERNAL_STORE') {
+      return { label: 'Official Store ↗', className: styles.tierStore };
+    }
+    if (model === 'UNAVAILABLE_PENDING_LICENSE') {
+      return { label: 'Coming Soon', className: styles.tierPending };
+    }
+    if (model === 'PAID_ONE_TIME') {
+      const price = game.pricing?.priceDisplay;
+      return { label: price ? `Buy (${price})` : 'Buy to Play', className: styles.tierPaid };
+    }
+    if (model === 'FREE_TO_PLAY_WITH_PURCHASES') {
+      return { label: 'Free (In-App)', className: styles.tierFree };
+    }
+    if (isPremium) {
+      return { label: 'Obsidian VIP', className: styles.tierPremium };
+    }
+    return { label: 'Free to Play', className: styles.tierFree };
+  };
+
+  const badge = getBadge();
+
   return (
     <div
       role="button"
@@ -23,12 +46,12 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onClick }) => {
           onClick(game);
         }
       }}
-      aria-label={`${game.title} - ${game.category?.name || 'Game'} - ${isPremium ? 'Obsidian VIP' : 'Free to Play'}`}
+      aria-label={`${game.title} - ${game.category?.name || 'Game'} - ${badge.label}`}
     >
       <div className={styles.coverContainer}>
-        {/* Tier badge: Free vs Premium */}
-        <span className={`${styles.tierBadge} ${isPremium ? styles.tierPremium : styles.tierFree}`}>
-          {isPremium ? 'Obsidian VIP' : 'Free to Play'}
+        {/* Commercial Model Badge */}
+        <span className={`${styles.tierBadge} ${badge.className}`}>
+          {badge.label}
         </span>
 
         {/* Category tag */}

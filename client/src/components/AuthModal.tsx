@@ -9,6 +9,8 @@ export interface User {
   email: string;
   displayName: string;
   role: string;
+  country?: string;
+  currencyPreference?: string;
 }
 
 interface AuthModalProps {
@@ -30,6 +32,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [country, setCountry] = useState('US');
   const [resetToken, setResetToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
@@ -62,7 +65,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           'Content-Type': 'application/json',
           'X-CSRF-Token': getCsrfToken()
         },
-        body: JSON.stringify({ email, password, displayName }),
+        body: JSON.stringify({ email, password, displayName, country }),
       });
       const data = await res.json();
 
@@ -70,7 +73,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         throw new Error(data.message || 'Registration failed');
       }
 
-      onLog(`Player registered successfully: ${data.data.user.displayName} (${data.data.user.email})`, 'green');
+      onLog(`Player registered successfully: ${data.data.user.displayName} (${data.data.user.email}) [${data.data.user.country || 'US'}]`, 'green');
       onSuccess(data.data.user);
       onClose();
     } catch (err: any) {
@@ -327,6 +330,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 required
               />
               <span className={styles.helperText}>8 to 64 characters, at least 1 letter and 1 number.</span>
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label className={styles.label} htmlFor="regCountry">Country of Residence</label>
+              <select
+                id="regCountry"
+                className={styles.input}
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                style={{ cursor: 'pointer', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+              >
+                <option value="PK">Pakistan (PKR)</option>
+                <option value="IN">India (INR)</option>
+                <option value="US">United States (USD)</option>
+                <option value="GB">United Kingdom (GBP)</option>
+                <option value="CA">Canada (CAD)</option>
+                <option value="DE">Germany / Eurozone (EUR)</option>
+                <option value="FR">France / Eurozone (EUR)</option>
+                <option value="AU">Australia (AUD)</option>
+                <option value="AE">United Arab Emirates (AED)</option>
+                <option value="SA">Saudi Arabia (SAR)</option>
+              </select>
+              <span className={styles.helperText}>Used for regional store pricing and local server routing. No invasive identity documents required for free games.</span>
             </div>
 
             <button type="submit" className={styles.submitBtn} disabled={loading} id="btnSubmitRegister">

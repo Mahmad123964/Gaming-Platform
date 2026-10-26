@@ -162,9 +162,13 @@ adminRouter.patch('/games/:id/publish', (req, res) => {
  */
 adminRouter.put('/games/:id/licensing', (req, res) => {
   try {
-    const { status, notes } = req.body;
+    const { status, notes, rightsType, permittedChannels, commercialConditions, expiresAt } = req.body || {};
     const adminService = getContentAdminService();
-    const result = adminService.setLicensingStatus(req.params.id, { status, notes }, req.admin.id);
+    const result = adminService.setLicensingStatus(
+      req.params.id,
+      { status, notes, rightsType, permittedChannels, commercialConditions, expiresAt },
+      req.admin.id
+    );
     res.status(200).json({
       message: `Licensing status updated to '${status}'.${result.autoUnpublished ? ' Game automatically unpublished due to loss of distribution approval.' : ''}`,
       result,

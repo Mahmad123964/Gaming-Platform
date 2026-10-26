@@ -249,9 +249,11 @@ class ContentAdminService {
     const dataSql = `
       SELECT g.id, g.title, g.slug, g.description, g.category_id, g.launch_url,
              g.is_published, g.is_premium, g.min_players, g.max_players, g.supports_bots,
+             g.commercial_model, g.external_store_url, g.external_store_name, g.publisher, g.developer, g.content_rating,
              g.created_at, g.updated_at,
              c.id as cat_id, c.name as category_name, c.slug as category_slug,
-             l.id as licensing_id, l.status as licensing_status, l.approved_by, l.approved_at, l.notes as licensing_notes
+             l.id as licensing_id, l.status as licensing_status, l.approved_by, l.approved_at, l.notes as licensing_notes,
+             l.rights_type, l.permitted_channels_json, l.commercial_conditions, l.expires_at as licensing_expires_at
       ${baseSql}${whereClause}
       ORDER BY g.updated_at DESC, g.created_at DESC
       LIMIT ? OFFSET ?
@@ -278,9 +280,11 @@ class ContentAdminService {
     const row = this.db.get(
       `SELECT g.id, g.title, g.slug, g.description, g.category_id, g.launch_url,
               g.is_published, g.is_premium, g.min_players, g.max_players, g.supports_bots,
+              g.commercial_model, g.external_store_url, g.external_store_name, g.publisher, g.developer, g.content_rating,
               g.created_at, g.updated_at,
               c.id as cat_id, c.name as category_name, c.slug as category_slug,
-              l.id as licensing_id, l.status as licensing_status, l.approved_by, l.approved_at, l.notes as licensing_notes
+              l.id as licensing_id, l.status as licensing_status, l.approved_by, l.approved_at, l.notes as licensing_notes,
+              l.rights_type, l.permitted_channels_json, l.commercial_conditions, l.expires_at as licensing_expires_at
        FROM games g
        LEFT JOIN game_categories c ON g.category_id = c.id
        LEFT JOIN licensing_approvals l ON g.id = l.game_id
@@ -501,11 +505,17 @@ class ContentAdminService {
     const game = this.getGameById(id);
     const targetStatus = isPublished ? 1 : 0;
 
+    const isLicensingApproved = (s) => {
+      if (!s) return false;
+      const upper = s.toUpperCase();
+      return upper === 'APPROVED' || upper === 'LICENSE_APPROVED' || upper === 'PUBLISHED';
+    };
+
     // AC-37.2: Given a game is not approved for distribution, When publication is attempted, Then publication is blocked
     if (targetStatus === 1) {
-      if (!game.licensing || game.licensing.status !== 'approved') {
+      if (!game.licensing || !isLicensingApproved(game.licensing.status)) {
         const err = new Error(
-          `Publication blocked: Game '${game.title}' cannot be published because its licensing status is '${game.licensing ? game.licensing.status : 'unrecorded'}'. Only games with 'approved' licensing may be published.`
+          `Publication blocked: Game '${game.title}' cannot be published because its licensing status is '${game.licensing ? game.licensing.status : 'unrecorded'}'. Only games with approved licensing may be published.`
         );
         err.status = 422; // Unprocessable Entity
         err.code = 'LICENSING_APPROVAL_REQUIRED';
@@ -518,8 +528,8 @@ class ContentAdminService {
     try {
       if (targetStatus === 1) {
         const checkLic = this.db.get('SELECT status FROM licensing_approvals WHERE game_id = ?', [id]);
-        if (!checkLic || checkLic.status !== 'approved') {
-          const err = new Error(`Publication race blocked: Game licensing status is '${checkLic ? checkLic.status : 'none'}'. Publication requires 'approved' licensing.`);
+        if (!checkLic || !isLicensingApproved(checkLic.status)) {
+          const err = new Error(`Publication race blocked: Game licensing status is '${checkLic ? checkLic.status : 'none'}'. Publication requires approved licensing.`);
           err.status = 422;
           err.code = 'LICENSING_APPROVAL_REQUIRED';
           throw err;
@@ -566,18 +576,25 @@ class ContentAdminService {
    * Enforces atomic transaction consistency and auto-unpublish cascade
    * Traceability: EP10-03, AC-37.1, AC-37.2, AC-37.3, AC-40.1
    */
-  setLicensingStatus(id, { status, notes = '' }, actorId) {
+  setLicensingStatus(id, { status, notes = '', rightsType, permittedChannels, commercialConditions, expiresAt }, actorId) {
     const game = this.getGameById(id);
-    const validStatuses = ['approved', 'pending', 'rejected', 'suspended'];
+    const validStatuses = [
+      'approved', 'pending', 'rejected', 'suspended',
+      'DISCOVERED', 'LICENSE_REVIEW_REQUIRED', 'PERMISSION_REQUESTED',
+      'LICENSE_APPROVED', 'LICENSE_REJECTED', 'LICENSE_EXPIRED',
+      'INTEGRATION_READY', 'PUBLISHED'
+    ];
 
-    if (!status || !validStatuses.includes(status)) {
+    const matchedStatus = validStatuses.find(s => s.toLowerCase() === (status || '').toLowerCase().trim());
+
+    if (!matchedStatus) {
       const err = new Error(`Invalid licensing status '${status}'. Must be one of: ${validStatuses.join(', ')}`);
       err.status = 400;
       throw err;
     }
 
     const previousStatus = game.licensing ? game.licensing.status : 'none';
-    const isApproved = status === 'approved';
+    const isApproved = matchedStatus === 'approved' || matchedStatus === 'LICENSE_APPROVED' || matchedStatus === 'PUBLISHED';
     const approvedBy = isApproved ? (actorId || 'admin') : null;
     const approvedAt = isApproved ? new Date().toISOString() : null;
 
@@ -587,27 +604,33 @@ class ContentAdminService {
     this.db.run('BEGIN IMMEDIATE');
     try {
       const existing = this.db.get('SELECT id FROM licensing_approvals WHERE game_id = ?', [id]);
+      const channelsJson = permittedChannels ? (typeof permittedChannels === 'string' ? permittedChannels : JSON.stringify(permittedChannels)) : null;
+
       if (existing) {
         this.db.run(
           `UPDATE licensing_approvals SET
             status = ?,
             approved_by = ?,
             approved_at = ?,
-            notes = ?
+            notes = ?,
+            rights_type = COALESCE(?, rights_type),
+            permitted_channels_json = COALESCE(?, permitted_channels_json),
+            commercial_conditions = COALESCE(?, commercial_conditions),
+            expires_at = COALESCE(?, expires_at)
            WHERE game_id = ?`,
-          [status, approvedBy, approvedAt, notes ? notes.trim() : null, id]
+          [matchedStatus, approvedBy, approvedAt, notes ? notes.trim() : null, rightsType || null, channelsJson, commercialConditions || null, expiresAt || null, id]
         );
       } else {
         const licensingId = 'lic-' + crypto.randomUUID().slice(0, 8);
         this.db.run(
-          `INSERT INTO licensing_approvals (id, game_id, status, approved_by, approved_at, notes)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-          [licensingId, id, status, approvedBy, approvedAt, notes ? notes.trim() : null]
+          `INSERT INTO licensing_approvals (id, game_id, status, approved_by, approved_at, notes, rights_type, permitted_channels_json, commercial_conditions, expires_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [licensingId, id, matchedStatus, approvedBy, approvedAt, notes ? notes.trim() : null, rightsType || null, channelsJson, commercialConditions || null, expiresAt || null]
         );
       }
 
       // AC-37.3: Given an approved game loses licensing clearance, When the updated status is applied, Then new public launches are prevented (auto unpublish)
-      if (status !== 'approved' && game.isPublished) {
+      if (!isApproved && game.isPublished) {
         this.db.run(
           'UPDATE games SET is_published = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
           [id]
@@ -624,7 +647,7 @@ class ContentAdminService {
           gameId: id,
           title: game.title,
           previousStatus,
-          newStatus: status,
+          newStatus: matchedStatus,
           notes: notes ? notes.trim() : null,
           autoUnpublished
         }
@@ -639,7 +662,7 @@ class ContentAdminService {
     return {
       gameId: id,
       title: game.title,
-      licensingStatus: status,
+      licensingStatus: matchedStatus,
       previousStatus,
       autoUnpublished,
       isPublished: autoUnpublished ? false : game.isPublished,
@@ -815,6 +838,11 @@ class ContentAdminService {
    * Helper: Format internal game representation for admin responses
    */
   formatAdminGame(row) {
+    let permittedChannels = [];
+    try {
+      permittedChannels = row.permitted_channels_json ? JSON.parse(row.permitted_channels_json) : [];
+    } catch (_) {}
+
     return {
       id: row.id,
       title: row.title,
@@ -823,6 +851,12 @@ class ContentAdminService {
       launchUrl: row.launch_url,
       isPublished: Boolean(row.is_published),
       isPremium: Boolean(row.is_premium),
+      commercialModel: row.commercial_model || (row.is_premium ? 'PAID_ONE_TIME' : 'FREE'),
+      externalStoreUrl: row.external_store_url || null,
+      externalStoreName: row.external_store_name || null,
+      publisher: row.publisher || null,
+      developer: row.developer || null,
+      contentRating: row.content_rating || 'Everyone',
       minPlayers: row.min_players,
       maxPlayers: row.max_players,
       supportsBots: Boolean(row.supports_bots),
@@ -836,7 +870,11 @@ class ContentAdminService {
         status: row.licensing_status || 'pending',
         approvedBy: row.approved_by || null,
         approvedAt: row.approved_at || null,
-        notes: row.licensing_notes || null
+        notes: row.licensing_notes || null,
+        rightsType: row.rights_type || null,
+        permittedChannels,
+        commercialConditions: row.commercial_conditions || null,
+        expiresAt: row.licensing_expires_at || null
       },
       createdAt: row.created_at,
       updatedAt: row.updated_at

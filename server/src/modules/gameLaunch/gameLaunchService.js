@@ -37,6 +37,7 @@ class GameLaunchService {
     const sql = `
       SELECT g.id, g.title, g.slug, g.description, g.category_id, g.launch_url,
              g.is_published, g.is_premium, g.min_players, g.max_players, g.supports_bots,
+             g.commercial_model, g.external_store_url, g.external_store_name, g.region_restrictions_json,
              c.name as category_name, c.slug as category_slug,
              l.status as licensing_status, l.notes as licensing_notes
       FROM games g
@@ -65,10 +66,59 @@ class GameLaunchService {
       throw err;
     }
 
+    // 2.1 Commercial Distribution Model Gates (Tasks 2, 4, 5)
+    if (game.commercial_model === 'EXTERNAL_STORE') {
+      const err = new Error(
+        `External Store Title: "${game.title}" is hosted externally on ${game.external_store_name || 'an authorized official platform'} and cannot be launched in the local runtime.`
+      );
+      err.status = 422;
+      err.code = 'EXTERNAL_STORE_REDIRECT';
+      err.details = {
+        externalStoreUrl: game.external_store_url,
+        externalStoreName: game.external_store_name || 'Official Store'
+      };
+      throw err;
+    }
+
+    if (game.commercial_model === 'UNAVAILABLE_PENDING_LICENSE') {
+      const err = new Error(
+        `Launch Blocked: "${game.title}" is pending distribution licensing clearance and cannot be launched.`
+      );
+      err.status = 422;
+      err.code = 'GAME_UNAVAILABLE_PENDING_LICENSE';
+      throw err;
+    }
+
+    // 2.2 Geo-Restriction Gate (Task 5, 7)
+    let regionRestrictions = [];
+    try {
+      regionRestrictions = JSON.parse(game.region_restrictions_json || '[]');
+    } catch (_) {
+      regionRestrictions = [];
+    }
+    const playerCountry = (user && user.country) || 'US';
+    if (regionRestrictions.includes(playerCountry.toUpperCase())) {
+      const err = new Error(
+        `Geo-Restricted: "${game.title}" is not licensed for distribution in your country or region (${playerCountry.toUpperCase()}).`
+      );
+      err.status = 403;
+      err.code = 'GEO_RESTRICTED';
+      err.details = {
+        restrictedCountry: playerCountry.toUpperCase()
+      };
+      throw err;
+    }
+
     // 3. Licensing Gate (Strict Resolution of Legacy Missing Record Behavior)
-    // A game MUST have explicit status = 'approved' in licensing_approvals.
+    // A game MUST have explicit approved status in licensing_approvals.
     // Missing licensing records or non-approved status strictly blocks launch.
-    if (!game.licensing_status || game.licensing_status !== 'approved') {
+    const isApprovedLicensing = (status) => {
+      if (!status) return false;
+      const s = status.toUpperCase();
+      return s === 'APPROVED' || s === 'LICENSE_APPROVED' || s === 'PUBLISHED';
+    };
+
+    if (!game.licensing_status || !isApprovedLicensing(game.licensing_status)) {
       const err = new Error(
         `Launch Blocked: "${game.title}" lacks distribution licensing approval (current status: '${game.licensing_status || 'unrecorded'}'). Distribution clearance is strictly required before launch.`
       );
@@ -92,7 +142,9 @@ class GameLaunchService {
     }
 
     // 5. Access Tier & Entitlement Enforcement (EP03-01, EP08-02, AC-9.2, AC-28.1, AC-28.2, AC-28.3, AC-30.1)
-    if (game.is_premium === 1) {
+    // Free-to-play games and free titles launch without subscription or purchase
+    const isPaid = game.commercial_model === 'PAID_ONE_TIME' || game.is_premium === 1;
+    if (isPaid) {
       if (!user) {
         const err = new Error(
           `Premium Membership Required: "${game.title}" requires an active Nexus Pro or Nexus Ultimate membership. Upgrade your account to launch (AC-28.2, AC-30.1).`
@@ -110,6 +162,24 @@ class GameLaunchService {
 
       // Allow admin role bypass for administrative SRE testing
       if (user.role !== 'admin') {
+        // First check: Does player own a direct game entitlement license? (Task 2 & 9)
+        const ownedEntitlement = this.db.get(
+          `SELECT id, entitlement_type, status, expires_at
+           FROM game_entitlements
+           WHERE player_id = ? AND game_id = ? AND status = 'ACTIVE'`,
+          [user.id, game.id]
+        );
+
+        if (ownedEntitlement) {
+          // Direct game ownership license verified!
+          return {
+            game,
+            compatibility: compat,
+            entitlement: ownedEntitlement
+          };
+        }
+
+        // Second check: Fallback to active subscription entitlement (Sprint 11 EP08-02)
         const sub = this.db.get(
           `SELECT s.id, s.plan_id, s.status, s.current_period_end, p.name as plan_name
            FROM subscriptions s

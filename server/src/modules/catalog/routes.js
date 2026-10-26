@@ -12,7 +12,7 @@ const router = express.Router();
 router.get('/games', (req, res) => {
   try {
     const catalogService = getCatalogService(getDb());
-    const { page, limit, q, search, category, sort } = req.query;
+    const { page, limit, q, search, category, sort, commercialModel, platform, country } = req.query;
 
     const searchQuery = (q !== undefined ? q : search) || '';
 
@@ -21,7 +21,10 @@ router.get('/games', (req, res) => {
       limit,
       search: searchQuery,
       category,
-      sort
+      sort,
+      commercialModel,
+      platform,
+      country: country || (req.player && req.player.country) || 'US'
     });
 
     res.status(200).json({

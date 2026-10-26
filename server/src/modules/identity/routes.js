@@ -42,9 +42,9 @@ function clearAuthCookies(req, res) {
 // POST /api/v1/auth/register (EP01-01)
 router.post('/register', (req, res) => {
   try {
-    const { email, password, displayName } = req.body || {};
+    const { email, password, displayName, country } = req.body || {};
     const authService = getAuthService();
-    const result = authService.register({ email, password, displayName });
+    const result = authService.register({ email, password, displayName, country });
 
     setAuthCookies(req, res, result.token, result.csrfToken);
 
@@ -225,6 +225,27 @@ router.get('/test/outbox', (req, res) => {
     outbox: emailService.getOutbox(),
     timestamp: new Date().toISOString()
   });
+});
+
+// PATCH /api/v1/auth/country (Update country & default currency preference)
+router.patch('/country', requireAuth, (req, res) => {
+  try {
+    const { country } = req.body || {};
+    const authService = getAuthService();
+    const result = authService.updateCountryPreference(req.player.id, country);
+    res.status(200).json({
+      success: true,
+      data: result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    const statusCode = err.status || 500;
+    res.status(statusCode).json({
+      error: statusCode === 400 ? 'Bad Request' : 'Internal Server Error',
+      message: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 module.exports = router;

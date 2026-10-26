@@ -216,7 +216,7 @@ class GameCatalogService {
 
     const conditions = [
       'g.is_published = 1',
-      "l.status = 'approved'"
+      "l.status IN ('approved', 'LICENSE_APPROVED', 'PUBLISHED', 'INTEGRATION_READY')"
     ];
     const params = [];
 
@@ -231,6 +231,23 @@ class GameCatalogService {
     if (category && typeof category === 'string' && category.trim().length > 0 && category.trim() !== 'all') {
       conditions.push('(c.slug = ? OR c.id = ?)');
       params.push(category.trim(), category.trim());
+    }
+
+    // Filter by commercial model (Task 2 & 5: FREE, PAID_ONE_TIME, EXTERNAL_STORE, etc.)
+    if (options.commercialModel && typeof options.commercialModel === 'string' && options.commercialModel.trim().length > 0 && options.commercialModel.trim() !== 'all') {
+      const modelUpper = options.commercialModel.trim().toUpperCase();
+      if (modelUpper === 'FREE') {
+        conditions.push("(g.commercial_model = 'FREE' OR g.commercial_model = 'FREE_TO_PLAY_WITH_PURCHASES' OR (g.commercial_model IS NULL AND g.is_premium = 0))");
+      } else {
+        conditions.push("g.commercial_model = ?");
+        params.push(modelUpper);
+      }
+    }
+
+    // Filter by supported platform (Task 5: browser, mobile, desktop)
+    if (options.platform && typeof options.platform === 'string' && options.platform.trim().length > 0 && options.platform.trim() !== 'all') {
+      conditions.push("g.supported_platforms_json LIKE ?");
+      params.push(`%"${options.platform.trim().toLowerCase()}"%`);
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -267,11 +284,22 @@ class GameCatalogService {
         g.min_players,
         g.max_players,
         g.supports_bots,
+        g.commercial_model,
+        g.external_store_url,
+        g.external_store_name,
+        g.publisher,
+        g.developer,
+        g.content_rating,
+        g.supported_platforms_json,
+        g.region_restrictions_json,
+        g.default_currency,
+        g.default_price_minor,
         g.created_at,
         g.updated_at,
         c.id as category_id,
         c.name as category_name,
-        c.slug as category_slug
+        c.slug as category_slug,
+        l.status as licensing_status
       FROM games g
       LEFT JOIN game_categories c ON g.category_id = c.id
       LEFT JOIN licensing_approvals l ON g.id = l.game_id
@@ -280,7 +308,8 @@ class GameCatalogService {
       LIMIT ? OFFSET ?
     `;
 
-    const games = this.db.query(dataSql, [...params, limit, offset]).map(row => this.formatGameRecord(row));
+    const userCountry = options.country || 'US';
+    const games = this.db.query(dataSql, [...params, limit, offset]).map(row => this.formatGameRecord(row, userCountry));
 
     return {
       games,
@@ -316,7 +345,7 @@ class GameCatalogService {
    * Retrieve single game details by ID or slug.
    * If the game is unpublished (is_published = 0) or does not exist, returns null (AC-8.3).
    */
-  getPublishedGameByIdOrSlug(idOrSlug) {
+  getPublishedGameByIdOrSlug(idOrSlug, userCountry = 'US') {
     if (!idOrSlug || typeof idOrSlug !== 'string') return null;
 
     const sql = `
@@ -331,11 +360,22 @@ class GameCatalogService {
         g.min_players,
         g.max_players,
         g.supports_bots,
+        g.commercial_model,
+        g.external_store_url,
+        g.external_store_name,
+        g.publisher,
+        g.developer,
+        g.content_rating,
+        g.supported_platforms_json,
+        g.region_restrictions_json,
+        g.default_currency,
+        g.default_price_minor,
         g.created_at,
         g.updated_at,
         c.id as category_id,
         c.name as category_name,
-        c.slug as category_slug
+        c.slug as category_slug,
+        l.status as licensing_status
       FROM games g
       LEFT JOIN game_categories c ON g.category_id = c.id
       LEFT JOIN licensing_approvals l ON g.id = l.game_id
@@ -345,13 +385,81 @@ class GameCatalogService {
     const row = this.db.get(sql, [idOrSlug.trim(), idOrSlug.trim()]);
     if (!row) return null;
 
-    return this.formatGameRecord(row);
+    return this.formatGameRecord(row, userCountry);
   }
 
   /**
    * Formats a raw database row into the standard API DTO.
    */
-  formatGameRecord(row) {
+  formatGameRecord(row, userCountry = 'US') {
+    const commercialModel = row.commercial_model || (row.is_premium ? 'PAID_ONE_TIME' : 'FREE');
+    const isFree = commercialModel === 'FREE' || commercialModel === 'FREE_TO_PLAY_WITH_PURCHASES' || (!row.commercial_model && !row.is_premium);
+
+    let regionRestrictions = [];
+    try {
+      regionRestrictions = JSON.parse(row.region_restrictions_json || '[]');
+    } catch (_) {
+      regionRestrictions = [];
+    }
+    const isRegionRestricted = userCountry ? regionRestrictions.includes(userCountry.toUpperCase()) : false;
+
+    const isApprovedLicensing = (status) => {
+      if (!status) return false;
+      const s = status.toUpperCase();
+      return s === 'APPROVED' || s === 'LICENSE_APPROVED' || s === 'PUBLISHED' || s === 'INTEGRATION_READY';
+    };
+
+    let actionState = 'PLAY_NOW';
+    if (!row.is_published || (row.licensing_status && !isApprovedLicensing(row.licensing_status))) {
+      actionState = 'COMING_SOON';
+    } else if (isRegionRestricted) {
+      actionState = 'NOT_AVAILABLE_IN_YOUR_REGION';
+    } else if (commercialModel === 'EXTERNAL_STORE') {
+      actionState = 'OPEN_OFFICIAL_STORE';
+    } else if (commercialModel === 'UNAVAILABLE_PENDING_LICENSE') {
+      actionState = 'COMING_SOON';
+    } else if (commercialModel === 'PAID_ONE_TIME') {
+      actionState = 'PURCHASE';
+    } else {
+      actionState = 'PLAY_NOW';
+    }
+
+    let platforms = ['browser'];
+    try {
+      platforms = JSON.parse(row.supported_platforms_json || '["browser"]');
+    } catch (_) {
+      platforms = ['browser'];
+    }
+
+    let priceMinor = row.default_price_minor || 0;
+    let currency = row.default_currency || 'USD';
+    let priceDisplay = isFree ? 'Free to Play' : `$${(priceMinor / 100).toFixed(2)}`;
+
+    if (commercialModel === 'PAID_ONE_TIME') {
+      const targetCountry = (userCountry || 'US').toUpperCase();
+      let regPrice = this.db.get(
+        'SELECT price_minor, currency_code, price_display FROM game_regional_prices WHERE game_id = ? AND country_code = ?',
+        [row.id, targetCountry]
+      );
+      if (!regPrice && ['DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'IE', 'PT', 'FI', 'GR'].includes(targetCountry)) {
+        regPrice = this.db.get(
+          'SELECT price_minor, currency_code, price_display FROM game_regional_prices WHERE game_id = ? AND country_code = "EU"',
+          [row.id]
+        );
+      }
+      if (!regPrice) {
+        regPrice = this.db.get(
+          'SELECT price_minor, currency_code, price_display FROM game_regional_prices WHERE game_id = ? AND country_code = "US"',
+          [row.id]
+        );
+      }
+      if (regPrice) {
+        priceMinor = regPrice.price_minor;
+        currency = regPrice.currency_code;
+        priceDisplay = regPrice.price_display;
+      }
+    }
+
     return {
       id: row.id,
       title: row.title,
@@ -363,6 +471,9 @@ class GameCatalogService {
       minPlayers: row.min_players,
       maxPlayers: row.max_players,
       supportsBots: Boolean(row.supports_bots),
+      commercialModel,
+      isFree,
+      actionState,
       category: row.category_id ? {
         id: row.category_id,
         name: row.category_name,
@@ -373,10 +484,30 @@ class GameCatalogService {
         label: row.max_players > 1 ? `${row.min_players}–${row.max_players} Players` : 'Single Player',
         supportsBots: Boolean(row.supports_bots)
       },
+      distribution: {
+        publisher: row.publisher || 'NexusPlay Studios',
+        developer: row.developer || 'NexusPlay Engineering',
+        contentRating: row.content_rating || 'PEGI-3 / ESRB-E',
+        platforms,
+        externalStoreUrl: row.external_store_url || null,
+        externalStoreName: row.external_store_name || null,
+        isRegionRestricted
+      },
+      pricing: {
+        country: (userCountry || 'US').toUpperCase(),
+        currency,
+        priceMinor,
+        priceDisplay,
+        isFree,
+        defaultCurrency: row.default_currency || 'USD',
+        defaultPriceMinor: row.default_price_minor || 0
+      },
       access: {
         tier: row.is_premium ? 'premium' : 'free',
         label: row.is_premium ? 'Obsidian VIP Required' : 'Free to Play',
-        requiresSubscription: Boolean(row.is_premium)
+        requiresSubscription: Boolean(row.is_premium),
+        commercialModel,
+        actionState
       },
       createdAt: row.created_at,
       updatedAt: row.updated_at

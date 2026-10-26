@@ -117,6 +117,11 @@ function createApp() {
   const { subscriptionRouter } = require('./modules/subscriptions');
   app.use('/api/v1/subscriptions', subscriptionRouter);
 
+  // Mount Regional Pricing & Game Store routes (Task 2, 7, 9)
+  const pricingRouter = require('./modules/pricing/routes');
+  app.use('/api/v1/pricing', pricingRouter);
+  app.use('/api/v1/store', pricingRouter);
+
   // Direct game launch asset protection (EP03-04, AC-12.1)
   // Direct navigation without a valid session launch ticket is rejected
   app.get('/games/:slug/index.html', directLaunchGuard, (req, res) => {

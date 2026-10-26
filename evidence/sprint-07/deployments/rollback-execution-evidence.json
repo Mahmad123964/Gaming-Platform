@@ -1,6 +1,6 @@
 {
-  "rollbackId": "rbk-1792956845958",
-  "timestamp": "2026-10-25T19:34:05.958Z",
+  "rollbackId": "rbk-1792988799874",
+  "timestamp": "2026-10-26T04:26:39.874Z",
   "environment": "staging",
   "targetCommitSha": "5e122fbea243b2e370c834727bee32b7f40ca5e5",
   "targetVersion": "v0.7.0",
@@ -11,13 +11,13 @@
   "physicalFilesRestored": true,
   "dataIntegrityVerified": true,
   "dbStats": {
-    "playerCount": 498,
-    "gameCount": 15,
-    "auditCount": 1927
+    "playerCount": 568,
+    "gameCount": 34,
+    "auditCount": 2146
   },
   "simulatedFailure": true,
   "runbook": "/docs/runbooks/Staging-Deployment-and-Rollback-Runbook.md",
-  "durationMs": 42,
+  "durationMs": 26,
   "status": "FAILED",
   "failureReason": "SIMULATED_PROBE_FAILURE: Subsystem health check aborted during recovery",
   "escalationGuidance": {
