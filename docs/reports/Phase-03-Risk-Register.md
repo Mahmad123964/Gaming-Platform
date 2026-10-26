@@ -177,6 +177,17 @@ NexusPlay has reached the milestone of 100 genuinely playable, certified browser
    - Real-device field testing and telemetry monitoring.
    - Comprehensive automated incident response and database backup/restore drills.
 
+---
+
+## 12. Critical Quality Incident & Recovery Gate (`INC-2026-10-CRICKET-01`)
+
+| Risk ID | Category | Risk Description | Initial Severity | Mitigation Implemented | Residual Severity | Monitoring Mechanism |
+|:---|:---|:---|:---|:---|:---|:---|
+| **RSK-INC-01** | Quality Gap | Automated test suites passing 100% while actual human gameplay in Cricket Super Over exhibits 10 severe defects. | CRITICAL | Immediate platform freeze on branch `recovery/m35-quality-incident-cricket`. Delivered complete re-engineered Recovery Prototype for Cricket Super Over with AI bowling loop, automated dot/wide ball completion, 2.5D graphics, Web Audio API sound, and full match overlay. Gap analysis completed to upgrade testing from shallow mounting to full match simulation. | MEDIUM | `docs/reports/Previous-QA-Certification-Gap-Analysis.md` & `test-cricket-recovery.js` |
+| **RSK-INC-02** | Catalog Debt | Disparity between discrete classical games (high quality) and complex physics/sports titles (buttonized macros). | HIGH | Conducted 10-game representative audit (`Representative-10-Game-Quality-Audit.md`). Identified 30–40% of catalog needing ergonomic rework. Submitted strategic Feasibility Assessment recommending catalog scope consolidation (Option B: 50–60 curated high-quality games) over quantity vanity metrics. | MEDIUM | `docs/reports/NexusPlay-Recovery-Go-No-Go-Assessment.md` |
+| **RSK-INC-03** | Gate Governance | Prematurely advancing to Version 1.0 product hardening or claiming 100-game production readiness without PO sign-off. | CRITICAL | Strict recovery gate enforced: all forward modernization halted. Recovery prototype marked **PENDING HUMAN UAT**. Next steps blocked until Product Owner executes `Product-Owner-Manual-UAT-Checklist.md` and grants formal approval. | LOW | Product Owner Manual UAT Sign-Off Gate |
+
+
 
 
 

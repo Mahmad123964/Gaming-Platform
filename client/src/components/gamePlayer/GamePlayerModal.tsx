@@ -1186,6 +1186,7 @@ export const GamePlayerModal: React.FC<GamePlayerModalProps> = ({
                   initialScore={launchData?.resumption?.score || 0}
                   onScoreUpdate={(s) => setScore(s)}
                   onGameOver={(finalScore) => handleGameOver(finalScore, 1)}
+                  soundEnabled={soundEnabled}
                 />
               ) : (launchData.game.slug === 'football-penalty-tournament') ? (
                 <FootballPenaltyTournament
